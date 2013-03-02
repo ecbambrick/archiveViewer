@@ -23,11 +23,3 @@ HEADERS  += mainwindow.h \
     archivedimagelist.h
 
 FORMS    += mainwindow.ui
-
-INCLUDEPATH += \
-    7z992
-
-OTHER_FILES += \
-    notes.txt
-
-RESOURCES +=

@@ -4,3 +4,4 @@ del/*
 *.txt
 *.bkup
 *.user
+*.stackdump
