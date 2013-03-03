@@ -38,18 +38,21 @@ public:
     explicit Archiver(QObject *parent = 0);
     ~Archiver();
 
-    // extract archive contents
+    // Archive commands
     bool e(QString source, QString destination, QString fileName);
     bool e(QString source, QString destination);
     bool x(QString source, QString destination, QString fileName);
     bool x(QString source, QString destination);
-
-    // list contents of archive
     QStringList l(QString source);
 
+    // Settings/Getters
+    QString program();
+
 private:
+    QString getProgram();
+
     QProcess *_process;
-    QString _exePath;
+    QString _program;
     
 };
 

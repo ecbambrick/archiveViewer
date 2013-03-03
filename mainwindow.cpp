@@ -123,7 +123,7 @@ void MainWindow::saveSettings(const QString &path)
 */
 void MainWindow::updateLabel()
 {
-    if (_imageList == NULL) return;
+    if (_imageList == NULL || _imageList->empty()) return;
 
     Image *image = _imageList->at(_index);
     QString title = _imageList->listName() + "/";
@@ -160,14 +160,15 @@ void MainWindow::updateLabel()
 */
 void MainWindow::open()
 {
-    // Open File Dialog
-    QString selectedFile = QFileDialog::getOpenFileName(
-                this,
-                "Open File",
-                _defaultDir,
-                "Junk (*.jpg *.jpeg *.png *.gif *.cbz)");
+    // Set file filters
+    QString filter = "Images and Archives (*.jpg *.jpeg *.png *.gif *.cbz)";
+    if (_archiver->program() != NULL) {
+        filter.insert(filter.size()-1, " *.cbz *.cbr *.cb7 *.zip *.rar *.7z");
+    }
 
-    // No image selected
+    // Open File
+    QString selectedFile = QFileDialog::getOpenFileName(
+                this, "Open File", _defaultDir, filter);
     if (selectedFile != NULL) loadFile(selectedFile);
 }
 
@@ -176,24 +177,34 @@ void MainWindow::open()
 */
 void MainWindow::loadFile(const QString &path)
 {
-
     QFileInfo file(path);
-    if (!file.exists()) return;
 
-    _defaultDir = file.absolutePath();
-    delete _imageList;
+    QRegExp imageExtensions = QRegExp("^.*\\.(png|gif|jpeg|jpg)$");
+    QRegExp archiveExtensions = QRegExp("^.*\\.(cbz|cbr|cb7|zip|rar|7z)$");
+    imageExtensions.setCaseSensitivity(Qt::CaseInsensitive);
+    archiveExtensions.setCaseSensitivity(Qt::CaseInsensitive);
 
-    // Archive selected
-    if (path.contains(QRegExp("^.*\\.(png|gif|jpeg|jpg)$"))) {
-        qDebug() << "opened image";
-        _imageList = new DirectoryImageList(path);
+    bool isImage = path.contains(imageExtensions);
+    bool isArchive = path.contains(archiveExtensions);
 
-    // Image selected
-    } else if (path.contains(QRegExp("^.*\\.(cbz)$"))) {
-        qDebug("opened archive");
-        _imageList = new ArchivedImageList(_archiver, path);
+    // Validation
+    if ((isArchive && _archiver->program() == NULL)) {
+        qDebug() << "attempted to open archive without driver";
+        return;
+    }
+    if (!isArchive && !isImage) {
+        qDebug() << "attempted to open invalid file;";
+        return;
+    }
+    if (!file.exists()) {
+        qDebug() << "attempted to open non-existent file;";
+        return;
     }
 
+    delete _imageList;
+    if (isImage) _imageList = new DirectoryImageList(path);
+    else if (isArchive) _imageList = new ArchivedImageList(_archiver, path);
+    _defaultDir = file.absolutePath();
     _index = _imageList->open();
     _lastOpenedFile = path;
     updateLabel();
@@ -204,7 +215,7 @@ void MainWindow::loadFile(const QString &path)
 */
 void MainWindow::filter()
 {
-    if (_imageList->size() == 0) return;
+    if (_imageList == NULL || _imageList->empty()) return;
 
     Image *image;
     QStringList tokens;
@@ -257,15 +268,20 @@ void MainWindow::filter()
 */
 void MainWindow::goTo(int index)
 {
-    _index = index;
-    if (_imageList->size() > _index) {
-        if (!_imageList->at(_index)->active) {
-            next();
-        } else {
-            qDebug() << _index;
-            updateLabel();
-        }
+    if (_imageList == NULL || _imageList->empty()) return;
+
+    // index out of range
+    if (index >= _imageList->size()) {
+        index = _imageList->size()-1;
     }
+
+    _index = index;
+    if (_imageList->at(_index)->active) {
+        updateLabel();
+    } else {
+        next();
+    }
+
 }
 
 /**
@@ -273,7 +289,7 @@ void MainWindow::goTo(int index)
 */
 void MainWindow::next()
 {
-    if (_imageList == NULL) return;
+    if (_imageList == NULL || _imageList->empty()) return;
     for(int i=0; i<_imageList->size(); i++) {
         _index = (_index + 1) % _imageList->size();
         if (_imageList->at(_index)->active) break;
@@ -286,7 +302,7 @@ void MainWindow::next()
 */
 void MainWindow::previous()
 {
-    if (_imageList == NULL) return;
+    if (_imageList == NULL || _imageList->empty()) return;
     for(int i=0; i<_imageList->size(); i++) {
         int size = _imageList->size() - 1;
         _index = _index - 1;
@@ -301,7 +317,7 @@ void MainWindow::previous()
 */
 void MainWindow::random()
 {
-    if (_imageList == NULL) return;
+    if (_imageList == NULL || _imageList->empty()) return;
     QList<int> activeList;
     for(int i=0; i<_imageList->size(); i++) {
         if (_imageList->at(i)->active && i != _index) {

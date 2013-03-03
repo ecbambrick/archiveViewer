@@ -53,7 +53,7 @@ ArchivedImageList::ArchivedImageList(Archiver *archiver, const QString &path)
 int ArchivedImageList::open()
 {
     for (int i = 0; i < this->size(); ++i) {
-        _archiver->e(_archivePath, _extractPath, this->at(i)->name);
+        _archiver->x(_archivePath, _extractPath, this->at(i)->name);
         this->at(i)->active = true;
     }
     return 0;
@@ -110,7 +110,7 @@ void ArchivedImageList::removeDir(const QString &path)
             QFile::remove(info.absoluteFilePath());
         }
     }
-    dir.rmdir(_extractPath);
+    dir.rmdir(path);
 }
 
 /* Settings/Getters --------------------------------------------------------- */
