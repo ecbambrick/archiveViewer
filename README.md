@@ -1,8 +1,18 @@
 Archive Viewer v0.1b
-====================
+================================================================================
 Application for viewing images from directories and archives.
-requires Qt to build (http://qt-project.org/)
 
-Third Party Libraries or Files:
--------------------------------------------
-* 7zip.exe (http://www.7-zip.org/)
+Building
+--------------------------------------------------------------------------------
+Requires qmake to build (http://qt-project.org/)
+
+1. run qmake in the directory
+2. run make
+
+Reading from Archives
+--------------------------------------------------------------------------------
+Requires 7-Zip to open archives (http://www.7-zip.org/).
+7z.exe is included for use on Windows. 7-Zip must be installed on Linux.
+7-Zip is licensed under the GNU LGPL license.
+
+Compatibility with unzip and unrar will be added at a later time.
