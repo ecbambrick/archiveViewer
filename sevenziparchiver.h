@@ -20,30 +20,41 @@
 
     Archiver:
     Class for managing an external archiving tool. Handles reading and
-    extracting files from an archive.
+    extracting files from an archive. Uses 7zip.
 
 *******************************************************************************/
 
-#ifndef ARCHIVER_H
-#define ARCHIVER_H
+#ifndef SEVENZIPARCHIVER_H
+#define SEVENZIPARCHIVER_H
 
 #include <QObject>
 #include <QProcess>
+#include <archiver.h>
 
-class Archiver : public QObject
+class SevenZipArchiver : public Archiver
 {
     Q_OBJECT
 
 public:
+    explicit SevenZipArchiver(QObject *parent = 0);
+    ~SevenZipArchiver();
+
     // Archive commands
-    virtual bool e(QString source, QString destination, QString fileName) = 0;
-    virtual bool e(QString source, QString destination) = 0;
-    virtual bool x(QString source, QString destination, QString fileName) = 0;
-    virtual bool x(QString source, QString destination) = 0;
-    virtual QStringList l(QString source) = 0;
+    bool e(QString source, QString destination, QString fileName);
+    bool e(QString source, QString destination);
+    bool x(QString source, QString destination, QString fileName);
+    bool x(QString source, QString destination);
+    QStringList l(QString source);
 
     // Settings/Getters
-    virtual QString program() = 0;
+    QString program();
+
+private:
+    QString getProgram();
+
+    QProcess *_process;
+    QString _program;
+    
 };
 
-#endif // ARCHIVER_H
+#endif // SEVENZIPARCHIVER_H

@@ -9,17 +9,17 @@ QT       += core gui
 TARGET = archiveViewer
 TEMPLATE = app
 
-
 SOURCES += main.cpp\
         mainwindow.cpp \
-    archiver.cpp \
     directoryimagelist.cpp \
-    archivedimagelist.cpp
+    archivedimagelist.cpp \
+    sevenziparchiver.cpp
 
 HEADERS  += mainwindow.h \
-    archiver.h \
     imagelist.h \
     directoryimagelist.h \
-    archivedimagelist.h
+    archivedimagelist.h \
+    sevenziparchiver.h \
+    archiver.h
 
 FORMS    += mainwindow.ui

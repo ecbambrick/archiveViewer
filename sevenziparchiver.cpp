@@ -18,24 +18,23 @@
 
 *******************************************************************************/
 
-#include "archiver.h"
+#include "SevenZipArchiver.h"
 #include <QDebug>
 #include <QCoreApplication>
 
 /**
     TODO: figure out a better way to access 7z.exe
 */
-Archiver::Archiver(QObject *parent) : QObject(parent)
+SevenZipArchiver::SevenZipArchiver(QObject *parent)
 {
     _process = new QProcess(parent);
     _program = getProgram();
 }
 
-
 /**
     Returns the system archiving program if it exists
 */
-QString Archiver::getProgram()
+QString SevenZipArchiver::getProgram()
 {
     int success;
 
@@ -56,7 +55,7 @@ QString Archiver::getProgram()
 /**
     Get the list of files in the archive
 */
-QStringList Archiver::l(QString source)
+QStringList SevenZipArchiver::l(QString source)
 {
     QStringList args;
     QStringList output;
@@ -94,7 +93,7 @@ QStringList Archiver::l(QString source)
     Extract a single file from the archive to a destination folder,
     ignoring the file structure of the archive
 */
-bool Archiver::e(QString source, QString destination, QString fileName)
+bool SevenZipArchiver::e(QString source, QString destination, QString fileName)
 {
     QStringList parameters;
     int exitCode = 1;
@@ -111,7 +110,7 @@ bool Archiver::e(QString source, QString destination, QString fileName)
 /**
     Extract the entire archive to a destination folder, ignoring file structure
 */
-bool Archiver::e(QString source, QString destination)
+bool SevenZipArchiver::e(QString source, QString destination)
 {
     QStringList parameters;
     int exitCode;
@@ -130,7 +129,7 @@ bool Archiver::e(QString source, QString destination)
     Extract a single file from the archive to a destination folder,
     keeping the file structure of the archive
 */
-bool Archiver::x(QString source, QString destination, QString fileName)
+bool SevenZipArchiver::x(QString source, QString destination, QString fileName)
 {
     QStringList parameters;
     int exitCode;
@@ -148,7 +147,7 @@ bool Archiver::x(QString source, QString destination, QString fileName)
 /**
     Extract the entire archive to a destination folder, keeping file structure
 */
-bool Archiver::x(QString source, QString destination)
+bool SevenZipArchiver::x(QString source, QString destination)
 {
     QStringList parameters;
     int exitCode;
@@ -164,11 +163,11 @@ bool Archiver::x(QString source, QString destination)
 
 /* Event Functions ---------------------------------------------------------- */
 
-Archiver::~Archiver()
+SevenZipArchiver::~SevenZipArchiver()
 {
     delete _process;
 }
 
 /* Settings/Getters --------------------------------------------------------- */
 
-QString Archiver::program() { return _program; }
+QString SevenZipArchiver::program() { return _program; }

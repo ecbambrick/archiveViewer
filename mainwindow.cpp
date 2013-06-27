@@ -33,12 +33,12 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent), _ui(new Ui::MainWindow)
-{
+{    
     // Create temporary directory if one doesn't exist
     QDir tempDir(QDir::tempPath()+"/archiveViewer");
     if (!tempDir.exists()) tempDir.mkpath(".");
 
-    _archiver = new Archiver(this);
+    _archiver = new SevenZipArchiver(this);
     _imageList = NULL;
     _pixmap = NULL;
     _animation = NULL;

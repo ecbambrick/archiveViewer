@@ -29,7 +29,7 @@
 #include <QMainWindow>
 #include <QPixmap>
 #include <QLineEdit>
-#include <archiver.h>
+#include <sevenziparchiver.h>
 #include <imagelist.h>
 #include <archivedimagelist.h>
 #include <directoryimagelist.h>
