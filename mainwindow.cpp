@@ -44,11 +44,21 @@ MainWindow::MainWindow(QWidget *parent) :
     _imageList = NULL;
     _pixmap = NULL;
     _animation = NULL;
-    _settingsPath = "settings.ini";
+    _settingsPath = QCoreApplication::applicationDirPath() + "/settings.ini";
 
     // some of loadSettings should go before initUI
     initUI();
     loadSettings(_settingsPath);
+
+    QStringList args = QCoreApplication::arguments();
+    if (args.size() == 2 && args.at(1) != "") {
+        loadFile(args.at(1));
+    }
+    else if (_lastOpenedFile != "") {
+        int tempIndex = _index;
+        loadFile(_lastOpenedFile);
+        goTo(tempIndex);
+    }
 }
 
 /**
@@ -89,18 +99,14 @@ void MainWindow::loadSettings(const QString &path)
     QByteArray geometry = settings.value("window_geometry", saveGeometry()).toByteArray();
     QPoint point = settings.value("window_pos", this->pos()).toPoint();
     bool isMax = settings.value("window_maximized", isMaximized()).toBool();
-    int index = settings.value("last_index", 0).toInt();
     _defaultDir = settings.value("default_directory", "").toString();
     _lastOpenedFile = settings.value("last_file", "").toString();
+    _index = settings.value("last_index", 0).toInt();
 
     // Apply settings
     restoreGeometry(geometry);
     move(point);
     if (isMax) showMaximized();
-    if (_lastOpenedFile != "") {
-        loadFile(_lastOpenedFile);
-        goTo(index);
-    }
 }
 
 /**
