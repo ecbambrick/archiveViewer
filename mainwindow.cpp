@@ -33,7 +33,9 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent), _ui(new Ui::MainWindow)
-{    
+{
+    this->setWindowIcon(QIcon(":/icons/icon.ico"));
+
     // Create temporary directory if one doesn't exist
     QDir tempDir(QDir::tempPath()+"/archiveViewer");
     if (!tempDir.exists()) tempDir.mkpath(".");

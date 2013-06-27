@@ -8,6 +8,7 @@ QT       += core gui
 
 TARGET = archiveViewer
 TEMPLATE = app
+RC_FILE = app.rc
 
 SOURCES += main.cpp\
         mainwindow.cpp \
@@ -23,3 +24,6 @@ HEADERS  += mainwindow.h \
     archiver.h
 
 FORMS    += mainwindow.ui
+
+RESOURCES += \
+    resources.qrc
