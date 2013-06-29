@@ -28,6 +28,7 @@
 
 #include <archiver.h>
 #include <imagelist.h>
+#include <QFutureWatcher.h>
 
 class ArchivedImageList : public ImageList
 {
@@ -45,6 +46,7 @@ public:
 private:
     void removeDir(const QString &path);
 
+    QFutureWatcher<void> *watcher;
     Archiver *_archiver;
     QString _timeStamp;
     QString _archivePath;

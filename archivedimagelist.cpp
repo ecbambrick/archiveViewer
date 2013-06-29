@@ -23,6 +23,34 @@
 #include <QDateTime>
 #include <QMessageBox>
 #include <QDebug>
+#include <QtConcurrentRun>
+
+/* -------------------------------------------------------------------------- */
+
+/**
+    Extract files from archiver in seperate thread
+*/
+void callExtraction(
+        ArchivedImageList *list,
+        Archiver *archiver,
+        QString destination,
+        QString archivePath,
+        QFutureWatcher<void> *watcher)
+{
+    for (int i = 0; i < list->size(); i++) {
+        if (!watcher->isCanceled()) {
+            Image *image = list->at(i);
+            // extract file
+            archiver->e(archivePath, destination, image->name);
+            // update image object
+            image->active = true;
+            image->exists = true;
+        }
+    }
+}
+
+
+/* -------------------------------------------------------------------------- */
 
 ArchivedImageList::ArchivedImageList(Archiver *archiver, const QString &path)
 {
@@ -32,6 +60,7 @@ ArchivedImageList::ArchivedImageList(Archiver *archiver, const QString &path)
     _extractPath = QDir::tempPath()+"/archiveViewer/"+_timeStamp;
     _archivePath = path;
     _archiveName = QFileInfo(path).completeBaseName();
+    watcher = new QFutureWatcher<void>(this);
 
     // Generate the list of images from the archive
     // note: the images are not actually extracted yet
@@ -40,6 +69,7 @@ ArchivedImageList::ArchivedImageList(Archiver *archiver, const QString &path)
         newImage->path = _extractPath + "/";
         newImage->name = fileName;
         newImage->active = false;
+        newImage->exists = false;
         this->append(newImage);
     }
 }
@@ -52,10 +82,13 @@ ArchivedImageList::ArchivedImageList(Archiver *archiver, const QString &path)
 */
 int ArchivedImageList::open()
 {
-    for (int i = 0; i < this->size(); ++i) {
-        _archiver->x(_archivePath, _extractPath, this->at(i)->name);
-        this->at(i)->active = true;
-    }
+    watcher->setFuture(QtConcurrent::run(
+                           callExtraction,
+                           this,
+                           _archiver,
+                           _extractPath,
+                           _archivePath,
+                           watcher));
     return 0;
 }
 
@@ -65,6 +98,12 @@ int ArchivedImageList::open()
 */
 void ArchivedImageList::close()
 {
+    // stop extraction
+    if (watcher->isRunning()) {
+        watcher->cancel();
+        watcher->waitForFinished();
+    }
+
     // Recursively delete extracted files
     removeDir(_extractPath);
 

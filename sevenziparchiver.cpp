@@ -28,26 +28,7 @@
 SevenZipArchiver::SevenZipArchiver(QObject *parent)
 {
     _process = new QProcess(parent);
-    _program = getProgram();
-}
-
-/**
-    Returns the system archiving program if it exists
-*/
-QString SevenZipArchiver::getProgram()
-{
-    int success;
-
-    // check for 7zip
-    _process->start("7z");
-    _process->waitForStarted();
-    success = (int) _process->pid();
-    _process->waitForFinished();
-    if (success) { return "7z"; }
-
-    // else, no driver found
-    return NULL;
-
+    _processName = "7z";
 }
 
 /* Archive Reading Functions ------------------------------------------------ */
@@ -63,22 +44,20 @@ QStringList SevenZipArchiver::l(QString source)
     QRegExp filter = QRegExp("^.*(jpg|jpeg|png|gif)$");
     filter.setCaseSensitivity(Qt::CaseInsensitive);
 
-    if (_program == "7z") {
-        args << "l" << source;
-        _process->start(_program, args);
-        _process->waitForFinished();
-        output = ((QString) _process->readAll()).split("\n");
-        foreach(QString line, output) {
-            if (line.contains(QRegExp("^[0-9-]+\\s+[0-9:]+\\s+.+$"))) {
-                QStringList args = line.split(QRegExp("\\s+"));
-                QString name = "";
-                for (int i=5; i<args.length(); i++) {
-                    name += args.at(i) + " ";
-                }
-                name.chop(2);
-                if (name.contains(filter)) {
-                    fileNames << name;
-                }
+    args << "l" << source;
+    _process->start(_processName, args);
+    _process->waitForFinished();
+    output = ((QString) _process->readAll()).split("\n");
+    foreach(QString line, output) {
+        if (line.contains(QRegExp("^[0-9-]+\\s+[0-9:]+\\s+.+$"))) {
+            QStringList args = line.split(QRegExp("\\s+"));
+            QString name = "";
+            for (int i=5; i<args.length(); i++) {
+                name += args.at(i) + " ";
+            }
+            name.chop(2);
+            if (name.contains(filter)) {
+                fileNames << name;
             }
         }
     }
@@ -98,10 +77,8 @@ bool SevenZipArchiver::e(QString source, QString destination, QString fileName)
     QStringList parameters;
     int exitCode = 1;
 
-    if (_program == "7z") {
-        parameters << "e" << source << fileName << "-o"+destination << "-y";
-        exitCode = _process->execute(_program, parameters);
-    }
+    parameters << "e" << source << fileName << "-o"+destination << "-y";
+    exitCode = _process->execute(_processName, parameters);
 
     if (exitCode == 0)  return true;
     else                return false;
@@ -115,11 +92,8 @@ bool SevenZipArchiver::e(QString source, QString destination)
     QStringList parameters;
     int exitCode;
 
-
-    if (_program == "7z") {
-        parameters << "e" << source << "-o"+destination << "-y";
-        exitCode = _process->execute(_program, parameters);
-    }
+    parameters << "e" << source << "-o"+destination << "-y";
+    exitCode = _process->execute(_processName, parameters);
 
     if (exitCode == 0)  return true;
     else                return false;
@@ -134,10 +108,8 @@ bool SevenZipArchiver::x(QString source, QString destination, QString fileName)
     QStringList parameters;
     int exitCode;
 
-    if (_program == "7z") {
-        parameters << "x" << source << fileName << "-o"+destination << "-y";
-        exitCode = _process->execute(_program, parameters);
-    }
+    parameters << "x" << source << fileName << "-o"+destination << "-y";
+    exitCode = _process->execute(_processName, parameters);
 
     if (exitCode == 0)  return true;
     else                return false;
@@ -152,10 +124,8 @@ bool SevenZipArchiver::x(QString source, QString destination)
     QStringList parameters;
     int exitCode;
 
-    if (_program == "7z") {
-        parameters << "x" << source << "-o"+destination << "=y";
-        exitCode = _process->execute(_program, parameters);
-    }
+    parameters << "x" << source << "-o"+destination << "=y";
+    exitCode = _process->execute(_processName, parameters);
 
     if (exitCode == 0)  return true;
     else                return false;
@@ -170,4 +140,4 @@ SevenZipArchiver::~SevenZipArchiver()
 
 /* Settings/Getters --------------------------------------------------------- */
 
-QString SevenZipArchiver::program() { return _program; }
+QString SevenZipArchiver::program() { return _processName; }

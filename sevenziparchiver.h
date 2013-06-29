@@ -50,10 +50,8 @@ public:
     QString program();
 
 private:
-    QString getProgram();
-
     QProcess *_process;
-    QString _program;
+    QString _processName;
     
 };
 
