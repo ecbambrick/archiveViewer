@@ -46,7 +46,7 @@ public:
 private:
     void removeDir(const QString &path);
 
-    QFutureWatcher<void> *watcher;
+    QFutureWatcher<void> *_watcher;
     Archiver *_archiver;
     QString _timeStamp;
     QString _archivePath;

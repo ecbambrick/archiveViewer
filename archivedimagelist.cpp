@@ -60,7 +60,7 @@ ArchivedImageList::ArchivedImageList(Archiver *archiver, const QString &path)
     _extractPath = QDir::tempPath()+"/archiveViewer/"+_timeStamp;
     _archivePath = path;
     _archiveName = QFileInfo(path).completeBaseName();
-    watcher = new QFutureWatcher<void>(this);
+    _watcher = new QFutureWatcher<void>(this);
 
     // Generate the list of images from the archive
     // note: the images are not actually extracted yet
@@ -82,13 +82,13 @@ ArchivedImageList::ArchivedImageList(Archiver *archiver, const QString &path)
 */
 int ArchivedImageList::open()
 {
-    watcher->setFuture(QtConcurrent::run(
+    _watcher->setFuture(QtConcurrent::run(
                            callExtraction,
                            this,
                            _archiver,
                            _extractPath,
                            _archivePath,
-                           watcher));
+                           _watcher));
     return 0;
 }
 
@@ -99,9 +99,9 @@ int ArchivedImageList::open()
 void ArchivedImageList::close()
 {
     // stop extraction
-    if (watcher->isRunning()) {
-        watcher->cancel();
-        watcher->waitForFinished();
+    if (_watcher->isRunning()) {
+        _watcher->cancel();
+        _watcher->waitForFinished();
     }
 
     // Recursively delete extracted files
