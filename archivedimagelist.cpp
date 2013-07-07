@@ -30,22 +30,13 @@
 /**
     Extract files from archiver in seperate thread
 */
-void callExtraction(
-        ArchivedImageList *list,
-        Archiver *archiver,
-        QString destination,
-        QString archivePath,
-        QFutureWatcher<void> *watcher)
+void callExtraction(ArchivedImageList *list, QFutureWatcher<void> *watcher)
 {
     for (int i = 0; i < list->size(); i++) {
-        if (!watcher->isCanceled()) {
-            Image *image = list->at(i);
-            // extract file
-            archiver->e(archivePath, destination, image->name);
-            // update image object
-            image->active = true;
-            image->exists = true;
+        if (watcher->isCanceled()) {
+            break;
         }
+        list->extract(i);
     }
 }
 
@@ -85,9 +76,6 @@ int ArchivedImageList::open()
     _watcher->setFuture(QtConcurrent::run(
                            callExtraction,
                            this,
-                           _archiver,
-                           _extractPath,
-                           _archivePath,
                            _watcher));
     return 0;
 }
@@ -111,6 +99,17 @@ void ArchivedImageList::close()
     for (int i = 0; i < this->size(); ++i) {
         this->at(i)->active = false;
     }
+}
+
+/**
+    Extract an image from the archive, mark it as ready
+*/
+void ArchivedImageList::extract(int index)
+{
+    Image *image = this->at(index);
+    _archiver->e(_archivePath, _extractPath, image->name);
+    image->active = true;
+    image->exists = true;
 }
 
 /* Event Functions ---------------------------------------------------------- */
