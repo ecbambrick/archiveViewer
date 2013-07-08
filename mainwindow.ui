@@ -47,6 +47,7 @@
    <addaction name="actionZoomFit"/>
    <addaction name="actionZoomFull"/>
   </widget>
+  <widget class="QStatusBar" name="statusBar"/>
   <action name="actionPrevious">
    <property name="text">
     <string>Previous</string>

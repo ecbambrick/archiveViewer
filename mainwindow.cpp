@@ -40,6 +40,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QDir tempDir(QDir::tempPath()+"/archiveViewer");
     if (!tempDir.exists()) tempDir.mkpath(".");
 
+    _numReady = 0;
     _archiver = new SevenZipArchiver(this);
     _imageList = NULL;
     _pixmap = NULL;
@@ -215,6 +216,7 @@ void MainWindow::loadFile(const QString &path)
     _defaultDir = file.absolutePath();
     _index = _imageList->open();
     _lastOpenedFile = path;
+    connect(_imageList, SIGNAL(imageReady(int)), this, SLOT(imageUpdated(int)));
     updateLabel();
 }
 
@@ -337,6 +339,34 @@ void MainWindow::random()
     _index = activeList.at(rand()%activeList.size());
 
     updateLabel();
+}
+
+void MainWindow::imageUpdated(int index)
+{
+    if (_imageList == NULL || _imageList->empty()) return;
+
+    // calculate percentage ready
+    _numReady += 1;
+    QString readyString =
+            "Extracting "
+            + QString::number(_numReady)
+            + "/"
+            + QString::number(_imageList->size())
+            + " ("
+            + QString::number((int)((double)_numReady/_imageList->size() * 100))
+            + "%)";
+
+    // display percentage ready
+    if (_numReady < _imageList->size()) {
+        _ui->statusBar->showMessage(readyString);
+    } else {
+        _ui->statusBar->clearMessage();
+    }
+
+    // update label
+    if (_index == index && _imageList->at(_index)->exists) {
+        updateLabel();
+    }
 }
 
 void MainWindow::rename() {}

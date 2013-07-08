@@ -40,7 +40,6 @@ void callExtraction(ArchivedImageList *list, QFutureWatcher<void> *watcher)
     }
 }
 
-
 /* -------------------------------------------------------------------------- */
 
 ArchivedImageList::ArchivedImageList(Archiver *archiver, const QString &path)
@@ -102,7 +101,7 @@ void ArchivedImageList::close()
 }
 
 /**
-    Extract an image from the archive, mark it as ready
+    Extract an image from the archive, mark it as ready and emit a signal
 */
 void ArchivedImageList::extract(int index)
 {
@@ -110,6 +109,7 @@ void ArchivedImageList::extract(int index)
     _archiver->e(_archivePath, _extractPath, image->name);
     image->active = true;
     image->exists = true;
+    emit imageReady(index);
 }
 
 /* Event Functions ---------------------------------------------------------- */

@@ -44,6 +44,9 @@ public:
     void extract(int index);
     QString listName();
 
+signals:
+    void imageReady(int index);
+
 private:
     void removeDir(const QString &path);
 

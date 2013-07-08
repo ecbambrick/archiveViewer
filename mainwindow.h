@@ -55,6 +55,7 @@ public slots:
     void previous();
     void goTo(int index);
     void random();
+    void imageUpdated(int index);
 
     // manipulate current image
     void zoomIn();
@@ -88,6 +89,7 @@ private:
     QString         _lastOpenedFile;
     QString         _settingsPath;
     int             _index;
+    int             _numReady;
 };
 
 #endif // MAINWINDOW_H

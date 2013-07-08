@@ -47,6 +47,9 @@ public:
     virtual int open() = 0;
     virtual void close() = 0;
     virtual QString listName() = 0;
+
+signals:
+    virtual void imageReady(int index) = 0;
 };
 
 #endif // IMAGELIST_H
