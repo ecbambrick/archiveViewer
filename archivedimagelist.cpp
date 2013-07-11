@@ -24,6 +24,7 @@
 #include <QMessageBox>
 #include <QDebug>
 #include <QtConcurrentRun>
+#include <QCryptographicHash>
 
 /* -------------------------------------------------------------------------- */
 
@@ -46,7 +47,7 @@ ArchivedImageList::ArchivedImageList(Archiver *archiver, const QString &path)
 {
     // Initialize
     _archiver = archiver;
-    _timeStamp = QString::number(QDateTime::currentMSecsSinceEpoch());
+    _timeStamp = QCryptographicHash::hash(path.toUtf8(), QCryptographicHash::Md5).toHex();
     _extractPath = QDir::tempPath()+"/archiveViewer/"+_timeStamp;
     _archivePath = path;
     _archiveName = QFileInfo(path).completeBaseName();
@@ -72,10 +73,7 @@ ArchivedImageList::ArchivedImageList(Archiver *archiver, const QString &path)
 */
 int ArchivedImageList::open()
 {
-    _watcher->setFuture(QtConcurrent::run(
-                           callExtraction,
-                           this,
-                           _watcher));
+    _watcher->setFuture(QtConcurrent::run(callExtraction, this, _watcher));
     return 0;
 }
 
@@ -106,7 +104,11 @@ void ArchivedImageList::close()
 void ArchivedImageList::extract(int index)
 {
     Image *image = this->at(index);
-    _archiver->e(_archivePath, _extractPath, image->name);
+
+    QFile file(_extractPath+"\\"+image->name);
+    if (!file.exists()) {
+        _archiver->e(_archivePath, _extractPath, image->name);
+    }
     image->active = true;
     image->exists = true;
     emit imageReady(index);
