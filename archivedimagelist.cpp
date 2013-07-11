@@ -107,7 +107,7 @@ void ArchivedImageList::extract(int index)
 
     QFile file(_extractPath+"\\"+image->name);
     if (!file.exists()) {
-        _archiver->e(_archivePath, _extractPath, image->name);
+        _archiver->x(_archivePath, _extractPath, image->name);
     }
     image->active = true;
     image->exists = true;
