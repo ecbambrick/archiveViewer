@@ -23,7 +23,7 @@
 #include <QCoreApplication>
 
 /**
-    TODO: figure out a better way to access 7z.exe
+    TODO: use a zip library instead of calling through a seperate process
 */
 SevenZipArchiver::SevenZipArchiver(QObject *parent)
 {
@@ -44,9 +44,12 @@ QStringList SevenZipArchiver::l(QString source)
     QRegExp filter = QRegExp("^.*(jpg|jpeg|png|gif)$");
     filter.setCaseSensitivity(Qt::CaseInsensitive);
 
+    // get list of files from 7z process
     args << "l" << source;
     _process->start(_processName, args);
     _process->waitForFinished();
+
+    // parse output for exact file names
     output = ((QString) _process->readAll()).split("\n");
     foreach(QString line, output) {
         if (line.contains(QRegExp("^[0-9-]+\\s+[0-9:]+\\s+.+$"))) {

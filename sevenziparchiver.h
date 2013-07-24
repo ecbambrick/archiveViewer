@@ -22,6 +22,8 @@
     Class for managing an external archiving tool. Handles reading and
     extracting files from an archive. Uses 7zip.
 
+    Temporary solution until a proper zip library is implemented.
+
 *******************************************************************************/
 
 #ifndef SEVENZIPARCHIVER_H

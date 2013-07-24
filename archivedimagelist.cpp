@@ -33,6 +33,9 @@
 */
 void callExtraction(ArchivedImageList *list, QFutureWatcher<void> *watcher)
 {
+    // extract each file one-by-one
+    // this is to keep track of which files have been extracted and
+    // which files are yet to be extracted
     for (int i = 0; i < list->size(); i++) {
         if (watcher->isCanceled()) {
             break;
@@ -104,11 +107,12 @@ void ArchivedImageList::close()
 void ArchivedImageList::extract(int index)
 {
     Image *image = this->at(index);
-
     QFile file(_extractPath+"\\"+image->name);
+
     if (!file.exists()) {
         _archiver->x(_archivePath, _extractPath, image->name);
     }
+
     image->active = true;
     image->exists = true;
     emit imageReady(index);
