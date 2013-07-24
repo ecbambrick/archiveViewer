@@ -34,12 +34,7 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent), _ui(new Ui::MainWindow)
 {
-    this->setWindowIcon(QIcon(":/icons/icon.ico"));
-
-    // Create temporary directory if one doesn't exist
-    QDir tempDir(QDir::tempPath()+"/archiveViewer");
-    if (!tempDir.exists()) tempDir.mkpath(".");
-
+    _index = 0;
     _numReady = 0;
     _archiver = new SevenZipArchiver(this);
     _imageList = NULL;
@@ -47,67 +42,89 @@ MainWindow::MainWindow(QWidget *parent) :
     _animation = NULL;
     _settingsPath = QCoreApplication::applicationDirPath() + "/settings.ini";
 
-    // some of loadSettings should go before initUI
-    initUI();
-    loadSettings(_settingsPath);
+    setWindowIcon(QIcon(":/icons/icon.ico"));
+    createTemporaryDirectory();
+    loadGeometryFromSettings();
+    initializeUI();
 
+    // load file from command line
     QStringList args = QCoreApplication::arguments();
     if (args.size() == 2 && args.at(1) != "") {
         loadFile(args.at(1));
+
+    // load last file from previous session from settings
+    } else {
+        loadFileFromSettings();
     }
-    else if (_lastOpenedFile != "") {
-        int tempIndex = _index;
-        loadFile(_lastOpenedFile);
-        goTo(tempIndex);
-    }
+}
+
+/**
+    Creat temporary directory if one does not exist
+*/
+void MainWindow::createTemporaryDirectory()
+{
+    QDir tempDir(QDir::tempPath()+"/archiveViewer");
+    if (!tempDir.exists()) tempDir.mkpath(".");
 }
 
 /**
     Initialize UI elements
 */
-void MainWindow::initUI()
+void MainWindow::initializeUI()
 {
     _ui->setupUi(this);
 
-    // Initialize label sizing policy
+    // initialize toolbar widgets
+    _searchBox = new QLineEdit(this);
+    QWidget *space = new QWidget(this);
+    space->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
+
+    // initialize image label
     _ui->label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     _ui->label->setAlignment(Qt::AlignCenter);
     _ui->label->setMinimumSize(240, 160);
     _ui->label->setFocusPolicy(Qt::WheelFocus);
 
-    // a dummy widget taking as much horizontal space as possible
-    QWidget *space = new QWidget(this);
-    space->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
-
-    //asd
-    _searchBox = new QLineEdit(this);
-    connect(_searchBox, SIGNAL(returnPressed()), this, SLOT(filter()));
-
-    // Initialize toolbar
+    // initialize toolbar
     _ui->toolBar->addWidget(space);
     _ui->toolBar->addWidget(_searchBox);
+
+    // initialize connections
+    connect(_searchBox, SIGNAL(returnPressed()), this, SLOT(filter()));
 }
 
 /* Settings Management -------------------------------------------------------*/
 
 /**
-    Load application settings from ini file
+    Load window geometry from settings ini
 */
-void MainWindow::loadSettings(const QString &path)
+void MainWindow::loadGeometryFromSettings()
 {
-    // Read settings
-    QSettings settings(path, QSettings::IniFormat);
+    QSettings settings(_settingsPath, QSettings::IniFormat);
     QByteArray geometry = settings.value("window_geometry", saveGeometry()).toByteArray();
     QPoint point = settings.value("window_pos", this->pos()).toPoint();
     bool isMax = settings.value("window_maximized", isMaximized()).toBool();
+
+    restoreGeometry(geometry);
+    move(point);
+    if (isMax) showMaximized();
+}
+
+/**
+    Load file from settings ini
+*/
+void MainWindow::loadFileFromSettings()
+{
+    QSettings settings(_settingsPath, QSettings::IniFormat);
     _defaultDir = settings.value("default_directory", "").toString();
     _lastOpenedFile = settings.value("last_file", "").toString();
     _index = settings.value("last_index", 0).toInt();
 
-    // Apply settings
-    restoreGeometry(geometry);
-    move(point);
-    if (isMax) showMaximized();
+    if (_lastOpenedFile != "") {
+        int tempIndex = _index;
+        loadFile(_lastOpenedFile);
+        goTo(tempIndex);
+    }
 }
 
 /**

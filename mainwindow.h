@@ -71,8 +71,10 @@ protected:
 
 private:
     // initialization
-    void initUI();
-    void loadSettings(const QString &path);
+    void initializeUI();
+    void createTemporaryDirectory();
+    void loadGeometryFromSettings();
+    void loadFileFromSettings();
     void saveSettings(const QString &path);
 
     // update currently displayed image
