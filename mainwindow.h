@@ -35,6 +35,7 @@
 #include <directoryimagelist.h>
 #include <QMovie>
 #include <QKeyEvent>
+#include <imageListFilter.h>
 
 namespace Ui { class MainWindow; }
 

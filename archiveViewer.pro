@@ -14,14 +14,16 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     directoryimagelist.cpp \
     archivedimagelist.cpp \
-    sevenziparchiver.cpp
+    sevenziparchiver.cpp \
+    imageListFilter.cpp
 
 HEADERS  += mainwindow.h \
     imagelist.h \
     directoryimagelist.h \
     archivedimagelist.h \
     sevenziparchiver.h \
-    archiver.h
+    archiver.h \
+    imageListFilter.h
 
 FORMS    += mainwindow.ui
 
