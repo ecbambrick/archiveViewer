@@ -130,9 +130,9 @@ void MainWindow::loadFileFromSettings()
 /**
     Save application settings to ini file
 */
-void MainWindow::saveSettings(const QString &path)
+void MainWindow::saveSettings()
 {
-    QSettings settings(path, QSettings::IniFormat);
+    QSettings settings(_settingsPath, QSettings::IniFormat);
     settings.setValue("window_geometry", saveGeometry());
     settings.setValue("window_maximized", isMaximized());
     settings.setValue("window_pos", pos());
@@ -420,7 +420,7 @@ void MainWindow::keyPressEvent(QKeyEvent *e)
 
 MainWindow::~MainWindow()
 {
-    saveSettings(_settingsPath);
+    saveSettings();
     delete _imageList;
     delete _archiver;
     delete _pixmap;

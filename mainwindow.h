@@ -75,7 +75,7 @@ private:
     void createTemporaryDirectory();
     void loadGeometryFromSettings();
     void loadFileFromSettings();
-    void saveSettings(const QString &path);
+    void saveSettings();
 
     // update currently displayed image
     void loadFile(const QString &path);
