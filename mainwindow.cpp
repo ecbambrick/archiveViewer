@@ -44,8 +44,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     setWindowIcon(QIcon(":/icons/icon.ico"));
     createTemporaryDirectory();
-    loadGeometryFromSettings();
     initializeUI();
+    loadGeometryFromSettings();
 
     // load file from command line
     QStringList args = QCoreApplication::arguments();
