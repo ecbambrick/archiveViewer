@@ -34,13 +34,13 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent), _ui(new Ui::MainWindow)
 {
-    _index = 0;
-    _numReady = 0;
+    _settingsPath = QCoreApplication::applicationDirPath() + "/settings.ini";
     _archiver = new SevenZipArchiver(this);
     _imageList = NULL;
-    _pixmap = NULL;
     _animation = NULL;
-    _settingsPath = QCoreApplication::applicationDirPath() + "/settings.ini";
+    _pixmap = NULL;
+    _numReady = 0;
+    _index = 0;
 
     setWindowIcon(QIcon(":/icons/icon.ico"));
     createTemporaryDirectory();
@@ -142,44 +142,7 @@ void MainWindow::saveSettings()
     settings.setValue("last_index", _index);
 }
 
-/* Image List Management ---------------------------------------------------- */
-
-/**
-    Load new image
-*/
-void MainWindow::updateLabel()
-{
-    if (_imageList == NULL || _imageList->empty()) return;
-
-    Image *image = _imageList->at(_index);
-    QString title = _imageList->listName() + "/";
-    QString subtitle = image->name;
-    QString path = image->path + image->name;
-    int size = _imageList->size();
-
-    setWindowTitle(QString(title + subtitle + " (%1/%2)").arg(_index+1).arg(size));
-    if (_pixmap != NULL) {
-        delete _pixmap;
-        _pixmap = NULL;
-    } if (_animation != NULL) {
-        delete _animation;
-        _animation = NULL;
-    }
-
-    // Determine if the image is animated or not
-    QMovie m(path);
-    if(m.isValid()){
-        if(m.frameCount() > 1){
-            _animation = new QMovie(path);
-            _ui->label->setMovie(_animation);
-            _ui->label->movie()->start();
-        }
-        else{
-            _pixmap = new QPixmap(path);
-            _ui->label->setPixmap(_pixmap->scaled(_ui->label->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
-        }
-    }
-}
+/* Image List Loading ------------------------------------------------------- */
 
 /**
     Open file dialog and open selected file
@@ -236,6 +199,45 @@ void MainWindow::loadFile(const QString &path)
     connect(_imageList, SIGNAL(imageReady(int)), this, SLOT(imageUpdated(int)));
     updateLabel();
 }
+
+/**
+    Load new image
+*/
+void MainWindow::updateLabel()
+{
+    if (_imageList == NULL || _imageList->empty()) return;
+
+    Image *image = _imageList->at(_index);
+    QString title = _imageList->listName() + "/";
+    QString subtitle = image->name;
+    QString path = image->path + image->name;
+    int size = _imageList->size();
+
+    setWindowTitle(QString(title + subtitle + " (%1/%2)").arg(_index+1).arg(size));
+    if (_pixmap != NULL) {
+        delete _pixmap;
+        _pixmap = NULL;
+    } if (_animation != NULL) {
+        delete _animation;
+        _animation = NULL;
+    }
+
+    // Determine if the image is animated or not
+    QMovie m(path);
+    if(m.isValid()){
+        if(m.frameCount() > 1){
+            _animation = new QMovie(path);
+            _ui->label->setMovie(_animation);
+            _ui->label->movie()->start();
+        }
+        else{
+            _pixmap = new QPixmap(path);
+            _ui->label->setPixmap(_pixmap->scaled(_ui->label->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        }
+    }
+}
+
+/* Image List Management ---------------------------------------------------- */
 
 /**
     Filter image list by filename
