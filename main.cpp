@@ -19,11 +19,20 @@
 *******************************************************************************/
 
 #include <QtGui/QApplication>
+#include <QFile>
 #include "mainwindow.h"
 
 int main(int argc, char *argv[])
 {
     QApplication application(argc, argv);
+
+    // load style sheet
+    QFile file(":/stylesheets/default");
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        application.setStyleSheet(file.readAll());
+        file.close();
+    }
+
     MainWindow window;
     window.show();
     return application.exec();

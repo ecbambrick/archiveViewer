@@ -1,0 +1,7 @@
+QStatusBar::item {
+    border: none;
+}
+
+QScrollArea QWidget {
+    background-color: #333333;
+}

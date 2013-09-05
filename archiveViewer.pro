@@ -15,7 +15,8 @@ SOURCES += main.cpp\
     directoryimagelist.cpp \
     archivedimagelist.cpp \
     sevenziparchiver.cpp \
-    imageListFilter.cpp
+    imageListFilter.cpp \
+    fileio.cpp
 
 HEADERS  += mainwindow.h \
     imagelist.h \
@@ -23,7 +24,10 @@ HEADERS  += mainwindow.h \
     archivedimagelist.h \
     sevenziparchiver.h \
     archiver.h \
-    imageListFilter.h
+    imageListFilter.h \
+    fileio.h \
+    defaultStyle.qss \
+    defaultStyle.qss
 
 FORMS    += mainwindow.ui
 
