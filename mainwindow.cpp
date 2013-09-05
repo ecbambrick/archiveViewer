@@ -391,8 +391,20 @@ void MainWindow::imageUpdated(int index)
 void MainWindow::rename() {}
 void MainWindow::zoomIn() {}
 void MainWindow::zoomOut() {}
-void MainWindow::zoomFit() {}
-void MainWindow::zoomFull() {}
+
+void MainWindow::zoomFit() {
+    if (_pixmap == NULL) return;
+    _ui->label->setFixedHeight(_ui->scrollArea->height() - 41);
+    _ui->label->setFixedWidth(_ui->scrollArea->width() - 41);
+    _ui->label->setPixmap(_pixmap->scaled(_ui->label->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+}
+
+void MainWindow::zoomFull() {
+    if (_pixmap == NULL) return;
+    _ui->label->setPixmap(*_pixmap);
+    _ui->label->setFixedHeight(_pixmap->height());
+    _ui->label->setFixedWidth(_pixmap->width());
+}
 
 /* Events ------------------------------------------------------------------- */
 
@@ -401,8 +413,7 @@ void MainWindow::zoomFull() {}
 */
 void MainWindow::resizeEvent(QResizeEvent *)
 {
-    if (_pixmap == NULL) return;
-    _ui->label->setPixmap(_pixmap->scaled(_ui->label->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    zoomFit();
 }
 
 /**
