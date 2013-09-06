@@ -3,6 +3,6 @@
         <file>icon.ico</file>
     </qresource>
     <qresource prefix="/stylesheets">
-        <file alias="default">defaultStyle.qss</file>
+        <file alias="default">default.qss</file>
     </qresource>
 </RCC>

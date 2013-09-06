@@ -1,0 +1,25 @@
+/* --------------------------------------------------------------- STATUS BAR */
+
+QStatusBar {
+    background-color: #333;
+}
+
+QStatusBar QWidget {
+    color: #fff;
+}
+
+QStatusBar::item {
+    border: none;
+}
+
+/* ----------------------------------------------------------------- TOOL BAR */
+
+QToolBar {
+    padding: 10px;
+}
+
+/* --------------------------------------------------------------------- MISC */
+
+QScrollArea QWidget {
+    background-color: #333;
+}

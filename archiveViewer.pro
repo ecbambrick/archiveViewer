@@ -25,9 +25,7 @@ HEADERS  += mainwindow.h \
     sevenziparchiver.h \
     archiver.h \
     imageListFilter.h \
-    fileio.h \
-    defaultStyle.qss \
-    defaultStyle.qss
+    fileio.h
 
 FORMS    += mainwindow.ui
 
