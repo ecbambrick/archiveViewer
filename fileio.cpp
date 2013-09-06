@@ -16,27 +16,38 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see http://www.gnu.org/licenses/.
 
+********************************************************************************
+
+    set of static functions for performing file operations
+
 *******************************************************************************/
 
 #include "fileio.h"
 #include "QFileDialog"
 
+// private data
+QStringList imageSuffixes   = (QStringList() << "png" << "gif" << "jpeg" << "jpg");
+QStringList archiveSuffixes = (QStringList() << "cbz" << "cbz" << "cb7" << "zip" << "rar" << "7z");
+QString filter              = "Images and Archives (*.jpg *.jpeg *.png *.gif *.cbz)";
+
+/// open file dialogue at the supplied directory
 QString FileIO::openFileDialogue(QString directory)
 {
-    QString filter = "Images and Archives (*.jpg *.jpeg *.png *.gif *.cbz)";
     return QFileDialog::getOpenFileName(0, "Open File", directory, filter);
 }
 
-FileIO::FileType FileIO::getFileType(QString path)
+/// get the file type of a file (archive file, image file, director, invalid)
+FileIO::FileType FileIO::getFileType(QFileInfo *file)
 {
-    QRegExp imageExtensions = QRegExp("^.*\\.(png|gif|jpeg|jpg)$");
-    QRegExp archiveExtensions = QRegExp("^.*\\.(cbz|cbr|cb7|zip|rar|7z)$");
-    imageExtensions.setCaseSensitivity(Qt::CaseInsensitive);
-    archiveExtensions.setCaseSensitivity(Qt::CaseInsensitive);
-
-    bool isImage = path.contains(imageExtensions);
-    bool isArchive = path.contains(archiveExtensions);
-
-    if (isArchive) return FileIO::ARCHIVE;
-    else return FileIO::IMAGE;
+    QString suffix = file->suffix();
+    if (imageSuffixes.contains(suffix, Qt::CaseInsensitive)) {
+        return FileIO::IMAGE;
+    } else if (archiveSuffixes.contains(suffix, Qt::CaseInsensitive)) {
+        return FileIO::ARCHIVE;
+    } else if (file->isDir()) {
+        return FileIO::DIR;
+    } else {
+        return FileIO::INVALID;
+    }
 }
+

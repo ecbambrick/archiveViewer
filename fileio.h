@@ -27,13 +27,15 @@
 #define FILEIO_H
 
 #include <QString>
+#include <QFileInfo>
+#include <QDir>
 
 class FileIO
 {
 public:
-    enum FileType { ARCHIVE, IMAGE };
+    enum FileType { ARCHIVE, IMAGE, DIR, INVALID };
     static QString openFileDialogue(QString directory);
-    static FileType getFileType(QString path);
+    static FileType getFileType(QFileInfo *file);
 };
 
 #endif // FILEIO_H
