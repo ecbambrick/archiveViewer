@@ -11,12 +11,13 @@ TEMPLATE = app
 RC_FILE = app.rc
 
 SOURCES += main.cpp\
-        mainwindow.cpp \
+    mainwindow.cpp \
     directoryimagelist.cpp \
     archivedimagelist.cpp \
     sevenziparchiver.cpp \
-    imageListFilter.cpp \
-    fileio.cpp
+    fileio.cpp \
+    reversiblerand.cpp \
+    imagelistfilter.cpp
 
 HEADERS  += mainwindow.h \
     imagelist.h \
@@ -24,8 +25,9 @@ HEADERS  += mainwindow.h \
     archivedimagelist.h \
     sevenziparchiver.h \
     archiver.h \
-    imageListFilter.h \
-    fileio.h
+    fileio.h \
+    reversiblerand.h \
+    imagelistfilter.h
 
 FORMS    += mainwindow.ui
 
