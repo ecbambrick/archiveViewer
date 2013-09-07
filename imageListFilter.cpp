@@ -97,6 +97,7 @@ Image* ImageListFilter::goTo(QString fileName)
     if (_filteredList->empty()) return NULL;
 
     // get index of image with fileName
+    _index = 0;
     for (int i = 0; i < _filteredList->size(); i++) {
         Image *image = _filteredList->at(i);
         if (image->name == fileName) {
