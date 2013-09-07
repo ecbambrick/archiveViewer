@@ -28,26 +28,48 @@
 #include <QObject>
 #include <QStringList>
 #include "imagelist.h"
+#include "reversiblerand.h"
 
-class ImageListFilter : public QList<Image*>
+class ImageListFilter : public QObject
 {
+    Q_OBJECT
+
 public:
+    ImageListFilter();
     ImageListFilter(ImageList *imageList);
     ~ImageListFilter();
 
-    int open();
-    void close();
+    // list manipulation
     void shuffle();
     void unshuffle();
     void filter(QString query);
+    void reset();
 
-    int index();
-    void setIndex(int index);
+    // traversal
+    Image* current();
+    Image* previous();
+    Image* next();
+    Image* goTo(int index);
+    Image* goTo(QString path);
+
+    // setters
+    void setList(ImageList *list);
+
+    // getters
     QString listName();
+    ImageList* list();
+    bool empty();
+    int index();
+    int size();
 
 private:
+    bool containsAllTokens(QString text, QStringList tokens);
     QStringList parseQuery(QString query);
-    ImageList *_imageList;
+
+    ImageList *_originalList;
+    QList<Image*> *_filteredList;
+    ReversibleRand *_rRand;
+    bool _shuffle;
     int _index;
 };
 

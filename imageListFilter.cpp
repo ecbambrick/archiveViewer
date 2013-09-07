@@ -19,64 +19,158 @@
 *******************************************************************************/
 
 #include "imagelistfilter.h"
+#include "directoryimagelist.h"
+
+/* ----------------------------------------------------------- INITIALIZATION */
+
+ImageListFilter::ImageListFilter()
+{
+    _originalList = NULL;
+    _filteredList = new QList<Image*>;
+    _rRand = new ReversibleRand();
+    _shuffle = false;
+    _index = 0;
+}
 
 ImageListFilter::ImageListFilter(ImageList *imageList)
 {
-    _imageList = imageList;
+    _filteredList = new QList<Image*>;
+    _rRand = new ReversibleRand();
+    _shuffle = false;
     _index = 0;
+    this->setList(imageList);
 }
 
 ImageListFilter::~ImageListFilter()
 {
+    delete _filteredList;
+    delete _rRand;
 }
 
-/******************************************************************************/
+/* ---------------------------------------------------------------- TRAVERSAL */
 
-int ImageListFilter::open()
+/// return the current image
+Image* ImageListFilter::current()
 {
-    return _imageList->open();
+    if (_filteredList->size() == 0) return NULL;
+    return _filteredList->at(_index);
 }
 
-void ImageListFilter::close()
+/// decrement the index return the previous image in the list
+Image* ImageListFilter::previous()
 {
-    _imageList->close();
+    if (_filteredList->size() == 0) return NULL;
+
+    if (_shuffle) {
+        _index = _rRand->previous() % _filteredList->size();
+    } else {
+        _index = ((_index > 0) ? _index - 1 : _filteredList->size() - 1);
+    }
+    return _filteredList->at(_index);
 }
 
-/******************************************************************************/
+/// increment the index return the next image in the list
+Image* ImageListFilter::next()
+{
+    if (_filteredList->size() == 0) return NULL;
 
+    if (_shuffle) {
+        _index = _rRand->next() % _filteredList->size();
+    } else {
+        _index = (_index + 1) % _filteredList->size();
+    }
+    return _filteredList->at(_index);
+}
+
+/// set the index and return the image at that position
+Image* ImageListFilter::goTo(int index)
+{
+    if (index < 0 || index >= _filteredList->size()) return NULL;
+
+    _index = index;
+    return _filteredList->at(_index);
+}
+
+/// find the image with the same filename and set the index to that position
+Image* ImageListFilter::goTo(QString fileName)
+{
+    if (_filteredList->empty()) return NULL;
+
+    // get index of image with fileName
+    for (int i = 0; i < _filteredList->size(); i++) {
+        Image *image = _filteredList->at(i);
+        if (image->name == fileName) {
+            _index = i;
+        }
+    }
+    return _filteredList->at(_index);
+}
+
+/* ---------------------------------------------------------------- SHUFFLING */
+
+/// create a new seed and have next() and previous() to go to random positions
 void ImageListFilter::shuffle()
 {
+    _shuffle = true;
+    _rRand->newSeed();
 }
 
+/// revert back to standard behaviour for next() and previous()
 void ImageListFilter::unshuffle()
 {
+    _shuffle = false;
 }
 
-/******************************************************************************/
+/* ---------------------------------------------------------------- FILTERING */
 
-void ImageListFilter::filter(QString query)
+/// refill the list with all entries from the original list
+void ImageListFilter::reset()
 {
-    this->clear();
-
-    QStringList tokens = parseQuery(query);
-    Image *image;
-    bool match;
-
-    for (int i=0; i<_imageList->size(); i++) {
-        image = _imageList->at(i);
-        match = true;
-        foreach(QString token, tokens) {
-            if (!image->name.contains(token, Qt::CaseInsensitive)) {
-                match = false;
-                break;
-            }
-        }
-        if (match) {
-            this->append(image);
-        }
+    _filteredList->clear();
+    for(int i = 0; i < _originalList->size(); i++) {
+        _filteredList->append(_originalList->at(i));
     }
 }
 
+/// filter the list based on a query
+void ImageListFilter::filter(QString query)
+{
+    Image *originalImage = this->current();
+
+    // emtpy query
+    if (query == "") {
+        this->reset();
+
+    // non-empty query
+    } else {
+        QStringList tokens = parseQuery(query);
+        Image *image;
+        _filteredList->clear();
+        for (int i=0; i<_originalList->size(); i++) {
+            // check if image name contains at least one token
+            image = _originalList->at(i);
+            if (containsAllTokens(image->name, tokens)) {
+                _filteredList->append(image);
+            }
+        }
+    }
+    if (originalImage != NULL && !_filteredList->empty()) {
+        this->goTo(originalImage->name);
+    }
+}
+
+/// return true if the text contains all of the tokens
+bool ImageListFilter::containsAllTokens(QString text, QStringList tokens)
+{
+    foreach(QString token, tokens) {
+        if (!text.contains(token, Qt::CaseInsensitive)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/// parse a query into a list of tokens to check against
 QStringList ImageListFilter::parseQuery(QString query)
 {
     QStringList tokens;
@@ -104,19 +198,40 @@ QStringList ImageListFilter::parseQuery(QString query)
     return tokens;
 }
 
-/******************************************************************************/
+/* ------------------------------------------------------ SETTERS AND GETTERS */
+
+void ImageListFilter::setList(ImageList *list)
+{
+    _originalList = list;
+    _index = 0;
+    this->reset();
+}
+
+bool ImageListFilter::empty()
+{
+    return _filteredList->empty();
+}
+
+int ImageListFilter::size()
+{
+    return _filteredList->size();
+}
 
 int ImageListFilter::index()
 {
     return _index;
 }
 
-void ImageListFilter::setIndex(int index)
+ImageList* ImageListFilter::list()
 {
-    _index = index;
+    return _originalList;
 }
 
 QString ImageListFilter::listName()
 {
-    return _imageList->listName();
+    if (_originalList == NULL) {
+        return NULL;
+    } else {
+        return _originalList->listName();
+    }
 }
