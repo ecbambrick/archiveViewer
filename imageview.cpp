@@ -22,7 +22,12 @@ ImageView::~ImageView()
 
 void ImageView::setImage(Image *image)
 {
-    _label->setPixmap(QPixmap(image->path+image->name));
+    if (image != _image) {
+        _label->setPixmap(QPixmap(image->path+image->name));
+        this->horizontalScrollBar()->setValue(0);
+        this->verticalScrollBar()->setValue(0);
+        _image = image;
+    }
 }
 
 /* ------------------------------------------------------------------- EVENTS */

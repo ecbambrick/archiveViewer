@@ -24,6 +24,7 @@ protected:
     void mouseMoveEvent(QMouseEvent *e);
     
 private:
+    Image *_image;
     QPixmap *_pixmap;
     QLabel *_label;
     QPoint _initMousePos;
