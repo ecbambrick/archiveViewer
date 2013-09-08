@@ -127,9 +127,11 @@ void ImageListFilter::unshuffle()
 /// refill the list with all entries from the original list
 void ImageListFilter::reset()
 {
-    _filteredList->clear();
-    for(int i = 0; i < _originalList->size(); i++) {
-        _filteredList->append(_originalList->at(i));
+    if (_originalList != NULL) {
+        _filteredList->clear();
+        for(int i = 0; i < _originalList->size(); i++) {
+            _filteredList->append(_originalList->at(i));
+        }
     }
 }
 
@@ -143,7 +145,7 @@ void ImageListFilter::filter(QString query)
         this->reset();
 
     // non-empty query
-    } else {
+    } else if (_originalList != NULL) {
         QStringList tokens = parseQuery(query);
         Image *image;
         _filteredList->clear();
