@@ -18,17 +18,21 @@ public:
     explicit ImageView(QWidget *parent = 0);
     ~ImageView();
     void setImage(Image *image);
+    void clearImage();
+    void updateImage();
+    void toggleZoom();
 
 protected:
     void mousePressEvent(QMouseEvent *e);
     void mouseMoveEvent(QMouseEvent *e);
-    
+    void resizeEvent(QResizeEvent *e);
+
 private:
     Image *_image;
     QPixmap *_pixmap;
     QLabel *_label;
     QPoint _initMousePos;
-    
+    bool _fitToWindow;
 };
 
 #endif // IMAGEVIEW_H
