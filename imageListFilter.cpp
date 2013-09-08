@@ -109,17 +109,13 @@ Image* ImageListFilter::goTo(QString fileName)
 
 /* ---------------------------------------------------------------- SHUFFLING */
 
-/// create a new seed and have next() and previous() to go to random positions
-void ImageListFilter::shuffle()
+/// toggle shuffling (ie - next()/previous() will go to random positions)
+void ImageListFilter::setShuffle(bool value)
 {
-    _shuffle = true;
-    _rRand->newSeed();
-}
-
-/// revert back to standard behaviour for next() and previous()
-void ImageListFilter::unshuffle()
-{
-    _shuffle = false;
+    _shuffle = value;
+    if (_shuffle) {
+        _rRand->newSeed();
+    }
 }
 
 /* ---------------------------------------------------------------- FILTERING */

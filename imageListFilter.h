@@ -40,8 +40,7 @@ public:
     ~ImageListFilter();
 
     // list manipulation
-    void shuffle();
-    void unshuffle();
+    void setShuffle(bool value);
     void filter(QString query);
     void reset();
 
