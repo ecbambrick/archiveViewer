@@ -25,3 +25,22 @@ void ImageView::setImage(Image *image)
     _label->setPixmap(QPixmap(image->path+image->name));
 }
 
+/* ------------------------------------------------------------------- EVENTS */
+
+void ImageView::mousePressEvent(QMouseEvent *e)
+{
+    _initMousePos = e->pos();
+}
+
+void ImageView::mouseMoveEvent(QMouseEvent *e)
+{
+    QScrollBar *vertical = this->verticalScrollBar();
+    QScrollBar *horizontal = this->horizontalScrollBar();
+    int x = e->pos().x() - _initMousePos.x();
+    int y = e->pos().y() - _initMousePos.y();
+    horizontal->setValue(horizontal->value() - x);
+    vertical->setValue(vertical->value() - y);
+    _initMousePos = e->pos();
+}
+
+
