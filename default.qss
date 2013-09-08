@@ -1,25 +1,61 @@
+/* orange   #D75D00 */
+/* blue     #0071AA */
+
+/* -------------------------------------------------------------- MAIN WINDOW */
+
+QMainWindow {
+    background-color: #fff;
+}
+
+QMainWindow * {
+    color: #555;
+    font-family: "Century Gothic";
+}
+
+ImageView {
+    background-color: #fff;
+}
+
 /* --------------------------------------------------------------- STATUS BAR */
-
-QStatusBar {
-    background-color: #333;
-}
-
-QStatusBar QWidget {
-    color: #fff;
-}
 
 QStatusBar::item {
     border: none;
+}
+QLabel.fileNumber {
+    color: #D75D00;
 }
 
 /* ----------------------------------------------------------------- TOOL BAR */
 
 QToolBar {
     padding: 10px;
+    background-color: #efefef;
+    border-bottom: 2px solid #D75D00;
 }
 
-/* --------------------------------------------------------------------- MISC */
+QToolBar QToolButton {
+    border: none;
+    padding: 2px;
+    color: #333;
+}
 
-QScrollArea QWidget {
-    background-color: #333;
+QToolBar QToolButton::hover {
+    background-color: #ddd;
+    border: none;
+}
+
+QToolBar QToolButton::checked {
+    border: none;
+    padding: 2px;
+    color: #fff;
+    background-color: #D75D00;
+}
+
+QToolBar QLineEdit {
+    color: #555;
+    padding-left: 18px;
+    background: url(C:/Users/Cole/Documents/Qt/archiveViewer/search.png);
+    background-position: left;
+    background-repeat: no-repeat;
+    border: 1px solid #ccc;
 }
