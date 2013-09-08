@@ -17,7 +17,8 @@ SOURCES += main.cpp\
     sevenziparchiver.cpp \
     fileio.cpp \
     reversiblerand.cpp \
-    imagelistfilter.cpp
+    imagelistfilter.cpp \
+    imageview.cpp
 
 HEADERS  += mainwindow.h \
     imagelist.h \
@@ -27,7 +28,8 @@ HEADERS  += mainwindow.h \
     archiver.h \
     fileio.h \
     reversiblerand.h \
-    imagelistfilter.h
+    imagelistfilter.h \
+    imageview.h
 
 FORMS    += mainwindow.ui
 
