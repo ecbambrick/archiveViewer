@@ -63,6 +63,7 @@ public:
     int size();
 
 private:
+    void filterByTokens(QStringList tokens);
     bool containsAllTokens(QString text, QStringList tokens);
     QStringList parseQuery(QString query);
 

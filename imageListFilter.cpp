@@ -146,19 +146,27 @@ void ImageListFilter::filter(QString query)
 
     // non-empty query
     } else if (_originalList != NULL) {
-        QStringList tokens = parseQuery(query);
-        Image *image;
-        _filteredList->clear();
-        for (int i=0; i<_originalList->size(); i++) {
-            // check if image name contains at least one token
-            image = _originalList->at(i);
-            if (containsAllTokens(image->name, tokens)) {
-                _filteredList->append(image);
-            }
-        }
+        this->filterByTokens(parseQuery(query));
     }
+
+    // find the image that was being viewed before filtering
     if (originalImage != NULL && !_filteredList->empty()) {
         this->goTo(originalImage->name);
+    } else {
+        _index = 0;
+    }
+}
+
+/// clear the image list and add back images that contain all the tokens
+void ImageListFilter::filterByTokens(QStringList tokens)
+{
+    Image *image;
+    _filteredList->clear();
+    for (int i=0; i<_originalList->size(); i++) {
+        image = _originalList->at(i);
+        if (containsAllTokens(image->name, tokens)) {
+            _filteredList->append(image);
+        }
     }
 }
 
