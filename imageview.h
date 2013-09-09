@@ -26,6 +26,7 @@ protected:
     void mousePressEvent(QMouseEvent *e);
     void mouseMoveEvent(QMouseEvent *e);
     void resizeEvent(QResizeEvent *e);
+    bool event(QEvent *e);
 
 private:
     Image *_image;

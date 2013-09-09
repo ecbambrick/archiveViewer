@@ -96,3 +96,12 @@ void ImageView::resizeEvent(QResizeEvent *e)
         _label->setPixmap(*_label->pixmap());
     }
 }
+
+bool ImageView::event(QEvent *e)
+{
+    if (e->type() == QEvent::MouseButtonDblClick) {
+        this->toggleZoom();
+        return true;
+    }
+    return QScrollArea::event(e);
+}
