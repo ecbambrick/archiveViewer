@@ -21,6 +21,7 @@ ImageView::ImageView(QWidget *parent) : QScrollArea(parent)
 
 ImageView::~ImageView()
 {
+    delete _pixmap;
     delete _label;
 }
 
@@ -29,6 +30,7 @@ ImageView::~ImageView()
 void ImageView::setImage(Image *image)
 {
     if (image != _image) {
+        this->clearImage();
         _image = image;
         _pixmap = new QPixmap(_image->path + _image->name);
         this->updateImage();
