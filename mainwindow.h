@@ -27,72 +27,64 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QPixmap>
-#include <QLineEdit>
-#include <sevenziparchiver.h>
-#include <imagelist.h>
-#include <archivedimagelist.h>
-#include <directoryimagelist.h>
-#include <QMovie>
 #include <QKeyEvent>
-#include <imageListFilter.h>
+#include <QLineEdit>
+#include <QSettings>
+#include <QLabel>
+#include <QDebug>
+#include "imagelistfilter.h"
+#include "archiver.h"
+#include "fileio.h"
+#include "imageview.h"
 
 namespace Ui { class MainWindow; }
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-    
-public:
 
+public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    
+
 public slots:
-    // manipulate image list
     void open();
-    void filter();
-    void next();
+    void load(const QString path);
     void previous();
-    void goTo(int index);
-    void random();
-    void imageUpdated(int index);
-
-    // manipulate current image
-    void zoomIn();
-    void zoomOut();
-    void zoomFit();
-    void zoomFull();
-    void rename();
-
-protected:
-    void resizeEvent(QResizeEvent *);
-    void keyPressEvent(QKeyEvent *e);
+    void next();
+    void filter();
+    void shuffle(bool value);
+    void toggleZoom();
+    void toggleClean();
 
 private:
-    // initialization
-    void initializeUI();
-    void createTemporaryDirectory();
-    void loadGeometryFromSettings();
-    void loadFileFromSettings();
-    void saveSettings();
+    void initUI();
+    void initFile();
+    void setImage(Image *image);
+    void updateStatusNumber(Image *image);
+    void updateStatusName(Image *image);
+    void resizeEvent(QResizeEvent *e);
+    void keyPressEvent(QKeyEvent *e);
 
-    // update currently displayed image
-    void loadFile(const QString &path);
-    void updateLabel();
+    // widgets
+    QToolBar *_uiToolbar;
+    ImageView *_uiView;
+    QLineEdit *_uiSearch;
+    QLabel *_uiFileName;
+    QLabel *_uiFileNumber;
+    QStatusBar *_uiStatus;
 
-    Ui::MainWindow  *_ui;
-    QLineEdit       *_searchBox;
-    QList<int>      *_shuffeHistory;
-    QPixmap         *_pixmap;
-    QMovie          *_animation;
-    Archiver        *_archiver;
-    ImageList       *_imageList;
-    QString         _defaultDir;
-    QString         _lastOpenedFile;
-    QString         _settingsPath;
-    int             _index;
-    int             _numReady;
+    // actions
+    QAction *_actionToggleZoom;
+    QAction *_actionOpen;
+    QAction *_actionPrev;
+    QAction *_actionNext;
+    QAction *_actionShuf;
+
+    // misc
+    QSettings *_settings;
+    ImageListFilter *_imageList;
+    Archiver *_archiver;
 };
 
 #endif // MAINWINDOW_H
