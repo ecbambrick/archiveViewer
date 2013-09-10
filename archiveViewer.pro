@@ -31,7 +31,5 @@ HEADERS  += mainwindow.h \
     imagelistfilter.h \
     imageview.h
 
-FORMS    += mainwindow.ui
-
 RESOURCES += \
     resources.qrc
