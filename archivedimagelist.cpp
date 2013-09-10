@@ -33,6 +33,12 @@
 */
 void callExtraction(ArchivedImageList *list, QFutureWatcher<void> *watcher)
 {
+    // create temp dir if not exists
+    QDir tempDir(QDir::tempPath()+"/archiveViewer");
+    if (!tempDir.exists()) {
+        tempDir.mkpath(".");
+    }
+
     // extract each file one-by-one
     // this is to keep track of which files have been extracted and
     // which files are yet to be extracted
