@@ -6,6 +6,7 @@ ImageView::ImageView(QWidget *parent) : QScrollArea(parent)
 {
     _fitToWindow = true;
     _pixmap = NULL;
+    _movie = NULL;
 
     _label = new QLabel(this);
     _label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -32,7 +33,14 @@ void ImageView::setImage(Image *image)
     if (image != _image) {
         this->clearImage();
         _image = image;
-        _pixmap = new QPixmap(_image->path + _image->name);
+        _movie = new QMovie(image->path + image->name);
+        if (_movie->isValid() && _movie->frameCount() > 1) {
+            _movie->start();
+        } else {
+            delete _movie;
+            _movie = NULL;
+            _pixmap = new QPixmap(image->path + image->name);
+        }
         this->updateImage();
         this->horizontalScrollBar()->setValue(0);
         this->verticalScrollBar()->setValue(0);
@@ -42,7 +50,9 @@ void ImageView::setImage(Image *image)
 void ImageView::clearImage()
 {
     delete _pixmap;
+    delete _movie;
     _pixmap = NULL;
+    _movie = NULL;
     _image = NULL;
     _label->clear();
 }
@@ -60,6 +70,11 @@ void ImageView::updateImage()
         } else {
             _label->setPixmap(*_pixmap);
         }
+    }
+    if (_movie != NULL) {
+        _movie->setPaused(true);
+        _label->setMovie(_movie);
+        _movie->start();
     }
 }
 
@@ -89,12 +104,7 @@ void ImageView::mouseMoveEvent(QMouseEvent *e)
 
 void ImageView::resizeEvent(QResizeEvent *e)
 {
-    if (_pixmap != NULL) {
-        if (_fitToWindow) {
-            this->updateImage();
-        }
-        _label->setPixmap(*_label->pixmap());
-    }
+    this->updateImage();
 }
 
 bool ImageView::event(QEvent *e)

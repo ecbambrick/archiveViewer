@@ -7,6 +7,7 @@
 #include <QScrollArea>
 #include <QMouseEvent>
 #include <QPixmap>
+#include <QMovie>
 #include <QLabel>
 #include "imagelist.h"
 
@@ -31,6 +32,7 @@ protected:
 private:
     Image *_image;
     QPixmap *_pixmap;
+    QMovie *_movie;
     QLabel *_label;
     QPoint _initMousePos;
     bool _fitToWindow;
