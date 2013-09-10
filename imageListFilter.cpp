@@ -132,25 +132,25 @@ void ImageListFilter::reset()
 }
 
 /// filter the list based on a query
-void ImageListFilter::filter(QString query)
+Image *ImageListFilter::filter(QString query)
 {
     Image *originalImage = this->current();
 
-    // emtpy query
     if (query == "") {
         this->reset();
-
-    // non-empty query
     } else if (_originalList != NULL) {
         this->filterByTokens(parseQuery(query));
     }
 
     // find the image that was being viewed before filtering
+    // if the image has been filtered, go to the first image in the list
     if (originalImage != NULL && !_filteredList->empty()) {
         this->goTo(originalImage->name);
     } else {
         _index = 0;
     }
+
+    return this->current();
 }
 
 /// clear the image list and add back images that contain all the tokens

@@ -40,8 +40,8 @@ public:
     ~ImageListFilter();
 
     // list manipulation
+    Image *filter(QString query);
     void setShuffle(bool value);
-    void filter(QString query);
     void reset();
 
     // traversal
