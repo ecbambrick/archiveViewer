@@ -4,6 +4,24 @@
 
 ImageView::ImageView(QWidget *parent) : QScrollArea(parent)
 {
+    // right-click menu
+    this->setContextMenuPolicy(Qt::CustomContextMenu);
+    _contextMenu = new QMenu(this);
+    _contextMenu->addAction("Open containing folder");
+    _contextMenu->addAction("Open with...");
+    _contextMenu->addSeparator();
+    _contextMenu->addAction("Set as desktop background");
+    _contextMenu->addAction("Rotate left");
+    _contextMenu->addAction("Rotate Right");
+    _contextMenu->addSeparator();
+    _contextMenu->addAction("Copy");
+    _contextMenu->addAction("Delete");
+    _contextMenu->addAction("Rename...");
+    _contextMenu->addSeparator();
+    _contextMenu->addAction("Properties");
+    connect(this, SIGNAL(customContextMenuRequested(const QPoint&)),
+            this, SLOT(showContextMenu(const QPoint&)));
+
     _fitToWindow = true;
     _pixmap = NULL;
     _movie = NULL;
@@ -22,6 +40,7 @@ ImageView::ImageView(QWidget *parent) : QScrollArea(parent)
 
 ImageView::~ImageView()
 {
+    delete _contextMenu;
     delete _pixmap;
     delete _label;
 }
@@ -84,22 +103,36 @@ void ImageView::toggleZoom()
     this->updateImage();
 }
 
+/* --------------------------------------------------------------------- MENU */
+
+void ImageView::showContextMenu(const QPoint& point)
+{
+    QPoint globalPos = this->mapToGlobal(point);
+    if (_contextMenu->exec(globalPos)) {
+        // add code
+    }
+}
+
 /* ------------------------------------------------------------------- EVENTS */
 
 void ImageView::mousePressEvent(QMouseEvent *e)
 {
-    _initMousePos = e->pos();
+    if (e->buttons() == Qt::LeftButton) {
+        _initMousePos = e->pos();
+    }
 }
 
 void ImageView::mouseMoveEvent(QMouseEvent *e)
 {
-    QScrollBar *vertical = this->verticalScrollBar();
-    QScrollBar *horizontal = this->horizontalScrollBar();
-    int x = e->pos().x() - _initMousePos.x();
-    int y = e->pos().y() - _initMousePos.y();
-    horizontal->setValue(horizontal->value() - x);
-    vertical->setValue(vertical->value() - y);
-    _initMousePos = e->pos();
+    if (e->buttons() == Qt::LeftButton) {
+        QScrollBar *vertical = this->verticalScrollBar();
+        QScrollBar *horizontal = this->horizontalScrollBar();
+        int x = e->pos().x() - _initMousePos.x();
+        int y = e->pos().y() - _initMousePos.y();
+        horizontal->setValue(horizontal->value() - x);
+        vertical->setValue(vertical->value() - y);
+        _initMousePos = e->pos();
+    }
 }
 
 void ImageView::resizeEvent(QResizeEvent *e)

@@ -8,6 +8,7 @@
 #include <QMouseEvent>
 #include <QPixmap>
 #include <QMovie>
+#include <QMenu>
 #include <QLabel>
 #include "imagelist.h"
 
@@ -23,6 +24,9 @@ public:
     void updateImage();
     void toggleZoom();
 
+public slots:
+    void showContextMenu(const QPoint &point);
+
 protected:
     void mousePressEvent(QMouseEvent *e);
     void mouseMoveEvent(QMouseEvent *e);
@@ -30,6 +34,7 @@ protected:
     bool event(QEvent *e);
 
 private:
+    QMenu *_contextMenu;
     Image *_image;
     QPixmap *_pixmap;
     QMovie *_movie;

@@ -59,3 +59,29 @@ QToolBar QLineEdit {
     background-repeat: no-repeat;
     border: 1px solid #ccc;
 }
+
+/* ------------------------------------------------------------- CONTEXT MENU */
+
+QMenu {
+    background-color: #fff;
+    border: 1px solid #D75D00;
+}
+
+QMenu::separator {
+    background-color: #fff;
+    border-bottom: 1px dashed #D75D00;
+    height: 0px;
+}
+
+QMenu::item {
+    padding: 5px;
+}
+
+QMenu::item:selected {
+    background-color: #ddd;
+}
+
+QMenu::item:pressed {
+    color: #fff;
+    background-color: #D75D00;
+}
