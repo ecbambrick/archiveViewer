@@ -27,8 +27,9 @@
 
 // private data
 QStringList imageSuffixes   = (QStringList() << "png" << "gif" << "jpeg" << "jpg");
-QStringList archiveSuffixes = (QStringList() << "cbz" << "cbz" << "cb7" << "zip" << "rar" << "7z");
-QString filter              = "Images and Archives (*.jpg *.jpeg *.png *.gif *.cbz)";
+QStringList archiveSuffixes = (QStringList() << "cbz" << "cbr" << "cb7" << "zip" << "rar" << "7z");
+QString filter              = "Images and Archives (*.jpg *.jpeg *.png *.gif *.cbz *.cbr *.cb7);;"
+                              "Any File (*.*)";
 
 /// open file dialogue at the supplied directory
 QString FileIO::openFileDialogue(QString directory)
