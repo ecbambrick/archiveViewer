@@ -60,6 +60,8 @@ public slots:
 private:
     void initUI();
     void initFile();
+    void loadSettings();
+    void saveSettings();
     void setImage(Image *image);
     void updateStatusNumber(Image *image);
     void updateStatusName(Image *image);
@@ -81,8 +83,14 @@ private:
     QAction *_actionNext;
     QAction *_actionShuf;
 
+    // settings
+    QByteArray _settingsGeometry;
+    QString _settingsLastOpened;
+    QString _settingsLastViewed;
+    bool _settingsStatusHidden;
+    bool _settingsMaximized;
+
     // misc
-    QSettings *_settings;
     ImageListFilter *_imageList;
     Archiver *_archiver;
 };

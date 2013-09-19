@@ -32,30 +32,22 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     _imageList = new ImageListFilter();
     _archiver = new SevenZipArchiver();
-    _settings = new QSettings(
-                    QCoreApplication::applicationDirPath() + "/settings.ini",
-                    QSettings::IniFormat);
-
+    loadSettings();
     initUI();
     initFile();
 }
 
 void MainWindow::initFile()
 {
-    // load settings and command line arguments
-    QString lastOpened = _settings->value("last_opened_file", "").toString();
-    QString lastViewed = _settings->value("last_viewed_file", "").toString();
-    QStringList args   = QCoreApplication::arguments();
-
-    qDebug() << lastViewed;
-
     // load file from command line arguments
+    QStringList args   = QCoreApplication::arguments();
     if (args.size() == 2 && args.at(1) != "") {
         load(args.at(1));
 
     // load file from previous session
-    } else if (lastOpened != "") {
-        load(lastOpened);
+    } else if (_settingsLastOpened != "") {
+        QString lastViewed = _settingsLastViewed;
+        load(_settingsLastOpened);
         setImage(_imageList->goTo(lastViewed));
     }
 }
@@ -132,22 +124,47 @@ void MainWindow::initUI()
         file.close();
     }
 
-    // restore window geometry
-    QByteArray geometry = _settings->value("window_geometry", saveGeometry()).toByteArray();
-    bool maximized = _settings->value("window_maximized", false).toBool();
-    this->restoreGeometry(geometry);
-    if (maximized) {
-        this->showMaximized();
-    }
+    // restore previous settings
+    this->restoreGeometry(_settingsGeometry);
+    if (_settingsMaximized) this->showMaximized();
 }
 
 MainWindow::~MainWindow()
 {
-    _settings->setValue("window_geometry", saveGeometry());
-    _settings->setValue("window_maximized", isMaximized());
-    delete _settings;
+    saveSettings();
     delete _imageList->list();
     delete _imageList;
+}
+
+/* ----------------------------------------------------------------- SETTINGS */
+
+void MainWindow::loadSettings()
+{
+    QSettings settings(
+        QCoreApplication::applicationDirPath() + "/settings.ini",
+        QSettings::IniFormat
+    );
+    _settingsGeometry = settings.value("window_geometry", saveGeometry()).toByteArray();
+    _settingsMaximized = settings.value("window_maximized", false).toBool();
+    _settingsStatusHidden = settings.value("status_hidden", false).toBool();
+    _settingsLastOpened = settings.value("last_opened_file", "").toString();
+    _settingsLastViewed = settings.value("last_viewed_file", "").toString();
+}
+
+void MainWindow::saveSettings()
+{
+    QSettings settings(
+        QCoreApplication::applicationDirPath() + "/settings.ini",
+        QSettings::IniFormat
+    );
+    if (!isMaximized()) {
+        settings.setValue("window_geometry",  saveGeometry());
+    }
+    settings.setValue("window_maximized", isMaximized());
+    settings.setValue("status_hidden",    _uiStatus->isHidden());
+    settings.setValue("last_opened_file", _settingsLastOpened);
+    settings.setValue("last_viewed_file", _settingsLastViewed);
+    settings.sync();
 }
 
 /* ------------------------------------------------------------- FILE ACTIONS */
@@ -155,9 +172,7 @@ MainWindow::~MainWindow()
 /// Display the open file dialog and open the selected file
 void MainWindow::open()
 {
-    QString openDirectory = _settings->value("last_opened_file", "").toString();
-    QString selectedFile = FileIO::openFileDialogue(openDirectory);
-
+    QString selectedFile = FileIO::openFileDialogue(_settingsLastOpened);
     if (selectedFile != NULL) {
         this->load(selectedFile);
     }
@@ -191,8 +206,8 @@ void MainWindow::load(const QString path)
     newList->open();
 
     // update the image
-    _settings->setValue("last_opened_file", file.absoluteFilePath());
-    _settings->setValue("last_viewed_file", file.fileName());
+    _settingsLastOpened = file.absoluteFilePath();
+    _settingsLastViewed = file.fileName();
     this->setImage(_imageList->goTo(fileName));
 }
 
@@ -252,7 +267,7 @@ void MainWindow::setImage(Image *image)
         _uiView->clearImage();
     } else {
         _uiView->setImage(image);
-        _settings->setValue("last_viewed_file", image->name);
+        _settingsLastViewed = image->name;
     }
     this->updateStatusNumber(image);
     this->updateStatusName(image);
@@ -279,15 +294,11 @@ void MainWindow::updateStatusNumber(Image *image)
 {
     QString index = QString::number(_imageList->index()+1);
     QString size = QString::number(_imageList->size());
-    QString absoluteSize = QString::number(_imageList->list()->size());
 
     if (image == NULL) {
         _uiFileNumber->setText("0/0");
     } else {
-        _uiFileNumber->setText(
-                    index + " / " + size +
-                    "\n(" + absoluteSize + ")"
-        );
+        _uiFileNumber->setText(index + "/" + size);
     }
 }
 
