@@ -267,7 +267,7 @@ void MainWindow::setImage(Image *image)
         _uiView->clearImage();
     } else {
         _uiView->setImage(image);
-        _settingsLastViewed = image->name;
+        _settingsLastViewed = image->fileName();
     }
     this->updateStatusNumber(image);
     this->updateStatusName(image);
@@ -283,9 +283,9 @@ void MainWindow::updateStatusName(Image *image)
     } else {
         // cut off the name with "..." if too long
         QFontMetrics font(_uiFileName->font());
-        QString newText = font.elidedText(image->name, Qt::ElideRight, width);
+        QString newText = font.elidedText(image->fileName(), Qt::ElideRight, width);
         _uiFileName->setText(_imageList->listName() + "\n" + newText);
-        this->setWindowTitle(image->name + " - Archive Viewer");
+        this->setWindowTitle(image->fileName() + " - Archive Viewer");
     }
 }
 

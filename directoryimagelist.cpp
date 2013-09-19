@@ -37,11 +37,7 @@ DirectoryImageList::DirectoryImageList(const QString &path)
         if (file.fileName() == fileName) {
             _initialIndex = this->size();
         }
-        Image *newImage = new Image();
-        newImage->path = _directoryPath + "/";
-        newImage->name = fileName;
-        newImage->active = true;
-        this->append(newImage);
+        this->append(new Image(_directoryPath + "/" + fileName));
     }
 }
 
@@ -60,10 +56,6 @@ int DirectoryImageList::open()
 */
 void DirectoryImageList::close()
 {
-    // Mark images as inactive
-    for (int i = 0; i < this->size(); ++i) {
-        this->at(i)->active = false;
-    }
 }
 
 /* Event Functions ---------------------------------------------------------- */

@@ -65,12 +65,7 @@ ArchivedImageList::ArchivedImageList(Archiver *archiver, const QString &path)
     // Generate the list of images from the archive
     // note: the images are not actually extracted yet
     foreach (QString fileName, archiver->l(_archivePath)) {
-        Image *newImage = new Image();
-        newImage->path = _extractPath + "/";
-        newImage->name = fileName;
-        newImage->active = false;
-        newImage->exists = false;
-        this->append(newImage);
+        this->append(new Image(_extractPath + "/" + fileName));
     }
 }
 
@@ -100,11 +95,6 @@ void ArchivedImageList::close()
 
     // Recursively delete extracted files
     removeDir(_extractPath);
-
-    // Mark images as inactive
-    for (int i = 0; i < this->size(); ++i) {
-        this->at(i)->active = false;
-    }
 }
 
 /**
@@ -113,14 +103,11 @@ void ArchivedImageList::close()
 void ArchivedImageList::extract(int index)
 {
     Image *image = this->at(index);
-    QFile file(_extractPath+"\\"+image->name);
+    QFile file(_extractPath+"\\"+image->fileName());
 
     if (!file.exists()) {
-        _archiver->x(_archivePath, _extractPath, image->name);
+        _archiver->x(_archivePath, _extractPath, image->fileName());
     }
-
-    image->active = true;
-    image->exists = true;
     emit imageReady(index);
 }
 

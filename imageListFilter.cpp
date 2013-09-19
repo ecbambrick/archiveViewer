@@ -100,7 +100,7 @@ Image* ImageListFilter::goTo(QString fileName)
     _index = 0;
     for (int i = 0; i < _filteredList->size(); i++) {
         Image *image = _filteredList->at(i);
-        if (image->name == fileName) {
+        if (image->fileName() == fileName) {
             _index = i;
         }
     }
@@ -145,7 +145,7 @@ Image *ImageListFilter::filter(QString query)
     // find the image that was being viewed before filtering
     // if the image has been filtered, go to the first image in the list
     if (originalImage != NULL && !_filteredList->empty()) {
-        this->goTo(originalImage->name);
+        this->goTo(originalImage->fileName());
     } else {
         _index = 0;
     }
@@ -160,7 +160,7 @@ void ImageListFilter::filterByTokens(QStringList tokens)
     _filteredList->clear();
     for (int i=0; i<_originalList->size(); i++) {
         image = _originalList->at(i);
-        if (containsAllTokens(image->name, tokens)) {
+        if (containsAllTokens(image->fileName(), tokens)) {
             _filteredList->append(image);
         }
     }

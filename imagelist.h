@@ -31,13 +31,7 @@
 
 #include <QObject>
 #include <QList>
-
-struct Image {
-    QString path;
-    QString name;
-    bool active;
-    bool exists;
-};
+#include "image.h"
 
 class ImageList : public QObject, public QList<Image*>
 {

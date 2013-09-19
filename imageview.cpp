@@ -52,13 +52,13 @@ void ImageView::setImage(Image *image)
     if (image != _image) {
         this->clearImage();
         _image = image;
-        _movie = new QMovie(image->path + image->name);
+        _movie = new QMovie(image->absoluteFilePath());
         if (_movie->isValid() && _movie->frameCount() > 1) {
             _movie->start();
         } else {
             delete _movie;
             _movie = NULL;
-            _pixmap = new QPixmap(image->path + image->name);
+            _pixmap = new QPixmap(image->absoluteFilePath());
         }
         this->updateImage();
         this->horizontalScrollBar()->setValue(0);
