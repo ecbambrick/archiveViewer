@@ -42,6 +42,7 @@ ImageView::~ImageView()
 {
     delete _contextMenu;
     delete _pixmap;
+    delete _movie;
     delete _label;
 }
 
