@@ -304,10 +304,14 @@ void MainWindow::updateStatusNumber(Image *image)
 
 void MainWindow::toggleClean()
 {
-    if (statusBar()->isHidden()) {
-        statusBar()->show();
+    // toggle status bar
+    statusBar()->setHidden(!statusBar()->isHidden());
+
+    // toggle toolbar using hide(), to keep its actions active
+    if (_uiToolbar->height() == 0) {
+        _uiToolbar->setMaximumHeight(48);
     } else {
-        statusBar()->hide();
+        _uiToolbar->setMaximumHeight(0);
     }
 }
 
