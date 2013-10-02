@@ -134,8 +134,20 @@ void MainWindow::initUI()
 MainWindow::~MainWindow()
 {
     saveSettings();
+    delete _archiver;
     delete _imageList->list();
     delete _imageList;
+    delete _actionToggleZoom;
+    delete _actionOpen;
+    delete _actionPrev;
+    delete _actionNext;
+    delete _actionShuf;
+    delete _uiSearch;
+    delete _uiToolbar;
+    delete _uiView;
+    delete _uiFileName;
+    delete _uiFileNumber;
+    delete _uiStatus;
 }
 
 /* ----------------------------------------------------------------- SETTINGS */
