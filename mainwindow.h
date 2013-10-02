@@ -89,6 +89,7 @@ private:
     QString _settingsLastViewed;
     bool _settingsStatusHidden;
     bool _settingsMaximized;
+    bool _wasMaximized;
 
     // misc
     ImageListFilter *_imageList;

@@ -32,6 +32,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     _imageList = new ImageListFilter();
     _archiver = new SevenZipArchiver();
+    _wasMaximized = false;
     loadSettings();
     initUI();
     initFile();
@@ -126,6 +127,7 @@ void MainWindow::initUI()
 
     // restore previous settings
     this->restoreGeometry(_settingsGeometry);
+    this->showNormal();
     if (_settingsMaximized) this->showMaximized();
 }
 
@@ -160,7 +162,7 @@ void MainWindow::saveSettings()
     if (!isMaximized()) {
         settings.setValue("window_geometry",  saveGeometry());
     }
-    settings.setValue("window_maximized", isMaximized());
+    settings.setValue("window_maximized", (_wasMaximized || isMaximized()));
     settings.setValue("status_hidden",    _uiStatus->isHidden());
     settings.setValue("last_opened_file", _settingsLastOpened);
     settings.setValue("last_viewed_file", _settingsLastViewed);
@@ -352,7 +354,20 @@ void MainWindow::keyPressEvent(QKeyEvent *e)
         _uiSearch->selectAll();
 
     // hide the toolbar and statusbar
-    } else if (e->key() == Qt::Key_F11) {
+    } else if (e->key() == Qt::Key_F12) {
         this->toggleClean();
+
+    // fullscreen
+    } else if (e->key() == Qt::Key_F11) {
+        if (this->isFullScreen()) {
+            this->showNormal();
+            if (_wasMaximized) {
+                this->showMaximized();
+                _wasMaximized = false;
+            }
+        } else {
+            _wasMaximized = this->isMaximized();
+            this->showFullScreen();
+        }
     }
 }
