@@ -36,6 +36,7 @@ public:
     enum FileType { ARCHIVE, IMAGE, DIR, INVALID };
     static QString openFileDialogue(QString directory);
     static FileType getFileType(QFileInfo *file);
+    static void openFileManager(QFileInfo *file);
 };
 
 #endif // FILEIO_H

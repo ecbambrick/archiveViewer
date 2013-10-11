@@ -24,6 +24,8 @@
 
 #include "fileio.h"
 #include "QFileDialog"
+#include <QDesktopServices>
+#include <QUrl>
 
 // private data
 QStringList imageSuffixes   = (QStringList() << "png" << "gif" << "jpeg" << "jpg");
@@ -52,3 +54,8 @@ FileIO::FileType FileIO::getFileType(QFileInfo *file)
     }
 }
 
+/// open the file manager at the location of the file
+void FileIO::openFileManager(QFileInfo *file)
+{
+    QDesktopServices::openUrl(QUrl("file:///" + file->absolutePath()));
+}
