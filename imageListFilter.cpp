@@ -209,8 +209,17 @@ QStringList ImageListFilter::parseQuery(QString query)
 
 void ImageListFilter::setList(ImageList *list)
 {
+    if (_originalList != NULL) {
+        this->disconnect(_originalList, SIGNAL(imageReady(int)),
+                         this,          SLOT(imageReadySlot(int)));
+    }
+
     _originalList = list;
     _index = 0;
+
+    this->connect(_originalList, SIGNAL(imageReady(int)),
+                  this,          SLOT(imageReadySlot(int)));
+
     this->reset();
 }
 
