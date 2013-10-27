@@ -29,7 +29,8 @@
 /* -------------------------------------------------------------------------- */
 
 /**
-    Extract files from archiver in seperate thread
+    Extract files from archiver
+    should be called from a seperate thread
 */
 void callExtraction(ArchivedImageList *list, QFutureWatcher<void> *watcher)
 {
@@ -39,14 +40,26 @@ void callExtraction(ArchivedImageList *list, QFutureWatcher<void> *watcher)
         tempDir.mkpath(".");
     }
 
+    // copy image list
+    QList<Image*> imageList;
+    for (int i = 0; i < list->size(); i++) {
+        imageList.append(list->at(i));
+    }
+
     // extract each file one-by-one
     // this is to keep track of which files have been extracted and
     // which files are yet to be extracted
-    for (int i = 0; i < list->size(); i++) {
+    QList<Image*>::iterator i = imageList.begin();
+    while (!imageList.empty()) {
+        if (i == imageList.end()) {
+            i = imageList.begin();
+        }
         if (watcher->isCanceled()) {
             break;
+        } else {
+            list->extract((Image*)*i);
+            i = imageList.erase(i);
         }
-        list->extract(i);
     }
 }
 
@@ -100,15 +113,12 @@ void ArchivedImageList::close()
 /**
     Extract an image from the archive, mark it as ready and emit a signal
 */
-void ArchivedImageList::extract(int index)
+void ArchivedImageList::extract(Image *image)
 {
-    Image *image = this->at(index);
-    QFile file(_extractPath+"\\"+image->fileName());
-
-    if (!file.exists()) {
+    if (!image->exists()) {
         _archiver->x(_archivePath, _extractPath, image->fileName());
     }
-    emit imageReady(index);
+    emit imageReady(image);
 }
 
 /* Event Functions ---------------------------------------------------------- */

@@ -102,12 +102,12 @@ void MainWindow::initUI()
     _actionPrev->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Space));
 
     // initialize connections
-    this->connect(_actionOpen,       SIGNAL(triggered()),     this, SLOT(open()));
-    this->connect(_actionPrev,       SIGNAL(triggered()),     this, SLOT(previous()));
-    this->connect(_actionNext,       SIGNAL(triggered()),     this, SLOT(next()));
-    this->connect(_actionShuf,       SIGNAL(toggled(bool)),   this, SLOT(shuffle(bool)));
-    this->connect(_actionToggleZoom, SIGNAL(triggered()),     this, SLOT(toggleZoom()));
-    this->connect(_uiSearch,         SIGNAL(returnPressed()), this, SLOT(filter()));
+    this->connect(_actionOpen,        SIGNAL(triggered()),        this, SLOT(open()));
+    this->connect(_actionPrev,        SIGNAL(triggered()),        this, SLOT(previous()));
+    this->connect(_actionNext,        SIGNAL(triggered()),        this, SLOT(next()));
+    this->connect(_actionShuf,        SIGNAL(toggled(bool)),      this, SLOT(shuffle(bool)));
+    this->connect(_actionToggleZoom,  SIGNAL(triggered()),        this, SLOT(toggleZoom()));
+    this->connect(_uiSearch,          SIGNAL(returnPressed()),    this, SLOT(filter()));
 
     // misc widget settings
     uiSpace->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
@@ -217,12 +217,21 @@ void MainWindow::load(const QString path)
         newList = new DirectoryImageList(file.absoluteFilePath());
     }
     _imageList->setList(newList);
+    this->connect(newList, SIGNAL(imageReady(Image*)), this, SLOT(reload(Image*)));
     newList->open();
 
     // update the image
     _settingsLastOpened = file.absoluteFilePath();
     _settingsLastViewed = file.fileName();
     this->setImage(_imageList->goTo(fileName));
+}
+
+/// Reload the current Image
+void MainWindow::reload(Image *image)
+{
+    if (image == _imageList->current()) {
+        this->setImage(image);
+    }
 }
 
 /* ------------------------------------------------------- NAVIGATION ACTIONS */

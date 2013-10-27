@@ -43,7 +43,7 @@ public:
     virtual QString listName() = 0;
 
 signals:
-    virtual void imageReady(int index) = 0;
+    void imageReady(Image *image);
 };
 
 #endif // IMAGELIST_H

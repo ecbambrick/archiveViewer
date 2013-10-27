@@ -41,9 +41,6 @@ public:
     void close();
     QString listName();
 
-signals:
-    void imageReady(int index);
-
 private:
     QString _directoryPath;
     QString _directoryName;

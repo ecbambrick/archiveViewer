@@ -50,6 +50,7 @@ public:
 public slots:
     void open();
     void load(const QString path);
+    void reload(Image *image);
     void previous();
     void next();
     void filter();

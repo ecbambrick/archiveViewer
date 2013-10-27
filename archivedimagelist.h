@@ -41,11 +41,8 @@ public:
     // extract and remove extracted archive contents and thumbnails
     int open();
     void close();
-    void extract(int index);
+    void extract(Image *image);
     QString listName();
-
-signals:
-    void imageReady(int index);
 
 private:
     void removeDir(const QString &path);
