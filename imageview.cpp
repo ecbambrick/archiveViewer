@@ -1,4 +1,5 @@
 #include "imageview.h"
+#include "fileio.h"
 #include <math.h>
 #include <QDebug>
 
@@ -7,7 +8,7 @@ ImageView::ImageView(QWidget *parent) : QScrollArea(parent)
     // right-click menu
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     _contextMenu = new QMenu(this);
-    _contextMenu->addAction("Open containing folder");
+    _actionOpenFolder = _contextMenu->addAction("Open containing folder");
     _contextMenu->addAction("Open with...");
     _contextMenu->addSeparator();
     _contextMenu->addAction("Set as desktop background");
@@ -21,6 +22,8 @@ ImageView::ImageView(QWidget *parent) : QScrollArea(parent)
     _contextMenu->addAction("Properties");
     connect(this, SIGNAL(customContextMenuRequested(const QPoint&)),
             this, SLOT(showContextMenu(const QPoint&)));
+
+    connect(_actionOpenFolder, SIGNAL(triggered()), this, SLOT(openDirectory()));
 
     _fitToWindow = true;
     _pixmap = NULL;
@@ -50,21 +53,19 @@ ImageView::~ImageView()
 
 void ImageView::setImage(Image *image)
 {
-    if (image != _image) {
-        this->clearImage();
-        _image = image;
-        _movie = new QMovie(image->absoluteFilePath());
-        if (_movie->isValid() && _movie->frameCount() > 1) {
-            _movie->start();
-        } else {
-            delete _movie;
-            _movie = NULL;
-            _pixmap = new QPixmap(image->absoluteFilePath());
-        }
-        this->updateImage();
-        this->horizontalScrollBar()->setValue(0);
-        this->verticalScrollBar()->setValue(0);
+    this->clearImage();
+    _image = image;
+    _movie = new QMovie(image->absoluteFilePath());
+    if (_movie->isValid() && _movie->frameCount() > 1) {
+        _movie->start();
+    } else {
+        delete _movie;
+        _movie = NULL;
+        _pixmap = new QPixmap(image->absoluteFilePath());
     }
+    this->updateImage();
+    this->horizontalScrollBar()->setValue(0);
+    this->verticalScrollBar()->setValue(0);
 }
 
 void ImageView::clearImage()
@@ -109,9 +110,13 @@ void ImageView::toggleZoom()
 void ImageView::showContextMenu(const QPoint& point)
 {
     QPoint globalPos = this->mapToGlobal(point);
-    if (_contextMenu->exec(globalPos)) {
-        // add code
-    }
+    _contextMenu->exec(globalPos);
+}
+
+void ImageView::openDirectory()
+{
+    QFileInfo *file = (QFileInfo*) _image;
+    FileIO::openFileManager(file);
 }
 
 /* ------------------------------------------------------------------- EVENTS */

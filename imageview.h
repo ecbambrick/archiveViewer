@@ -26,6 +26,7 @@ public:
 
 public slots:
     void showContextMenu(const QPoint &point);
+    void openDirectory();
 
 protected:
     void mousePressEvent(QMouseEvent *e);
@@ -35,6 +36,8 @@ protected:
 
 private:
     QMenu *_contextMenu;
+    QAction *_actionOpenFolder;
+
     Image *_image;
     QPixmap *_pixmap;
     QMovie *_movie;
