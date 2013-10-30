@@ -26,6 +26,7 @@ ImageView::ImageView(QWidget *parent) : QScrollArea(parent)
     connect(_actionOpenFolder, SIGNAL(triggered()), this, SLOT(openDirectory()));
 
     _fitToWindow = true;
+    _fitToWidth = false;
     _pixmap = NULL;
     _movie = NULL;
 
@@ -82,12 +83,18 @@ void ImageView::updateImage()
 {
     if (_pixmap != NULL) {
         if (_fitToWindow && (
-               _pixmap->width() > this->width()
-            || _pixmap->height() > this->height())) {
+                   _pixmap->width() > this->width()
+                || _pixmap->height() > this->height())) {
             _label->setPixmap(_pixmap->scaled(
-                                  this->size(),
-                                  Qt::KeepAspectRatio,
-                                  Qt::SmoothTransformation));
+                this->size(),
+                Qt::KeepAspectRatio,
+                Qt::SmoothTransformation));
+        } else if (_fitToWidth && _pixmap->width() > this->width()) {
+            _label->setPixmap(_pixmap->scaled(
+                this->width(),
+                _pixmap->height(),
+                Qt::KeepAspectRatio,
+                Qt::SmoothTransformation));
         } else {
             _label->setPixmap(*_pixmap);
         }
@@ -102,6 +109,12 @@ void ImageView::updateImage()
 void ImageView::toggleZoom()
 {
     _fitToWindow = !_fitToWindow;
+    this->updateImage();
+}
+
+void ImageView::fitToWidth(bool val)
+{
+    _fitToWidth = val;
     this->updateImage();
 }
 

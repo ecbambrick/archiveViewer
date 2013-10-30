@@ -25,6 +25,7 @@ public:
     void toggleZoom();
 
 public slots:
+    void fitToWidth(bool val);
     void showContextMenu(const QPoint &point);
     void openDirectory();
 
@@ -44,6 +45,7 @@ private:
     QLabel *_label;
     QPoint _initMousePos;
     bool _fitToWindow;
+    bool _fitToWidth;
 };
 
 #endif // IMAGEVIEW_H

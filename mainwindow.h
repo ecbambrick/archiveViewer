@@ -57,6 +57,7 @@ public slots:
     void shuffle(bool value);
     void toggleZoom();
     void toggleClean();
+    void fitToWidth(bool value);
 
 private:
     void initUI();
@@ -78,6 +79,7 @@ private:
     QStatusBar *_uiStatus;
 
     // actions
+    QAction *_actionFitToWidth;
     QAction *_actionToggleZoom;
     QAction *_actionOpen;
     QAction *_actionPrev;

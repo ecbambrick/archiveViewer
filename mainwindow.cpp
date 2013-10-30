@@ -61,6 +61,7 @@ void MainWindow::initUI()
     _actionNext       = new QAction("&Next", this);
     _actionShuf       = new QAction("&Shuffle", this);
     _actionToggleZoom = new QAction("&View Actual Size", this);
+    _actionFitToWidth = new QAction("&Fit to Width", this);
 
     // declare widgets
     QWidget *uiSpace  = new QWidget(this);
@@ -89,6 +90,7 @@ void MainWindow::initUI()
     _uiToolbar->addAction(_actionShuf);
     _uiToolbar->addAction(_actionNext);
     _uiToolbar->addSeparator();
+    _uiToolbar->addAction(_actionFitToWidth);
     _uiToolbar->addAction(_actionToggleZoom);
     _uiToolbar->addWidget(uiSpace);
     _uiToolbar->addWidget(_uiSearch);
@@ -106,6 +108,7 @@ void MainWindow::initUI()
     this->connect(_actionPrev,        SIGNAL(triggered()),        this, SLOT(previous()));
     this->connect(_actionNext,        SIGNAL(triggered()),        this, SLOT(next()));
     this->connect(_actionShuf,        SIGNAL(toggled(bool)),      this, SLOT(shuffle(bool)));
+    this->connect(_actionFitToWidth,  SIGNAL(toggled(bool)),      this, SLOT(fitToWidth(bool)));
     this->connect(_actionToggleZoom,  SIGNAL(triggered()),        this, SLOT(toggleZoom()));
     this->connect(_uiSearch,          SIGNAL(returnPressed()),    this, SLOT(filter()));
 
@@ -116,6 +119,7 @@ void MainWindow::initUI()
     _uiSearch->setMaximumWidth(192);
     _uiSearch->setMinimumWidth(192);
     _actionShuf->setCheckable(true);
+    _actionFitToWidth->setCheckable(true);
 
     // initialize style sheet
     QFile file(":/stylesheets/default");
@@ -336,6 +340,11 @@ void MainWindow::toggleClean()
     } else {
         _uiToolbar->setMaximumHeight(0);
     }
+}
+
+void MainWindow::fitToWidth(bool value)
+{
+    _uiView->fitToWidth(value);
 }
 
 /* ------------------------------------------------------------------- EVENTS */
