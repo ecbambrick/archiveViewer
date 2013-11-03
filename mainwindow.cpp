@@ -387,6 +387,10 @@ void MainWindow::keyPressEvent(QKeyEvent *e)
     } else if (e->key() == Qt::Key_F12) {
         this->toggleClean();
 
+    // fit to width
+    } else if (e->key() == Qt::Key_W) {
+        _actionFitToWidth->toggle();
+
     // fullscreen
     } else if (e->key() == Qt::Key_F11) {
         if (this->isFullScreen()) {
