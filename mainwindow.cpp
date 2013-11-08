@@ -132,7 +132,13 @@ void MainWindow::initUI()
     // restore previous settings
     this->restoreGeometry(_settingsGeometry);
     this->showNormal();
-    if (_settingsMaximized) this->showMaximized();
+
+    // if the window was previously maximized, move it to its previous
+    // position so that it appears in the correct monitor
+    if (_settingsMaximized) {
+        this->move(_settingsX, _settingsY);
+        this->showMaximized();
+    }
 }
 
 MainWindow::~MainWindow()
@@ -167,6 +173,9 @@ void MainWindow::loadSettings()
     _settingsStatusHidden = settings.value("status_hidden", false).toBool();
     _settingsLastOpened = settings.value("last_opened_file", "").toString();
     _settingsLastViewed = settings.value("last_viewed_file", "").toString();
+    _settingsX = settings.value("window_x", 0).toInt();
+    _settingsY = settings.value("window_y", 0).toInt();
+
 }
 
 void MainWindow::saveSettings()
@@ -175,6 +184,10 @@ void MainWindow::saveSettings()
         QCoreApplication::applicationDirPath() + "/settings.ini",
         QSettings::IniFormat
     );
+    if (isMaximized()) {
+        settings.setValue("window_x", geometry().x());
+        settings.setValue("window_y", geometry().y());
+    }
     if (!isMaximized()) {
         settings.setValue("window_geometry",  saveGeometry());
     }

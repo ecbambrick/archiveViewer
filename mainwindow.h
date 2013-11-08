@@ -93,6 +93,8 @@ private:
     bool _settingsStatusHidden;
     bool _settingsMaximized;
     bool _wasMaximized;
+    int _settingsX;
+    int _settingsY;
 
     // misc
     ImageListFilter *_imageList;
