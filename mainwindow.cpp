@@ -95,6 +95,7 @@ void MainWindow::initUI()
     _uiToolbar->addWidget(uiSpace);
     _uiToolbar->addWidget(_uiSearch);
     _uiToolbar->setMovable(false);
+    this->setContextMenuPolicy (Qt::NoContextMenu);
 
     // initialize shortcuts
     _actionToggleZoom->setShortcut(Qt::Key_F);
