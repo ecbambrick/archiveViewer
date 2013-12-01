@@ -23,11 +23,22 @@ public:
     void clearImage();
     void updateImage();
     void toggleZoom();
+    Image* image();
 
 public slots:
     void fitToWidth(bool val);
     void showContextMenu(const QPoint &point);
-    void openDirectory();
+
+private slots:
+    void openContainingFolder();
+    void openWith();
+    void setAsDesktopBackground();
+    void rotateLeft();
+    void rotateRight();
+    void copyImage();
+    void deleteFile();
+    void renameFile();
+    void displayProperties();
 
 protected:
     void mousePressEvent(QMouseEvent *e);
@@ -36,9 +47,9 @@ protected:
     bool event(QEvent *e);
 
 private:
-    QMenu *_contextMenu;
-    QAction *_actionOpenFolder;
+    void initContextMenu();
 
+    QMenu *_contextMenu;
     Image *_image;
     QPixmap *_pixmap;
     QMovie *_movie;

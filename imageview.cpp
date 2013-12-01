@@ -5,36 +5,20 @@
 
 ImageView::ImageView(QWidget *parent) : QScrollArea(parent)
 {
-    // right-click menu
-    this->setContextMenuPolicy(Qt::CustomContextMenu);
-    _contextMenu = new QMenu(this);
-    _actionOpenFolder = _contextMenu->addAction("Open containing folder");
-    _contextMenu->addAction("Open with...");
-    _contextMenu->addSeparator();
-    _contextMenu->addAction("Set as desktop background");
-    _contextMenu->addAction("Rotate left");
-    _contextMenu->addAction("Rotate Right");
-    _contextMenu->addSeparator();
-    _contextMenu->addAction("Copy");
-    _contextMenu->addAction("Delete");
-    _contextMenu->addAction("Rename...");
-    _contextMenu->addSeparator();
-    _contextMenu->addAction("Properties");
-    connect(this, SIGNAL(customContextMenuRequested(const QPoint&)),
-            this, SLOT(showContextMenu(const QPoint&)));
-
-    connect(_actionOpenFolder, SIGNAL(triggered()), this, SLOT(openDirectory()));
-
+    // initialize
+    this->initContextMenu();
     _fitToWindow = true;
     _fitToWidth = false;
     _pixmap = NULL;
     _movie = NULL;
 
+    // set label properties
     _label = new QLabel(this);
     _label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     _label->setAlignment(Qt::AlignCenter);
     _label->setPalette(QPalette(QColor(255,255,255,255)));
 
+    // set widget properties
     this->setWidget(_label);
     this->setWidgetResizable(true);
     this->setFrameShape(QScrollArea::NoFrame);
@@ -118,7 +102,27 @@ void ImageView::fitToWidth(bool val)
     this->updateImage();
 }
 
-/* --------------------------------------------------------------------- MENU */
+/* ------------------------------------------------------------- CONTEXT MENU */
+
+void ImageView::initContextMenu()
+{
+    this->setContextMenuPolicy(Qt::CustomContextMenu);
+    _contextMenu = new QMenu(this);
+    _contextMenu->addAction("Open containing folder", this, SLOT(openContainingFolder()));
+    _contextMenu->addAction("Open With...", this, SLOT(openWith()));
+    _contextMenu->addSeparator();
+    _contextMenu->addAction("Set as desktop background", this, SLOT(setAsDesktopBackground()));
+    _contextMenu->addAction("Rotate left", this, SLOT(rotateLeft()));
+    _contextMenu->addAction("Rotate Right", this, SLOT(rotateRight()));
+    _contextMenu->addSeparator();
+    _contextMenu->addAction("Copy Image", this, SLOT(copyImage()));
+    _contextMenu->addAction("Delete File", this, SLOT(deleteFile()));
+    _contextMenu->addAction("Rename...", this, SLOT(renameFile()));
+    _contextMenu->addSeparator();
+    _contextMenu->addAction("Properties", this, SLOT(displayProperties()));
+    this->connect(this, SIGNAL(customContextMenuRequested(const QPoint&)),
+                  this, SLOT(showContextMenu(const QPoint&)));
+}
 
 void ImageView::showContextMenu(const QPoint& point)
 {
@@ -126,11 +130,20 @@ void ImageView::showContextMenu(const QPoint& point)
     _contextMenu->exec(globalPos);
 }
 
-void ImageView::openDirectory()
+void ImageView::openContainingFolder()
 {
     QFileInfo *file = (QFileInfo*) _image;
     FileIO::openFileManager(file);
 }
+
+void ImageView::openWith() {}
+void ImageView::setAsDesktopBackground() {}
+void ImageView::rotateLeft() {}
+void ImageView::rotateRight() {}
+void ImageView::copyImage() {}
+void ImageView::deleteFile() {}
+void ImageView::renameFile() {}
+void ImageView::displayProperties() {}
 
 /* ------------------------------------------------------------------- EVENTS */
 
@@ -150,7 +163,7 @@ void ImageView::mouseMoveEvent(QMouseEvent *e)
         int y = e->pos().y() - _initMousePos.y();
         horizontal->setValue(horizontal->value() - x);
         vertical->setValue(vertical->value() - y);
-        _initMousePos = e->pos();
+        QCursor::setPos(this->mapToGlobal(_initMousePos));
     }
 }
 
@@ -162,8 +175,16 @@ void ImageView::resizeEvent(QResizeEvent *e)
 bool ImageView::event(QEvent *e)
 {
     if (e->type() == QEvent::MouseButtonDblClick) {
-        this->toggleZoom();
-        return true;
+        QMouseEvent *mouseEvent = (QMouseEvent*) e;
+        if (mouseEvent->buttons() == Qt::LeftButton) {
+            this->toggleZoom();
+            return true;
+        }
     }
     return QScrollArea::event(e);
+}
+
+Image* ImageView::image()
+{
+    return _image;
 }
