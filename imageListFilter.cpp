@@ -20,6 +20,7 @@
 
 #include "imagelistfilter.h"
 #include "directoryimagelist.h"
+#include <QDebug>
 
 /* ----------------------------------------------------------- INITIALIZATION */
 
@@ -170,7 +171,11 @@ void ImageListFilter::filterByTokens(QStringList tokens)
 bool ImageListFilter::containsAllTokens(QString text, QStringList tokens)
 {
     foreach(QString token, tokens) {
-        if (!text.contains(token, Qt::CaseInsensitive)) {
+        if (token.startsWith("-")) {
+            if (text.contains(token.mid(1), Qt::CaseInsensitive)) {
+                return false;
+            }
+        } else if (!text.contains(token, Qt::CaseInsensitive)) {
             return false;
         }
     }
