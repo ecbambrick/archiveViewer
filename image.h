@@ -9,10 +9,14 @@ public:
     Image(const QString path);
     int width();
     int height();
+    QString relativeName();
+    void relativePath(QString path);
+    QString relativePath();
 
 private:
     int _width;
     int _height;
+    QString _relativePath;
 
     /* metadata
         QString title;
