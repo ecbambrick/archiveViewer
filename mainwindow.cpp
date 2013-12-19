@@ -326,7 +326,7 @@ void MainWindow::updateStatusName(Image *image)
         QFontMetrics font(_uiFileName->font());
         QString newText = font.elidedText(image->fileName(), Qt::ElideRight, width);
         _uiFileName->setText(_imageList->listName() + "\n" + newText);
-        this->setWindowTitle(image->fileName() + " - Archive Viewer");
+        this->setWindowTitle(image->relativeName() + " - Archive Viewer");
     }
 }
 
