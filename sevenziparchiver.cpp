@@ -50,7 +50,8 @@ QStringList SevenZipArchiver::l(QString source)
     _process->waitForFinished();
 
     // parse output for exact file names
-    output = ((QString) _process->readAll()).split("\n");
+    QByteArray rawOutput = _process->readAll();
+    output = ((QString) QString::fromLocal8Bit(rawOutput)).split("\n");
     foreach(QString line, output) {
         if (line.contains(QRegExp("^[0-9-]+\\s+[0-9:]+\\s+.+$"))) {
             QStringList args = line.split(QRegExp("\\s+"));
