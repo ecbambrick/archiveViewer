@@ -25,6 +25,7 @@
 #include <QDebug>
 #include <QtConcurrentRun>
 #include <QCryptographicHash>
+#include <QCoreApplication>
 
 /* -------------------------------------------------------------------------- */
 
@@ -78,7 +79,9 @@ ArchivedImageList::ArchivedImageList(Archiver *archiver, const QString &path)
     // Generate the list of images from the archive
     // note: the images are not actually extracted yet
     foreach (QString fileName, archiver->l(_archivePath)) {
-        this->append(new Image(_extractPath + "/" + fileName));
+        Image *image = new Image(_extractPath + "/" + fileName);
+        image->relativePath(fileName.mid(0, fileName.lastIndexOf('\\')+1));
+        this->append(image);
     }
 }
 
@@ -116,7 +119,7 @@ void ArchivedImageList::close()
 void ArchivedImageList::extract(Image *image)
 {
     if (!image->exists()) {
-        _archiver->x(_archivePath, _extractPath, image->fileName());
+        _archiver->x(_archivePath, _extractPath, image->relativeName());
     }
     emit imageReady(image);
 }
