@@ -11,6 +11,7 @@ ImageView::ImageView(QWidget *parent) : QScrollArea(parent)
     _fitToWidth = false;
     _pixmap = NULL;
     _movie = NULL;
+    _zoom = 1.0;
 
     // set label properties
     _label = new QLabel(this);
@@ -67,20 +68,24 @@ void ImageView::updateImage()
 {
     if (_pixmap != NULL) {
         if (_fitToWindow && (
-                   _pixmap->width() > this->width()
-                || _pixmap->height() > this->height())) {
+                   _pixmap->width()*_zoom > this->width()
+                || _pixmap->height()*_zoom > this->height())) {
             _label->setPixmap(_pixmap->scaled(
                 this->size(),
                 Qt::KeepAspectRatio,
                 Qt::SmoothTransformation));
-        } else if (_fitToWidth && _pixmap->width() > this->width()) {
+        } else if (_fitToWidth && _pixmap->width()*_zoom > this->width()) {
             _label->setPixmap(_pixmap->scaled(
                 this->width(),
                 _pixmap->height(),
                 Qt::KeepAspectRatio,
                 Qt::SmoothTransformation));
         } else {
-            _label->setPixmap(*_pixmap);
+            _label->setPixmap(_pixmap->scaled(
+                                  _pixmap->width()*_zoom,
+                                  _pixmap->height()*_zoom,
+                                  Qt::KeepAspectRatio,
+                                  Qt::SmoothTransformation));
         }
     }
     if (_movie != NULL) {
@@ -99,6 +104,24 @@ void ImageView::toggleZoom()
 void ImageView::fitToWidth(bool val)
 {
     _fitToWidth = val;
+    this->updateImage();
+}
+
+void ImageView::zoomIn()
+{
+    this->_zoom *= 1.1;
+    this->updateImage();
+}
+
+void ImageView::zoomOut()
+{
+    this->_zoom /= 1.1;
+    this->updateImage();
+}
+
+void ImageView::zoom(float scale)
+{
+    _zoom = scale;
     this->updateImage();
 }
 

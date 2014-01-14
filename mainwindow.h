@@ -58,6 +58,9 @@ public slots:
     void toggleZoom();
     void toggleClean();
     void fitToWidth(bool value);
+    void zoomIn();
+    void zoomOut();
+    void zoomFull();
 
 private:
     void initUI();
@@ -85,6 +88,9 @@ private:
     QAction *_actionPrev;
     QAction *_actionNext;
     QAction *_actionShuf;
+    QAction *_actionZoomIn;
+    QAction *_actionZoomOut;
+    QAction *_actionZoomFull;
 
     // settings
     QByteArray _settingsGeometry;

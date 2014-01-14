@@ -62,6 +62,9 @@ void MainWindow::initUI()
     _actionShuf       = new QAction("&Shuffle", this);
     _actionToggleZoom = new QAction("&View Actual Size", this);
     _actionFitToWidth = new QAction("&Fit to Width", this);
+    _actionZoomIn     = new QAction("&Zoom In", this);
+    _actionZoomOut    = new QAction("&Zoom Out", this);
+    _actionZoomFull   = new QAction("&Zoom to Full Size", this);
 
     // declare widgets
     QWidget *uiSpace  = new QWidget(this);
@@ -76,6 +79,7 @@ void MainWindow::initUI()
     this->addToolBar(_uiToolbar);
     this->setStatusBar(_uiStatus);
     this->setCentralWidget(_uiView);
+    this->addAction(_actionZoomFull);
 
     // initialize status bar
     _uiStatus->insertWidget(0, _uiFileName);
@@ -92,6 +96,8 @@ void MainWindow::initUI()
     _uiToolbar->addSeparator();
     _uiToolbar->addAction(_actionFitToWidth);
     _uiToolbar->addAction(_actionToggleZoom);
+    _uiToolbar->addAction(_actionZoomIn);
+    _uiToolbar->addAction(_actionZoomOut);
     _uiToolbar->addWidget(uiSpace);
     _uiToolbar->addWidget(_uiSearch);
     _uiToolbar->setMovable(false);
@@ -103,6 +109,9 @@ void MainWindow::initUI()
     _actionNext->setShortcut(Qt::Key_Space);
     _actionOpen->setShortcut(QKeySequence::Open);
     _actionPrev->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Space));
+    _actionZoomIn->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Equal));
+    _actionZoomOut->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Minus));
+    _actionZoomFull->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_0));
 
     // initialize connections
     this->connect(_actionOpen,        SIGNAL(triggered()),        this, SLOT(open()));
@@ -111,6 +120,9 @@ void MainWindow::initUI()
     this->connect(_actionShuf,        SIGNAL(toggled(bool)),      this, SLOT(shuffle(bool)));
     this->connect(_actionFitToWidth,  SIGNAL(toggled(bool)),      this, SLOT(fitToWidth(bool)));
     this->connect(_actionToggleZoom,  SIGNAL(triggered()),        this, SLOT(toggleZoom()));
+    this->connect(_actionZoomIn,      SIGNAL(triggered()),        this, SLOT(zoomIn()));
+    this->connect(_actionZoomOut,     SIGNAL(triggered()),        this, SLOT(zoomOut()));
+    this->connect(_actionZoomFull,    SIGNAL(triggered()),        this, SLOT(zoomFull()));
     this->connect(_uiSearch,          SIGNAL(returnPressed()),    this, SLOT(filter()));
 
     // misc widget settings
@@ -299,6 +311,26 @@ void MainWindow::toggleZoom()
     _uiView->toggleZoom();
 }
 
+void MainWindow::fitToWidth(bool value)
+{
+    _uiView->fitToWidth(value);
+}
+
+void MainWindow::zoomIn()
+{
+    _uiView->zoomIn();
+}
+
+void MainWindow::zoomOut()
+{
+    _uiView->zoomOut();
+}
+
+void MainWindow::zoomFull()
+{
+    _uiView->zoom(1.0);
+}
+
 /* --------------------------------------------------------------- UI ACTIONS */
 
 /// Set the pixmap to display, if NULL image is provided, clear the display
@@ -354,11 +386,6 @@ void MainWindow::toggleClean()
     } else {
         _uiToolbar->setMaximumHeight(0);
     }
-}
-
-void MainWindow::fitToWidth(bool value)
-{
-    _uiView->fitToWidth(value);
 }
 
 /* ------------------------------------------------------------------- EVENTS */

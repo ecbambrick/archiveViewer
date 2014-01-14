@@ -28,6 +28,10 @@ public:
 public slots:
     void fitToWidth(bool val);
     void showContextMenu(const QPoint &point);
+    void displayProperties();
+    void zoomIn();
+    void zoomOut();
+    void zoom(float scale);
 
 private slots:
     void openContainingFolder();
@@ -38,7 +42,6 @@ private slots:
     void copyImage();
     void deleteFile();
     void renameFile();
-    void displayProperties();
 
 protected:
     void mousePressEvent(QMouseEvent *e);
@@ -57,6 +60,7 @@ private:
     QPoint _initMousePos;
     bool _fitToWindow;
     bool _fitToWidth;
+    float _zoom;
 };
 
 #endif // IMAGEVIEW_H
