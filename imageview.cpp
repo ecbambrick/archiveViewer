@@ -77,7 +77,7 @@ void ImageView::updateImage()
         } else if (_fitToWidth && _pixmap->width()*_zoom > this->width()) {
             _label->setPixmap(_pixmap->scaled(
                 this->width(),
-                _pixmap->height(),
+                _pixmap->height()*_zoom,
                 Qt::KeepAspectRatio,
                 Qt::SmoothTransformation));
         } else {
