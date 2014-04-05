@@ -19,7 +19,8 @@ SOURCES += main.cpp\
     reversiblerand.cpp \
     imagelistfilter.cpp \
     imageview.cpp \
-    image.cpp
+    image.cpp \
+    playlist.cpp
 
 HEADERS  += mainwindow.h \
     imagelist.h \
@@ -31,7 +32,8 @@ HEADERS  += mainwindow.h \
     reversiblerand.h \
     imagelistfilter.h \
     imageview.h \
-    image.h
+    image.h \
+    playlist.h
 
 RESOURCES += \
     resources.qrc
