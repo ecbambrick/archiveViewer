@@ -20,11 +20,12 @@
 
 #include "qdebug.h"
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
 #include "directoryimagelist.h"
 #include "archivedimagelist.h"
 #include "sevenziparchiver.h"
 #include <QSettings>
+#include <QtWidgets>
+#include <QSize>
 
 /* ----------------------------------------------------------- INITIALIZATION */
 
@@ -393,7 +394,7 @@ void MainWindow::toggleClean()
 /// resize statusbar filename
 void MainWindow::resizeEvent(QResizeEvent *e)
 {
-    int width = this->width();
+    int width = e->size().width();
     if (width > _uiFileName->minimumWidth()) {
         _uiFileName->setMaximumWidth(width);
     }

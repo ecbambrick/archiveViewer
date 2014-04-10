@@ -4,12 +4,9 @@ Application for viewing images from directories and archives.
 
 Building
 --------------------------------------------------------------------------------
-Requires qmake to build (http://qt-project.org/)
+Requires Qt 5.2 to build
 
-1. run qmake in the directory
-2. run make
-
-Alternatively, import the .pro file into Qt Creator.
+Documentation for building with qmake can be found [here](http://qt-project.org/doc/qt-5/qmake-manual.html). Alternatively, import the .pro file with Qt Creator.
 
 Reading from Archives
 --------------------------------------------------------------------------------

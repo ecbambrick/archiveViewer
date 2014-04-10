@@ -23,7 +23,7 @@
 #include <QDateTime>
 #include <QMessageBox>
 #include <QDebug>
-#include <QtConcurrentRun>
+#include <QtConcurrent/QtConcurrentRun>
 #include <QCryptographicHash>
 #include <QCoreApplication>
 
