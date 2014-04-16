@@ -20,4 +20,4 @@ Archive Viewer uses the following libraries for reading from zip archives:
 
 * [7-zip](http://www.7-zip.org/) - 7-Zip is licensed under the GNU LGPL license.
 * [QuaZip](http://quazip.sourceforge.net/) - QuaZip is licensed under the GNU LGPL license.
-* [zlib](http://www.zlib.net/) - For libz licensing, see the zlib\READMEE
+* [zlib](http://www.zlib.net/) - For libz licensing, see the zlib README file.

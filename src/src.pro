@@ -38,7 +38,8 @@ HEADERS += \
     imagelistfilter.h \
     imageview.h \
     image.h \
-    playlist.h
+    playlist.h \
+    imagesource.h
 
 RESOURCES += \
     resources.qrc

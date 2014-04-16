@@ -19,12 +19,7 @@
 *******************************************************************************/
 
 #include <QtWidgets>
-#include <qdebug.h>
 #include "mainwindow.h"
-#include "../quazip/quazip.h"
-#include "../quazip/quazipfile.h"
-#include "../quazip/unzip.h"
-#include <QFile>
 
 int main(int argc, char *argv[])
 {
