@@ -24,7 +24,7 @@ SOURCES	+= \
     imagelistfilter.cpp \
     imageview.cpp \
     image.cpp \
-    playlist.cpp
+    filter.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -38,8 +38,8 @@ HEADERS += \
     imagelistfilter.h \
     imageview.h \
     image.h \
-    playlist.h \
-    imagesource.h
+    imagesource.h \
+    filter.h
 
 RESOURCES += \
     resources.qrc
