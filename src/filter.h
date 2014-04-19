@@ -36,7 +36,7 @@
 /// contain the token to match the filter.
 ///
 /// For example, for a string to match a filter of "red green -blue", the string
-/// must contain the substrings "red" and "green" but cannot contain the
+/// must contain the substrings "red" and "green" but must not contain the
 /// substring "blue".
 ///
 /// \note Escaping double-quotes is not supported at this time.
@@ -49,7 +49,7 @@ public:
     /// \brief Constructor.
     /// \param pattern The query string to generate tokens from.
     ///
-    explicit Filter(QString pattern);
+    explicit Filter(const QString &pattern);
 
     ///
     /// \brief Determines whether or not a string passes the filter.
@@ -60,8 +60,27 @@ public:
 
 private:
 
+    ///
+    /// \brief The TokenType enum represents different behaviours for tokens.
+    ///
+    enum TokenType {
+        Negative       ///< The token must not exist in the text to match.
+        ,Positive        ///< The token must exist in the text to match.
+    };
+
+    ///
+    /// \brief The Token struct represents a token to match against.
+    ///
+    /// A string must satisfy every token in the filter to be considered a
+    /// match.
+    ///
+    struct Token {
+        TokenType type; ///< The type of the token.
+        QString value;  ///< The textual value of the token.
+    };
+
     /// The list of tokens generated from the pattern.
-    QStringList _tokens;
+    QList<Token> _tokens;
 };
 
 #endif // FILTER_H

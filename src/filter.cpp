@@ -19,47 +19,45 @@
 *******************************************************************************/
 
 #include <QRegularExpression>
-#include <memory>
 #include "filter.h"
 
-Filter::Filter(QString pattern)
+Filter::Filter(const QString &pattern)
+    : _tokens(QList<Token>())
 {
-    _tokens = QStringList();
+    QRegularExpression regex = QRegularExpression(R"(-?"[^"]+"|[^\s]+)");
+    QRegularExpressionMatchIterator i = regex.globalMatch(pattern);
 
-    // extract quoted tokens
-    for (int i = 0; i<pattern.length(); i++) {
-        if (pattern.at(i) == '"') {
-            if (i > 0 && pattern.at(i-1) == '-') {
-                i--;
-            }
-            for (int j = i+1; j < pattern.length(); j++) {
-                if (pattern.at(j) == '"') {
-                    _tokens.append(pattern.mid(i+1,j-i-1));
-                    pattern.remove(i,j-i+1);
-                    break;
-                }
-            }
-        }
-    }
+    while (i.hasNext()) {
+        QString tokenString = i.next().captured(0);
+        Token token;
 
-    // extract single-word tokens
-    for (QString token : pattern.split(QRegularExpression("\\s"))) {
-        if (token != "") {
-            _tokens.append(token);
+        if (tokenString.startsWith('-') && tokenString.size() > 1) {
+            token.type = Negative;
+            tokenString.remove(0,1);
+        } else {
+            token.type = Positive;
         }
+
+        if (tokenString.startsWith('"') && tokenString.endsWith('"')) {
+            tokenString = tokenString.mid(1, tokenString.size()-2);
+        }
+
+        token.value = tokenString;
+        _tokens.append(token);
     }
 }
 
 bool Filter::match(const QString &text)
 {
-    for (QString token : _tokens) {
-        if (token.startsWith("-")) {
-            if (text.contains(token.mid(1), Qt::CaseInsensitive)) {
+    for (const Token &token : _tokens) {
+        if (token.type == Negative) {
+            if (text.contains(token.value, Qt::CaseInsensitive)) {
                 return false;
             }
-        } else if (!text.contains(token, Qt::CaseInsensitive)) {
+        } else if (!text.contains(token.value, Qt::CaseInsensitive)) {
             return false;
         }
     }
+
     return true;
 }
