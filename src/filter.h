@@ -23,21 +23,23 @@
 #include <QString>
 
 ///
-/// \brief The Filter class provides simple pattern matching. Patterns are
-/// parsed into tokens of the following type:
-///   - Any block of non-white space characters seperated by whitespace
-///   - Any block of characters enclosed within double-quotes.
-///   - Any of the above, prepended with a '-' symbol
+/// \brief The Filter class provides simple pattern matching.
 ///
-/// \note Escaping double-quotes is not supported at this time.
+/// Patterns are parsed into tokens of the following type:
 ///
-/// If a token begins with a '-' character, then the token must not exist
-/// in a string for that string to match the filter. Otherwise, the string must
+///   * Any block of non-white space characters seperated by whitespace.
+///   * Any block of characters enclosed within double-quotes.
+///   * Any of the above, prepended with a '-' symbol.
+///
+/// If a token begins with a '-' symbol, then the token must not exist in a
+/// string for that string to match the filter. Otherwise, the string must
 /// contain the token to match the filter.
 ///
-/// \example For a string to pass a filter of "red green -blue", the string must
-/// contain the substrings "red" and "green" but cannot contain the substring
-/// "blue".
+/// For example, for a string to match a filter of "red green -blue", the string
+/// must contain the substrings "red" and "green" but cannot contain the
+/// substring "blue".
+///
+/// \note Escaping double-quotes is not supported at this time.
 ///
 class Filter
 {
