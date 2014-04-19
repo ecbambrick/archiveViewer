@@ -50,7 +50,7 @@ public:
 public slots:
     void open();
     void load(const QString path);
-    void reload(Image *image);
+    void reload(ImageInfo *image);
     void previous();
     void next();
     void filter();
@@ -67,9 +67,9 @@ private:
     void initFile();
     void loadSettings();
     void saveSettings();
-    void setImage(Image *image);
-    void updateStatusNumber(Image *image);
-    void updateStatusName(Image *image);
+    void setImage(ImageInfo *image);
+    void updateStatusNumber(ImageInfo *image);
+    void updateStatusName(ImageInfo *image);
     void resizeEvent(QResizeEvent *e);
     void keyPressEvent(QKeyEvent *e);
 

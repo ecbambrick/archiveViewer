@@ -41,7 +41,7 @@ public:
     // extract and remove extracted archive contents and thumbnails
     int open();
     void close();
-    void extract(Image *image);
+    void extract(ImageInfo *image);
     QString listName();
 
 private:

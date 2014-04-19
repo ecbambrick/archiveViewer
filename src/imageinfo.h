@@ -3,10 +3,10 @@
 
 #include <QFileInfo>
 
-class Image : public QFileInfo
+class ImageInfo : public QFileInfo
 {
 public:
-    Image(const QString path);
+    ImageInfo(const QString path);
     int width();
     int height();
     QString relativeName();

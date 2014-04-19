@@ -31,9 +31,9 @@
 
 #include <QObject>
 #include <QList>
-#include "image.h"
+#include "imageinfo.h"
 
-class ImageList : public QObject, public QList<Image*>
+class ImageList : public QObject, public QList<ImageInfo*>
 {
     Q_OBJECT
 
@@ -43,7 +43,7 @@ public:
     virtual QString listName() = 0;
 
 signals:
-    void imageReady(Image *image);
+    void imageReady(ImageInfo *image);
 };
 
 #endif // IMAGELIST_H

@@ -23,8 +23,8 @@ SOURCES	+= \
     reversiblerand.cpp \
     imagelistfilter.cpp \
     imageview.cpp \
-    image.cpp \
-    filter.cpp
+    filter.cpp \
+    imageinfo.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -37,9 +37,9 @@ HEADERS += \
     reversiblerand.h \
     imagelistfilter.h \
     imageview.h \
-    image.h \
     imagesource.h \
-    filter.h
+    filter.h \
+    imageinfo.h
 
 RESOURCES += \
     resources.qrc

@@ -19,11 +19,11 @@ class ImageView : public QScrollArea
 public:
     explicit ImageView(QWidget *parent = 0);
     ~ImageView();
-    void setImage(Image *image);
+    void setImage(ImageInfo *image);
     void clearImage();
     void updateImage();
     void toggleZoom();
-    Image* image();
+    ImageInfo* image();
 
 public slots:
     void fitToWidth(bool val);
@@ -53,7 +53,7 @@ private:
     void initContextMenu();
 
     QMenu *_contextMenu;
-    Image *_image;
+    ImageInfo *_image;
     QPixmap *_pixmap;
     QMovie *_movie;
     QLabel *_label;

@@ -19,10 +19,15 @@
 *******************************************************************************/
 
 #include <QtWidgets>
+#include <QDebug>
 #include "mainwindow.h"
+#include "quazipimagesource.h"
 
 int main(int argc, char *argv[])
 {
+    QuaZipImageSource source("C:\\test.zip");
+    source.images();
+
     QApplication application(argc, argv);
     MainWindow window;
     window.show();

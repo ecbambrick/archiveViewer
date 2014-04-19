@@ -1,8 +1,8 @@
-#include "image.h"
+#include "imageinfo.h"
 
 /* ----------------------------------------------------------- INITIALIZATION */
 
-Image::Image(const QString path) : QFileInfo(path)
+ImageInfo::ImageInfo(const QString path) : QFileInfo(path)
 {
     _width = 0;
     _height = 0;
@@ -11,30 +11,30 @@ Image::Image(const QString path) : QFileInfo(path)
 
 /* ------------------------------------------------------------------ SETTERS */
 
-void Image::relativePath(QString path)
+void ImageInfo::relativePath(QString path)
 {
     this->_relativePath = path;
 }
 
 /* ------------------------------------------------------------------ GETTERS */
 
-int Image::width()
+int ImageInfo::width()
 {
     return _width;
 }
 
-int Image::height()
+int ImageInfo::height()
 {
     return _height;
 }
 
-QString Image::relativeName()
+QString ImageInfo::relativeName()
 {
     return this->_relativePath + this->fileName();
 }
 
 
-QString Image::relativePath()
+QString ImageInfo::relativePath()
 {
     return this->_relativePath;
 }

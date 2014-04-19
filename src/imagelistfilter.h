@@ -40,16 +40,16 @@ public:
     ~ImageListFilter();
 
     // list manipulation
-    Image *filter(QString query);
+    ImageInfo *filter(QString query);
     void setShuffle(bool value);
     void reset();
 
     // traversal
-    Image* current();
-    Image* previous();
-    Image* next();
-    Image* goTo(int index);
-    Image* goTo(QString path);
+    ImageInfo* current();
+    ImageInfo* previous();
+    ImageInfo* next();
+    ImageInfo* goTo(int index);
+    ImageInfo* goTo(QString path);
 
     // setters
     void setList(ImageList *list);
@@ -67,7 +67,7 @@ private:
     QStringList parseQuery(QString query);
 
     ImageList *_originalList;
-    QList<Image*> *_filteredList;
+    QList<ImageInfo*> *_filteredList;
     ReversibleRand *_rRand;
     bool _shuffle;
     int _index;

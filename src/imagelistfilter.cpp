@@ -27,7 +27,7 @@
 ImageListFilter::ImageListFilter()
 {
     _originalList = NULL;
-    _filteredList = new QList<Image*>;
+    _filteredList = new QList<ImageInfo*>;
     _rRand = new ReversibleRand();
     _shuffle = false;
     _index = 0;
@@ -35,7 +35,7 @@ ImageListFilter::ImageListFilter()
 
 ImageListFilter::ImageListFilter(ImageList *imageList)
 {
-    _filteredList = new QList<Image*>;
+    _filteredList = new QList<ImageInfo*>;
     _rRand = new ReversibleRand();
     _shuffle = false;
     _index = 0;
@@ -51,14 +51,14 @@ ImageListFilter::~ImageListFilter()
 /* ---------------------------------------------------------------- TRAVERSAL */
 
 /// return the current image
-Image* ImageListFilter::current()
+ImageInfo* ImageListFilter::current()
 {
     if (_filteredList->size() == 0) return NULL;
     return _filteredList->at(_index);
 }
 
 /// decrement the index return the previous image in the list
-Image* ImageListFilter::previous()
+ImageInfo* ImageListFilter::previous()
 {
     if (_filteredList->size() == 0) return NULL;
 
@@ -71,7 +71,7 @@ Image* ImageListFilter::previous()
 }
 
 /// increment the index return the next image in the list
-Image* ImageListFilter::next()
+ImageInfo* ImageListFilter::next()
 {
     if (_filteredList->size() == 0) return NULL;
 
@@ -84,7 +84,7 @@ Image* ImageListFilter::next()
 }
 
 /// set the index and return the image at that position
-Image* ImageListFilter::goTo(int index)
+ImageInfo* ImageListFilter::goTo(int index)
 {
     if (index < 0 || index >= _filteredList->size()) return NULL;
 
@@ -93,14 +93,14 @@ Image* ImageListFilter::goTo(int index)
 }
 
 /// find the image with the same filename and set the index to that position
-Image* ImageListFilter::goTo(QString fileName)
+ImageInfo* ImageListFilter::goTo(QString fileName)
 {
     if (_filteredList->empty()) return NULL;
 
     // get index of image with fileName
     _index = 0;
     for (int i = 0; i < _filteredList->size(); i++) {
-        Image *image = _filteredList->at(i);
+        ImageInfo *image = _filteredList->at(i);
         if (image->fileName() == fileName) {
             _index = i;
         }
@@ -133,9 +133,9 @@ void ImageListFilter::reset()
 }
 
 /// filter the list based on a query
-Image *ImageListFilter::filter(QString query)
+ImageInfo *ImageListFilter::filter(QString query)
 {
-    Image *originalImage = this->current();
+    ImageInfo *originalImage = this->current();
 
     if (query == "") {
         this->reset();
@@ -157,7 +157,7 @@ Image *ImageListFilter::filter(QString query)
 /// clear the image list and add back images that contain all the tokens
 void ImageListFilter::filterByTokens(QStringList tokens)
 {
-    Image *image;
+    ImageInfo *image;
     _filteredList->clear();
     for (int i=0; i<_originalList->size(); i++) {
         image = _originalList->at(i);

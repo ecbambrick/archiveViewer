@@ -37,7 +37,7 @@ ImageView::~ImageView()
 
 /* --------------------------------------------------------------- IMAGE JUNK */
 
-void ImageView::setImage(Image *image)
+void ImageView::setImage(ImageInfo *image)
 {
     this->clearImage();
     _image = image;
@@ -207,7 +207,7 @@ bool ImageView::event(QEvent *e)
     return QScrollArea::event(e);
 }
 
-Image* ImageView::image()
+ImageInfo* ImageView::image()
 {
     return _image;
 }

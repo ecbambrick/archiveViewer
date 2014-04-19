@@ -37,7 +37,7 @@ DirectoryImageList::DirectoryImageList(const QString &path)
         if (file.fileName() == fileName) {
             _initialIndex = this->size();
         }
-        this->append(new Image(_directoryPath + "/" + fileName));
+        this->append(new ImageInfo(_directoryPath + "/" + fileName));
     }
 }
 

@@ -21,7 +21,7 @@
 #ifndef IMAGESOURCE_H
 #define IMAGESOURCE_H
 #include <QUrl>
-#include "image.h"
+#include "imageinfo.h"
 
 ///
 /// \brief The ImageSource class represents a source of image files.
@@ -57,7 +57,7 @@ public:
     /// \param order The ordering method. Defaults to ascendingOrder.
     /// \return The list of images located in the source.
     ///
-    virtual QList<Image*> images(const QString &filter = "",
+    virtual QList<ImageInfo*> images(const QString &filter = "",
                                  SortType sort = sortByFileName,
                                  OrderType order = ascendingOrder) = 0;
 

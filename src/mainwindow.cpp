@@ -248,7 +248,7 @@ void MainWindow::load(const QString path)
         newList = new DirectoryImageList(file.absoluteFilePath());
     }
     _imageList->setList(newList);
-    this->connect(newList, SIGNAL(imageReady(Image*)), this, SLOT(reload(Image*)));
+    this->connect(newList, SIGNAL(imageReady(ImageInfo*)), this, SLOT(reload(ImageInfo*)));
     newList->open();
 
     // update the image
@@ -258,7 +258,7 @@ void MainWindow::load(const QString path)
 }
 
 /// Reload the current Image
-void MainWindow::reload(Image *image)
+void MainWindow::reload(ImageInfo *image)
 {
     if (image == _imageList->current()) {
         this->setImage(image);
@@ -270,14 +270,14 @@ void MainWindow::reload(Image *image)
 /// Go to the previous image in the image list if it exists
 void MainWindow::previous()
 {
-    Image *image = _imageList->previous();
+    ImageInfo *image = _imageList->previous();
     this->setImage(image);
 }
 
 /// Go to the next image in the image list if it exists
 void MainWindow::next()
 {
-    Image *image = _imageList->next();
+    ImageInfo *image = _imageList->next();
     this->setImage(image);
 }
 
@@ -286,7 +286,7 @@ void MainWindow::next()
 /// Filter the image list based on the searchbox's contents
 void MainWindow::filter()
 {
-    Image *image = _imageList->filter(_uiSearch->text());
+    ImageInfo *image = _imageList->filter(_uiSearch->text());
     setImage(image);
 }
 
@@ -335,7 +335,7 @@ void MainWindow::zoomFull()
 /* --------------------------------------------------------------- UI ACTIONS */
 
 /// Set the pixmap to display, if NULL image is provided, clear the display
-void MainWindow::setImage(Image *image)
+void MainWindow::setImage(ImageInfo *image)
 {
     if (image == NULL) {
         _uiView->clearImage();
@@ -348,7 +348,7 @@ void MainWindow::setImage(Image *image)
 }
 
 /// Update the image's filename in the status bar
-void MainWindow::updateStatusName(Image *image)
+void MainWindow::updateStatusName(ImageInfo *image)
 {
     int width = _uiFileName->maximumWidth() - 90;
     if (_imageList->empty() || image == NULL) {
@@ -364,7 +364,7 @@ void MainWindow::updateStatusName(Image *image)
 }
 
 /// Update the image's index in the status bar
-void MainWindow::updateStatusNumber(Image *image)
+void MainWindow::updateStatusNumber(ImageInfo *image)
 {
     QString index = QString::number(_imageList->index()+1);
     QString size = QString::number(_imageList->size());

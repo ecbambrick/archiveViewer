@@ -42,7 +42,7 @@ void callExtraction(ArchivedImageList *list, QFutureWatcher<void> *watcher)
     }
 
     // copy image list
-    QList<Image*> imageList;
+    QList<ImageInfo*> imageList;
     for (int i = 0; i < list->size(); i++) {
         imageList.append(list->at(i));
     }
@@ -50,7 +50,7 @@ void callExtraction(ArchivedImageList *list, QFutureWatcher<void> *watcher)
     // extract each file one-by-one
     // this is to keep track of which files have been extracted and
     // which files are yet to be extracted
-    QList<Image*>::iterator i = imageList.begin();
+    QList<ImageInfo*>::iterator i = imageList.begin();
     while (!imageList.empty()) {
         if (i == imageList.end()) {
             i = imageList.begin();
@@ -58,7 +58,7 @@ void callExtraction(ArchivedImageList *list, QFutureWatcher<void> *watcher)
         if (watcher->isCanceled()) {
             break;
         } else {
-            list->extract((Image*)*i);
+            list->extract((ImageInfo*)*i);
             i = imageList.erase(i);
         }
     }
@@ -79,7 +79,7 @@ ArchivedImageList::ArchivedImageList(Archiver *archiver, const QString &path)
     // Generate the list of images from the archive
     // note: the images are not actually extracted yet
     foreach (QString fileName, archiver->l(_archivePath)) {
-        Image *image = new Image(_extractPath + "/" + fileName);
+        ImageInfo *image = new ImageInfo(_extractPath + "/" + fileName);
         image->relativePath(fileName.mid(0, fileName.lastIndexOf('\\')+1));
         this->append(image);
     }
@@ -116,7 +116,7 @@ void ArchivedImageList::close()
 /**
     Extract an image from the archive, mark it as ready and emit a signal
 */
-void ArchivedImageList::extract(Image *image)
+void ArchivedImageList::extract(ImageInfo *image)
 {
     if (!image->exists()) {
         _archiver->x(_archivePath, _extractPath, image->relativeName());
