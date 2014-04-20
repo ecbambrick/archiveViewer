@@ -56,7 +56,7 @@ public:
     /// \param text The string to check the filter against.
     /// \return True if the string matches the filter, and false otherwise.
     ///
-    bool match(const QString &text);
+    bool match(const QString &text) const;
 
 private:
 

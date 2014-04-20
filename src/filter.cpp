@@ -43,13 +43,13 @@ Filter::Filter(const QString &pattern)
         }
 
         token.value = tokenString;
-        _tokens.append(token);
+        this->_tokens.append(token);
     }
 }
 
-bool Filter::match(const QString &text)
+bool Filter::match(const QString &text) const
 {
-    for (const Token &token : _tokens) {
+    for (const Token &token : this->_tokens) {
         if (token.type == Negative) {
             if (text.contains(token.value, Qt::CaseInsensitive)) {
                 return false;
