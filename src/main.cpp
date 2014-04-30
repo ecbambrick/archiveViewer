@@ -18,11 +18,15 @@
 
 *******************************************************************************/
 
+#include <ctime>
 #include <QtWidgets>
+#include <random>
 #include "mainwindow.h"
 
 int main(int argc, char *argv[])
 {
+    std::srand(std::time(NULL));
+
     QApplication application(argc, argv);
     MainWindow window;
     window.show();
