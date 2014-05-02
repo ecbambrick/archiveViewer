@@ -20,6 +20,7 @@
 
 #ifndef FILTER_H
 #define FILTER_H
+#include <QList>
 #include <QString>
 
 ///
@@ -61,22 +62,26 @@ public:
 private:
 
     ///
-    /// \brief The TokenType enum represents different behaviours for tokens.
-    ///
-    enum TokenType {
-        Negative       ///< The token must not exist in the text to match.
-        ,Positive        ///< The token must exist in the text to match.
-    };
-
-    ///
-    /// \brief The Token struct represents a token to match against.
+    /// \brief The Token struct represents a token to match against in a filter.
     ///
     /// A string must satisfy every token in the filter to be considered a
     /// match.
     ///
     struct Token {
-        TokenType type; ///< The type of the token.
-        QString value;  ///< The textual value of the token.
+
+        ///
+        /// \brief The TokenType enum represents different behaviours for tokens.
+        ///
+        enum TokenType {
+            Negative    ///< The token must not exist in the text to match.
+            ,Positive   ///< The token must exist in the text to match.
+        };
+
+        /// The type of the token.
+        TokenType type;
+
+        /// The textual value of the token.
+        QString value;
     };
 
     /// The list of tokens generated from the pattern.

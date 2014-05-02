@@ -24,20 +24,22 @@
 Filter::Filter(const QString &pattern)
     : _tokens(QList<Token>())
 {
-    QRegularExpression regex = QRegularExpression(R"(-?"[^"]+"|[^\s]+)");
-    QRegularExpressionMatchIterator i = regex.globalMatch(pattern);
+    auto regex = QRegularExpression(R"(-?"[^"]+"|[^\s]+)");
+    auto i = regex.globalMatch(pattern);
 
     while (i.hasNext()) {
         QString tokenString = i.next().captured(0);
         Token token;
 
+        // Remove leading '-' so it is not included when matching the token.
         if (tokenString.startsWith('-') && tokenString.size() > 1) {
-            token.type = Negative;
+            token.type = Token::Negative;
             tokenString.remove(0,1);
         } else {
-            token.type = Positive;
+            token.type = Token::Positive;
         }
 
+        // remove outer quotes so they are not included when matching the token.
         if (tokenString.startsWith('"') && tokenString.endsWith('"')) {
             tokenString = tokenString.mid(1, tokenString.size()-2);
         }
@@ -50,7 +52,7 @@ Filter::Filter(const QString &pattern)
 bool Filter::match(const QString &text) const
 {
     for (const Token &token : this->_tokens) {
-        if (token.type == Negative) {
+        if (token.type == Token::Negative) {
             if (text.contains(token.value, Qt::CaseInsensitive)) {
                 return false;
             }
