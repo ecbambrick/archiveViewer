@@ -20,7 +20,7 @@
 
 #ifndef IMAGESOURCE_H
 #define IMAGESOURCE_H
-#include <QUrl>
+#include "filter.h"
 #include "imageinfo.h"
 
 ///
@@ -37,35 +37,41 @@ public:
     /// \brief The OrderType enum represents different ways to order images.
     ///
     enum OrderType {
-        ascendingOrder          ///< Sort in ascending order.
-        ,descendingOrder        ///< Sort in descending order.
-        ,randomOrder            ///< Sort in random order.
+        AscendingOrder          ///< Sort in ascending order.
+        ,DescendingOrder        ///< Sort in descending order.
+        ,RandomOrder            ///< Sort in random order.
     };
 
     ///
     /// \brief The SortType enum represents different ways to sort images.
     ///
     enum SortType {
-        sortByFileName          ///< Sort by file name.
-        ,sortByLastModifiedDate ///< Sort by the last modified date.
+        SortByFileName          ///< Sort by file name.
+        ,SortByLastModifiedDate ///< Sort by the last modified date.
     };
 
     ///
     /// \brief Returns the list of images located in the source.
-    /// \param filter The query to filter on. Defaults to an empty string.
-    /// \param sort The sorting method. Defaults to sortByFileName.
-    /// \param order The ordering method. Defaults to ascendingOrder.
     /// \return The list of images located in the source.
     ///
-    virtual QList<ImageInfo*> images(const QString &filter = "",
-                                 SortType sort = sortByFileName,
-                                 OrderType order = ascendingOrder) = 0;
+    virtual QList<ImageInfo*> images();
+
+    ///
+    /// \brief Returns the list of images located in the source.
+    /// \param filter The expression to filter with.
+    /// \param sort The sorting method. Defaults to SortByFileName.
+    /// \param order The ordering method. Defaults to AscendingOrder.
+    /// \return The filtered list of images located in the source.
+    ///
+    virtual QList<ImageInfo*> images(const Filter &filter,
+                                     SortType sort = SortByFileName,
+                                     OrderType order = AscendingOrder);
 
     ///
     /// \brief Returns the name of the source.
     /// \return The name of the source.
     ///
-    virtual QString name() = 0;
+    virtual QString name();
 
 public slots:
 
@@ -73,7 +79,7 @@ public slots:
     /// \brief Indicates that an image needs to be viewed.
     /// \param id The ID of the image.
     ///
-    void imageNeeded(int id) = 0;
+    virtual void imageNeeded(int id) = 0;
 
 signals:
 
@@ -82,6 +88,15 @@ signals:
     /// \param id The ID of the image.
     ///
     void imageReady(int id);
+
+protected:
+
+    /// The full list of images contained within the source.
+    QList<ImageInfo*> _images;
+
+    /// The name of the source.
+    QString _name;
+
 };
 
 #endif // IMAGESOURCE_H

@@ -24,7 +24,8 @@ SOURCES	+= \
     imagelistfilter.cpp \
     imageview.cpp \
     filter.cpp \
-    imageinfo.cpp
+    imageinfo.cpp \
+    imagesource.cpp
 
 HEADERS += \
     mainwindow.h \
