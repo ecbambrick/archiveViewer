@@ -79,8 +79,9 @@ ArchivedImageList::ArchivedImageList(Archiver *archiver, const QString &path)
     // Generate the list of images from the archive
     // note: the images are not actually extracted yet
     foreach (QString fileName, archiver->l(_archivePath)) {
-        ImageInfo *image = new ImageInfo(_extractPath + "/" + fileName);
-        image->relativePath(fileName.mid(0, fileName.lastIndexOf('\\')+1));
+        QString path = _extractPath + "/" + fileName;
+        QString relativePath = fileName.mid(0, fileName.lastIndexOf('\\')+1);
+        ImageInfo *image = new ImageInfo(path, relativePath);
         this->append(image);
     }
 }
@@ -119,7 +120,7 @@ void ArchivedImageList::close()
 void ArchivedImageList::extract(ImageInfo *image)
 {
     if (!image->exists()) {
-        _archiver->x(_archivePath, _extractPath, image->relativeName());
+        _archiver->x(_archivePath, _extractPath, image->relativeFilePath());
     }
     emit imageReady(image);
 }
