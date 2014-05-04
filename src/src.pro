@@ -25,7 +25,8 @@ SOURCES	+= \
     imageview.cpp \
     filter.cpp \
     imageinfo.cpp \
-    imagesource.cpp
+    imagesource.cpp \
+    utility.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -40,7 +41,8 @@ HEADERS += \
     imageview.h \
     imagesource.h \
     filter.h \
-    imageinfo.h
+    imageinfo.h \
+    utility.h
 
 RESOURCES += \
     resources.qrc
