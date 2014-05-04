@@ -49,17 +49,14 @@ QList<ImageInfo*> ImageSource::images(const Filter &filter,
             sortFunction = [](ImageInfo* a, ImageInfo* b) {
                 return a->fileName() < b->fileName();
             };
-
         } else if (sort == SortByFileName && order == DescendingOrder) {
             sortFunction = [](ImageInfo* a, ImageInfo* b) {
                 return a->fileName() < b->fileName();
             };
-
         } else if (sort == SortByLastModifiedDate && order == AscendingOrder) {
             sortFunction = [](ImageInfo* a, ImageInfo* b) {
                 return a->fileName() < b->fileName();
             };
-
         } else if (sort == SortByLastModifiedDate && order == DescendingOrder) {
             sortFunction = [](ImageInfo* a, ImageInfo* b) {
                 return a->fileName() < b->fileName();

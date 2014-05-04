@@ -26,6 +26,7 @@ SOURCES	+= \
     filter.cpp \
     imageinfo.cpp \
     imagesource.cpp \
+    localimagesource.cpp \
     utility.cpp
 
 HEADERS += \
@@ -42,6 +43,7 @@ HEADERS += \
     imagesource.h \
     filter.h \
     imageinfo.h \
+    localimagesource.h \
     utility.h
 
 RESOURCES += \
