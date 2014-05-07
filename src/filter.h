@@ -50,7 +50,7 @@ public:
     /// \brief Constructor.
     /// \param pattern The query string to generate tokens from.
     ///
-    explicit Filter(const QString &pattern);
+    explicit Filter(const QString &pattern = "");
 
     ///
     /// \brief Determines whether or not a string passes the filter.
