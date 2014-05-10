@@ -48,11 +48,11 @@ QList<ImageInfo> ImageSource::images(const Filter &filter,
         std::function<bool(ImageInfo, ImageInfo)> sortFunction;
         if (sort == SortByFileName && order == AscendingOrder) {
             sortFunction = [](ImageInfo a, ImageInfo b) {
-                return a.fileName() < b.fileName();
+                return a.absoluteFilePath() < b.absoluteFilePath();
             };
         } else if (sort == SortByFileName && order == DescendingOrder) {
             sortFunction = [](ImageInfo a, ImageInfo b) {
-                return a.fileName() > b.fileName();
+                return a.absoluteFilePath() > b.absoluteFilePath();
             };
         } else if (sort == SortByLastModifiedDate && order == AscendingOrder) {
             sortFunction = [](ImageInfo a, ImageInfo b) {
