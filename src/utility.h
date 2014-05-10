@@ -30,10 +30,10 @@ class Utility
 public:
 
     ///
-    /// \brief Returns the list of supported image file types.
-    /// \return The list of supported image file types.
+    /// \brief Returns the list of supported archive file types as a filter.
+    /// \return The list of supported archive file types as a filter.
     ///
-    static QStringList imageFileTypes();
+    static QStringList archiveFileFilter();
 
     ///
     /// \brief Returns the list of supported archive file types.
@@ -41,13 +41,32 @@ public:
     ///
     static QStringList archiveFileTypes();
 
-private:
+    ///
+    /// \brief Returns the hash of the provided string.
+    /// \param string The string to hash.
+    /// \return The hash of the string.
+    ///
+    static QByteArray hash(const QString &string);
 
-    /// The list of supported image file types.
-    static const QStringList _imageFileTypes;
+    ///
+    /// \brief Returns the list of supported image file types as a filter.
+    /// \return The list of supported image file types as a filter.
+    ///
+    static QStringList imageFileFilter();
+
+    ///
+    /// \brief Returns the list of supported image file types.
+    /// \return The list of supported image file types.
+    ///
+    static QStringList imageFileTypes();
+
+private:
 
     /// The list of supported archive file types.
     static const QStringList _archiveFileTypes;
+
+    /// The list of supported image file types.
+    static const QStringList _imageFileTypes;
 
 };
 

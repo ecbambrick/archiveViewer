@@ -18,19 +18,21 @@
 
 *******************************************************************************/
 
+#include <QCryptographicHash>
+#include <QString>
 #include "utility.h"
 
 const QStringList Utility::_imageFileTypes {
-     "*.bmp"
-    ,"*.gif"
-    ,"*.jpg"
-    ,"*.jpeg"
-    ,"*.png"
+     "bmp"
+    ,"gif"
+    ,"jpg"
+    ,"jpeg"
+    ,"png"
 };
 
 const QStringList Utility::_archiveFileTypes {
-     "*.zip"
-    ,"*.cbz"
+     "zip"
+    ,"cbz"
 };
 
 QStringList Utility::imageFileTypes()
@@ -41,4 +43,30 @@ QStringList Utility::imageFileTypes()
 QStringList Utility::archiveFileTypes()
 {
     return _archiveFileTypes;
+}
+
+QStringList Utility::imageFileFilter()
+{
+    QStringList filter;
+    for (const QString &string : _imageFileTypes)
+    {
+        filter.append("*." + string);
+    }
+    return filter;
+}
+
+QStringList Utility::archiveFileFilter()
+{
+    QStringList filter;
+    for (const QString &string : _archiveFileTypes)
+    {
+        filter.append("*." + string);
+    }
+    return filter;
+}
+
+QByteArray Utility::hash(const QString &string)
+{
+    QByteArray utfString = string.toUtf8();
+    return QCryptographicHash::hash(utfString, QCryptographicHash::Md5).toHex();
 }

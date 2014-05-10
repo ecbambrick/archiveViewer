@@ -27,7 +27,8 @@ SOURCES	+= \
     imageinfo.cpp \
     imagesource.cpp \
     localimagesource.cpp \
-    utility.cpp
+    utility.cpp \
+    quazipimagesource.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -44,7 +45,8 @@ HEADERS += \
     filter.h \
     imageinfo.h \
     localimagesource.h \
-    utility.h
+    utility.h \
+    quazipimagesource.h
 
 RESOURCES += \
     resources.qrc

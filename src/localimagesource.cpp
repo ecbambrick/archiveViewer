@@ -30,7 +30,7 @@ LocalImageSource::LocalImageSource(const QString &filePath)
     this->_name = dir.dirName();
     this->_images = QList<ImageInfo>();
 
-    for (const QFileInfo &file : dir.entryInfoList(Utility::imageFileTypes())) {
+    for (const QFileInfo &file : dir.entryInfoList(Utility::imageFileFilter())) {
         this->_images.append(ImageInfo(file.absoluteFilePath()));
     }
 }
