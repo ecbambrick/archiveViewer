@@ -54,7 +54,7 @@ public:
     /// \brief Returns the list of images located in the source.
     /// \return The list of images located in the source.
     ///
-    virtual QList<ImageInfo*> images();
+    virtual QList<ImageInfo> images();
 
     ///
     /// \brief Returns the list of images located in the source.
@@ -63,7 +63,7 @@ public:
     /// \param order The ordering method. Defaults to AscendingOrder.
     /// \return The filtered list of images located in the source.
     ///
-    virtual QList<ImageInfo*> images(const Filter &filter,
+    virtual QList<ImageInfo> images(const Filter &filter,
                                      SortType sort = SortByFileName,
                                      OrderType order = AscendingOrder);
 
@@ -92,7 +92,7 @@ signals:
 protected:
 
     /// The full list of images contained within the source.
-    QList<ImageInfo*> _images;
+    QList<ImageInfo> _images;
 
     /// The name of the source.
     QString _name;

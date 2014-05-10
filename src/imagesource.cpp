@@ -18,22 +18,23 @@
 
 *******************************************************************************/
 
+#include <Qdatetime>
 #include <random>
 #include "imagesource.h"
 
-QList<ImageInfo*> ImageSource::images()
+QList<ImageInfo> ImageSource::images()
 {
     return _images;
 }
 
-QList<ImageInfo*> ImageSource::images(const Filter &filter,
+QList<ImageInfo> ImageSource::images(const Filter &filter,
                                       SortType sort,
                                       OrderType order)
 {
     // Filter images.
-    QList<ImageInfo*> filteredImages;
-    for (ImageInfo *image : _images) {
-        if (filter.match(image->fileName())) {
+    QList<ImageInfo> filteredImages;
+    for (const ImageInfo &image : _images) {
+        if (filter.match(image.fileName())) {
             filteredImages.append(image);
         }
     }
@@ -44,22 +45,22 @@ QList<ImageInfo*> ImageSource::images(const Filter &filter,
 
     // Sort images.
     } else {
-        std::function<bool(ImageInfo*, ImageInfo*)> sortFunction;
+        std::function<bool(ImageInfo, ImageInfo)> sortFunction;
         if (sort == SortByFileName && order == AscendingOrder) {
-            sortFunction = [](ImageInfo* a, ImageInfo* b) {
-                return a->fileName() < b->fileName();
+            sortFunction = [](ImageInfo a, ImageInfo b) {
+                return a.fileName() < b.fileName();
             };
         } else if (sort == SortByFileName && order == DescendingOrder) {
-            sortFunction = [](ImageInfo* a, ImageInfo* b) {
-                return a->fileName() < b->fileName();
+            sortFunction = [](ImageInfo a, ImageInfo b) {
+                return a.fileName() > b.fileName();
             };
         } else if (sort == SortByLastModifiedDate && order == AscendingOrder) {
-            sortFunction = [](ImageInfo* a, ImageInfo* b) {
-                return a->fileName() < b->fileName();
+            sortFunction = [](ImageInfo a, ImageInfo b) {
+                return a.lastModified() < b.lastModified();
             };
         } else if (sort == SortByLastModifiedDate && order == DescendingOrder) {
-            sortFunction = [](ImageInfo* a, ImageInfo* b) {
-                return a->fileName() < b->fileName();
+            sortFunction = [](ImageInfo a, ImageInfo b) {
+                return a.lastModified() > b.lastModified();
             };
         }
         std::sort(filteredImages.begin(), filteredImages.end(), sortFunction);

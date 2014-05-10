@@ -36,11 +36,6 @@ public:
     ///
     explicit LocalImageSource(const QString &filePath);
 
-    ///
-    /// \brief Destructor.
-    ///
-    ~LocalImageSource();
-
 public slots:
 
     ///
