@@ -20,21 +20,22 @@
 
 #ifndef PLAYLIST_H
 #define PLAYLIST_H
+#include <exception>
 #include <QList>
+#include "imagesource.h"
 
 ///
-/// \brief The Playlist class represents a templated list of items with a
-/// traversable index.
+/// \brief The Playlist class represents a traversable list of ImageInfo objects
+/// that are queried from a data source.
 ///
-template<typename T>
 class Playlist
 {
 public:
 
     ///
-    /// \brief Constructs an empty playlist.
+    /// \brief Constructs a playlist from the given image source.
     ///
-    Playlist();
+    Playlist(ImageSource *source);
 
     ///
     /// Destructor.
@@ -42,10 +43,11 @@ public:
     ~Playlist();
 
     ///
-    /// \brief Returns the item at the current index.
+    /// \brief Returns the item at the current index. The playlist must not be
+    /// empty. call isEmpty() before calling this function.
     /// \return The item at the current index.
     ///
-    T current();
+    ImageInfo current();
 
     ///
     /// \brief Returns the current index.
@@ -54,29 +56,18 @@ public:
     int index();
 
     ///
-    /// \brief Returns true if the current index is at the end; otherwise, false.
-    /// \return True if the current index is at the end; otherwise, false.
+    /// \brief Returns true if the playlist is empty; otherwise, false.
+    /// \return True of the playlist is empty; otherwise, false.
     ///
-    bool isAtEnd();
-
-    ///
-    /// \brief Returns true if the current index is at the beginning; otherwise, false.
-    /// \return True if the current index is at the beginning; otherwise, false.
-    ///
-    bool isAtBeginning();
+    bool isEmpty();
 
     ///
     /// \brief Returns true if traversal of the list loops; otherwise, false.
     /// \return True if traversal of the list loops; otherwise, false.
     ///
-    bool loop();
+    bool loops();
 
 public slots:
-
-    ///
-    /// \brief Moves the index to the first position.
-    ///
-    void first();
 
     ///
     /// \brief Moves the index to the given position.
@@ -85,15 +76,10 @@ public slots:
     void index(int position);
 
     ///
-    /// \brief Moves the index to the last position.
-    ///
-    void last();
-
-    ///
     /// \brief Sets whether or not traversal of the list loops.
     /// \param value True if traversal of the list loops; otherwise, false.
     ///
-    void loop(bool value);
+    void loops(bool value);
 
     ///
     /// \brief Increment the index by the given value.
@@ -117,9 +103,17 @@ signals:
 
 private:
 
-    int _index;      ///< The current index of the playlist.
-    QList<T> *_list; ///< The list structure containing the items.
-    bool _loop;      ///< True if traversal of the list loops; otherwise, false.
+    ///< The current index of the playlist.
+    int _index;
+
+    ///< The list structure containing the items.
+    QList<ImageInfo> *_list;
+
+    ///< True if traversal of the list loops; otherwise, false.
+    bool _loops;
+
+    ///< The source of items to query from.
+    ImageSource *_source;
 };
 
 #endif // PLAYLIST_H
