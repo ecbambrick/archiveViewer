@@ -22,6 +22,10 @@
 #include <random>
 #include "imagesource.h"
 
+ImageSource::~ImageSource()
+{
+}
+
 QList<ImageInfo> ImageSource::images()
 {
     return _images;

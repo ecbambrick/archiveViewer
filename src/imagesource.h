@@ -51,6 +51,11 @@ public:
     };
 
     ///
+    /// \brief Destructor.
+    ///
+    virtual ~ImageSource();
+
+    ///
     /// \brief Returns the list of images located in the source.
     /// \return The list of images located in the source.
     ///
