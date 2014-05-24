@@ -25,23 +25,24 @@
 
 Playlist::Playlist(ImageSource *source)
     : _index(0)
-    , _list(new QList<ImageInfo>(source->images()))
+    , _list(source->images())
     , _loops(false)
+    , _orderBy(ImageSource::AscendingOrder)
+    , _sortBy(ImageSource::SortByFileName)
     , _source(source)
 {
 }
 
 Playlist::~Playlist()
 {
-    delete _list;
 }
 
 ImageInfo Playlist::current()
 {
-    if (_list->empty()) {
+    if (_list.empty()) {
         throw std::out_of_range("");
     }
-    return _list->at(_index);
+    return _list.at(_index);
 }
 
 int Playlist::index()
@@ -51,7 +52,7 @@ int Playlist::index()
 
 bool Playlist::isEmpty()
 {
-    return _list->isEmpty();
+    return _list.isEmpty();
 }
 
 bool Playlist::loops()
@@ -59,11 +60,30 @@ bool Playlist::loops()
     return _loops;
 }
 
+void Playlist::sort(ImageSource::OrderType orderBy)
+{
+    _orderBy = orderBy;
+    this->reload();
+}
+
+void Playlist::sort(ImageSource::SortType sortBy)
+{
+    _sortBy = sortBy;
+    this->reload();
+}
+
+void Playlist::sort(ImageSource::SortType sortBy, ImageSource::OrderType orderBy)
+{
+    _orderBy = orderBy;
+    _sortBy = sortBy;
+    this->reload();
+}
+
 // ------------------------------------------------------------- public slots //
 
 void Playlist::index(int position)
 {
-    if (position >= _list->size() || position < 0) {
+    if (position >= _list.size() || position < 0) {
         throw std::out_of_range("position");
     }
     _index = position;
@@ -77,10 +97,10 @@ void Playlist::loops(bool value)
 void Playlist::next(int steps)
 {
     if (_loops) {
-        _index = (_index + steps) % _list->size();
+        _index = (_index + steps) % _list.size();
     } else {
-        if (_index + steps >= _list->size()) {
-            _index = _list->size() - 1;
+        if (_index + steps >= _list.size()) {
+            _index = _list.size() - 1;
         } else {
             _index += steps;
         }
@@ -93,13 +113,37 @@ void Playlist::previous(int steps)
         if (_index >= steps) {
             _index -= steps;
         } else {
-            _index = _list->size() - (steps - _index);
+            _index = _list.size() - (steps - _index);
         }
     } else {
         if (_index >= steps) {
             _index -= steps;
         } else {
             _index = 0;
+        }
+    }
+}
+
+// ------------------------------------------------------------------ private //
+
+void Playlist::reload()
+{
+    if (_list.empty()) {
+        _list = _source->images(Filter(""), _sortBy, _orderBy);
+        _index = 0;
+
+    } else {
+        QString filePath = _list.at(_index).absoluteFilePath();
+
+        _list = _source->images(Filter(""), _sortBy, _orderBy);
+        auto iterator = std::find_if(_list.begin(), _list.end(), [=](ImageInfo i) {
+            return i.absoluteFilePath() == filePath;
+        });
+
+        if (iterator == _list.end()) {
+            _index = 0;
+        } else {
+            _index = iterator - _list.begin();
         }
     }
 }

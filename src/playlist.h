@@ -26,7 +26,7 @@
 
 ///
 /// \brief The Playlist class represents a traversable list of ImageInfo objects
-/// that are queried from a data source.
+/// that are queried from an image source.
 ///
 class Playlist
 {
@@ -67,6 +67,25 @@ public:
     ///
     bool loops();
 
+    ///
+    /// \brief Sorts the playlist by the given order.
+    /// \param orderBy The order to sort by.
+    ///
+    void sort(ImageSource::OrderType orderBy);
+
+    ///
+    /// \brief Sorts the playlist by the given method.
+    /// \param sortBy The method to sort by.
+    ///
+    void sort(ImageSource::SortType sortBy);
+
+    ///
+    /// \brief Sorts the playlist by the given method and order.
+    /// \param sortBy The method to sort by.
+    /// \param orderBy The order to sort by.
+    ///
+    void sort(ImageSource::SortType sortBy, ImageSource::OrderType orderBy);
+
 public slots:
 
     ///
@@ -103,14 +122,25 @@ signals:
 
 private:
 
+    ///
+    /// \brief Reloads the list of images from the image source.
+    ///
+    void reload();
+
     ///< The current index of the playlist.
     int _index;
 
     ///< The list structure containing the items.
-    QList<ImageInfo> *_list;
+    QList<ImageInfo> _list;
 
     ///< True if traversal of the list loops; otherwise, false.
     bool _loops;
+
+    /// asd.
+    ImageSource::OrderType _orderBy;
+
+    /// asd.
+    ImageSource::SortType _sortBy;
 
     ///< The source of items to query from.
     ImageSource *_source;
