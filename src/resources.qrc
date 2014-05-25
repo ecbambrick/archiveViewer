@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/icons">
         <file>icon.ico</file>
+        <file>search.png</file>
     </qresource>
     <qresource prefix="/stylesheets">
         <file alias="default">default.qss</file>

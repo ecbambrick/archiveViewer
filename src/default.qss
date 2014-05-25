@@ -54,7 +54,7 @@ QToolBar QToolButton::checked {
 QToolBar QLineEdit {
     color: #555;
     padding-left: 18px;
-    background: url(C:/Users/Cole/Documents/Qt/archiveViewer/search.png);
+    background: url(:/icons/search.png);
     background-position: left;
     background-repeat: no-repeat;
     border: 1px solid #ccc;
