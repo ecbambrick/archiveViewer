@@ -19,7 +19,6 @@
 *******************************************************************************/
 
 #include <QDir>
-#include <QDebug>
 #include "utility.h"
 #include "localimagesource.h"
 
@@ -30,8 +29,11 @@ LocalImageSource::LocalImageSource(const QString &filePath)
     this->_name = dir.dirName();
     this->_images = QList<ImageInfo>();
 
+    int i = 0;
     for (const QFileInfo &file : dir.entryInfoList(Utility::imageFileFilter())) {
-        this->_images.append(ImageInfo(file.absoluteFilePath()));
+        auto image = ImageInfo(file.absoluteFilePath());
+        image.id(++i);
+        this->_images.append(image);
     }
 }
 

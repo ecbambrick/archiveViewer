@@ -101,7 +101,6 @@ protected:
 
     /// The name of the source.
     QString _name;
-
 };
 
 #endif // IMAGESOURCE_H

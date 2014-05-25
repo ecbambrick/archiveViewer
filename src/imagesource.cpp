@@ -36,9 +36,11 @@ QList<ImageInfo> ImageSource::images(const Filter &filter,
                                       OrderType order)
 {
     // Filter images.
+    int i = 0;
     QList<ImageInfo> filteredImages;
-    for (const ImageInfo &image : _images) {
+    for (ImageInfo image : _images) {
         if (filter.match(image.fileName())) {
+            image.id(++i);
             filteredImages.append(image);
         }
     }
@@ -52,11 +54,11 @@ QList<ImageInfo> ImageSource::images(const Filter &filter,
         std::function<bool(ImageInfo, ImageInfo)> sortFunction;
         if (sort == SortByFileName && order == AscendingOrder) {
             sortFunction = [](ImageInfo a, ImageInfo b) {
-                return a.absoluteFilePath() < b.absoluteFilePath();
+                return QString::compare(a.absoluteFilePath(), b.absoluteFilePath(), Qt::CaseInsensitive) < 0;
             };
         } else if (sort == SortByFileName && order == DescendingOrder) {
             sortFunction = [](ImageInfo a, ImageInfo b) {
-                return a.absoluteFilePath() > b.absoluteFilePath();
+                return QString::compare(a.absoluteFilePath(), b.absoluteFilePath(), Qt::CaseInsensitive) > 0;
             };
         } else if (sort == SortByLastModifiedDate && order == AscendingOrder) {
             sortFunction = [](ImageInfo a, ImageInfo b) {

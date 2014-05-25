@@ -34,10 +34,12 @@ QuaZipImageSource::QuaZipImageSource(const QString &archivePath)
     bool success;
 
     // Get the list of images from the archive.
+    int i = 0;
     _archive->open(QuaZip::mdUnzip);
     for (bool more = _archive->goToFirstFile(); more; more = _archive->goToNextFile()) {
         ImageInfo image = this->getImageInfo(&success);
         if (success) {
+            image.id(++i);
             _images.append(image);
         }
     }
