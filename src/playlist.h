@@ -21,6 +21,7 @@
 #ifndef PLAYLIST_H
 #define PLAYLIST_H
 #include <exception>
+#include <memory>
 #include <QList>
 #include "imagesource.h"
 
@@ -28,19 +29,16 @@
 /// \brief The Playlist class represents a traversable list of ImageInfo objects
 /// that are queried from an image source.
 ///
-class Playlist
+class Playlist : public QObject
 {
+    Q_OBJECT
+
 public:
 
     ///
     /// \brief Constructs a playlist from the given image source.
     ///
-    Playlist(ImageSource *source);
-
-    ///
-    /// Destructor.
-    ///
-    ~Playlist();
+    explicit Playlist(std::shared_ptr<ImageSource> source);
 
     ///
     /// \brief Returns the item at the current index. The playlist must not be
@@ -48,6 +46,12 @@ public:
     /// \return The item at the current index.
     ///
     ImageInfo current();
+
+    ///
+    /// \brief Filters the playlist by file name based on the given filter.
+    /// \param filter The filter to filter with.
+    ///
+    void filter(Filter filter);
 
     ///
     /// \brief Returns the current index.
@@ -66,6 +70,12 @@ public:
     /// \return True if traversal of the list loops; otherwise, false.
     ///
     bool loops();
+
+    ///
+    /// \brief Returns the number of elements in the playlist after filtering.
+    /// \return The number of elements in the playlist after filtering.
+    ///
+    int size();
 
     ///
     /// \brief Sorts the playlist by the given order.
@@ -101,24 +111,30 @@ public slots:
     void loops(bool value);
 
     ///
-    /// \brief Increment the index by the given value.
+    /// \brief Increments the index by the given value.
     /// \param steps The number of steps to increment. Defaults to 1.
     ///
     void next(int steps = 1);
 
     ///
-    /// \brief Decrement the index by the given value.
+    /// \brief Decrements the index by the given value.
     /// \param steps The number of steps to decrement. Defaults to 1.
     ///
     void previous(int steps = 1);
+
+    ///
+    /// \brief Shuffles or unshuffles the playlist.
+    /// \param value True if the playlist will be shuffled; false if the
+    /// playlist will be returned to its previous sorting method.
+    ///
+    void shuffle(bool value);
 
 signals:
 
     ///
     /// \brief Signals that the current index has changed.
-    /// \param position The new current index.
     ///
-    void indexChanged(int position);
+    void indexChanged();
 
 private:
 
@@ -127,23 +143,36 @@ private:
     ///
     void reload();
 
-    ///< The current index of the playlist.
+    ///
+    /// \brief Reloads the list of images from the image source.
+    /// \param filter The filter to filter file names against.
+    /// \param sortBy The order in which items are sorted.
+    /// \param orderBy The method by which items are sorted.
+    ///
+    void reload(const Filter &filter,
+                ImageSource::SortType sortBy,
+                ImageSource::OrderType orderBy);
+
+    /// The filter to filter file names against.
+    Filter _filter;
+
+    /// The current index of the playlist.
     int _index;
 
-    ///< The list structure containing the items.
+    /// The list structure containing the items.
     QList<ImageInfo> _list;
 
-    ///< True if traversal of the list loops; otherwise, false.
+    /// True if traversal of the list loops; otherwise, false.
     bool _loops;
 
-    /// asd.
+    /// The order in which items are sorted in the playlist.
     ImageSource::OrderType _orderBy;
 
-    /// asd.
+    /// The method by which items are sorted in the playlist.
     ImageSource::SortType _sortBy;
 
     ///< The source of items to query from.
-    ImageSource *_source;
+    std::shared_ptr<ImageSource> _source;
 };
 
 #endif // PLAYLIST_H

@@ -23,17 +23,14 @@
 
 // ------------------------------------------------------------------- public //
 
-Playlist::Playlist(ImageSource *source)
-    : _index(0)
+Playlist::Playlist(std::shared_ptr<ImageSource> source)
+    : _filter(Filter())
+    , _index(0)
     , _list(source->images())
     , _loops(false)
     , _orderBy(ImageSource::AscendingOrder)
     , _sortBy(ImageSource::SortByFileName)
     , _source(source)
-{
-}
-
-Playlist::~Playlist()
 {
 }
 
@@ -43,6 +40,12 @@ ImageInfo Playlist::current()
         throw std::out_of_range("");
     }
     return _list.at(_index);
+}
+
+void Playlist::filter(Filter filter)
+{
+   _filter = filter;
+   this->reload();
 }
 
 int Playlist::index()
@@ -58,6 +61,11 @@ bool Playlist::isEmpty()
 bool Playlist::loops()
 {
     return _loops;
+}
+
+int Playlist::size()
+{
+    return _list.size();
 }
 
 void Playlist::sort(ImageSource::OrderType orderBy)
@@ -96,7 +104,9 @@ void Playlist::loops(bool value)
 
 void Playlist::next(int steps)
 {
-    if (_loops) {
+    if (_list.empty()) {
+        _index = 0;
+    } else if (_loops) {
         _index = (_index + steps) % _list.size();
     } else {
         if (_index + steps >= _list.size()) {
@@ -105,11 +115,15 @@ void Playlist::next(int steps)
             _index += steps;
         }
     }
+
+    emit indexChanged();
 }
 
 void Playlist::previous(int steps)
 {
-    if (_loops) {
+    if (_list.empty()) {
+        _index = 0;
+    } else if (_loops) {
         if (_index >= steps) {
             _index -= steps;
         } else {
@@ -122,20 +136,38 @@ void Playlist::previous(int steps)
             _index = 0;
         }
     }
+
+    emit indexChanged();
+}
+
+void Playlist::shuffle(bool value)
+{
+    if (value) {
+        this->reload(_filter, _sortBy, ImageSource::RandomOrder);
+    } else {
+        this->reload();
+    }
 }
 
 // ------------------------------------------------------------------ private //
 
 void Playlist::reload()
 {
+    this->reload(_filter, _sortBy, _orderBy);
+}
+
+void Playlist::reload(const Filter &filter,
+                      ImageSource::SortType sortBy,
+                      ImageSource::OrderType orderBy)
+{   
     if (_list.empty()) {
-        _list = _source->images(Filter(""), _sortBy, _orderBy);
+        _list = _source->images(filter, sortBy, orderBy);
         _index = 0;
 
     } else {
         QString filePath = _list.at(_index).absoluteFilePath();
 
-        _list = _source->images(Filter(""), _sortBy, _orderBy);
+        _list = _source->images(filter, sortBy, orderBy);
         auto iterator = std::find_if(_list.begin(), _list.end(), [=](ImageInfo i) {
             return i.absoluteFilePath() == filePath;
         });
@@ -146,4 +178,6 @@ void Playlist::reload()
             _index = iterator - _list.begin();
         }
     }
+
+    emit indexChanged();
 }

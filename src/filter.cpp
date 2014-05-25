@@ -21,6 +21,11 @@
 #include <QRegularExpression>
 #include "filter.h"
 
+Filter::Filter()
+    : _tokens(QList<Token>())
+{
+}
+
 Filter::Filter(const QString &pattern)
     : _tokens(QList<Token>())
 {

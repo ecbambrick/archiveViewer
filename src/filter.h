@@ -26,19 +26,23 @@
 ///
 /// \brief The Filter class provides simple pattern matching.
 ///
-/// Patterns are parsed into tokens of the following type:
+/// Patterns are parsed into tokens of the following types:
 ///
-///   * Any block of non-white space characters seperated by whitespace.
-///   * Any block of characters enclosed within double-quotes.
+///   * Any block of non-whitespace characters seperated by whitespace.
+///   * Any block of non-double-quote characters enclosed within double-quotes.
 ///   * Any of the above, prepended with a '-' symbol.
 ///
-/// If a token begins with a '-' symbol, then the token must not exist in a
-/// string for that string to match the filter. Otherwise, the string must
-/// contain the token to match the filter.
+/// If a token begins with a '-' symbol, then the token must not exist in given
+/// string for that string to match the filter. Otherwise, a given string must
+/// contain the token to match the filter. In the case of quoted tokens, the
+/// quotes themselves are not matched.
 ///
 /// For example, for a string to match a filter of "red green -blue", the string
 /// must contain the substrings "red" and "green" but must not contain the
 /// substring "blue".
+///
+/// Similarly, for a string to match a filter "this "is a" filter", the string
+/// must contain the substrings "this", "is a", and "filter".
 ///
 /// \note Escaping double-quotes is not supported at this time.
 ///
@@ -47,10 +51,16 @@ class Filter
 public:
 
     ///
-    /// \brief Constructor.
+    /// \brief Constructs an empty filter. Any text will successfully match
+    /// against an empty filter.
+    ///
+    Filter();
+
+    ///
+    /// \brief Constructs a filter from the given pattern.
     /// \param pattern The query string to generate tokens from.
     ///
-    explicit Filter(const QString &pattern = "");
+    explicit Filter(const QString &pattern);
 
     ///
     /// \brief Determines whether or not a string passes the filter.
