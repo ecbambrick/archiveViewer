@@ -42,6 +42,12 @@ public:
     static QStringList archiveFileTypes();
 
     ///
+    /// \brief Returns a file type filter for the File Open dialog.
+    /// \return A file type filter for the File Open dialog.
+    ///
+    static QString openDialogFilter();
+
+    ///
     /// \brief Returns the hash of the provided string.
     /// \param string The string to hash.
     /// \return The hash of the string.

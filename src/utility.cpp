@@ -35,14 +35,30 @@ const QStringList Utility::_archiveFileTypes {
     ,"cbz"
 };
 
-QStringList Utility::imageFileTypes()
+QStringList Utility::archiveFileFilter()
 {
-    return _imageFileTypes;
+    QStringList filter;
+    for (const QString &string : _archiveFileTypes)
+    {
+        filter.append("*." + string);
+    }
+    return filter;
 }
 
 QStringList Utility::archiveFileTypes()
 {
     return _archiveFileTypes;
+}
+
+QString Utility::openDialogFilter()
+{
+    QString images = Utility::imageFileFilter().join(" ");
+    QString archives = Utility::archiveFileFilter().join(" ");
+
+    return "All Image and Archive Files (" + images + " " + archives + ");;"
+           + "Image Files (" + images + ");;"
+           + "Archive Files (" + archives + ");;"
+           + "All Files (*.*)";
 }
 
 QStringList Utility::imageFileFilter()
@@ -55,14 +71,10 @@ QStringList Utility::imageFileFilter()
     return filter;
 }
 
-QStringList Utility::archiveFileFilter()
+
+QStringList Utility::imageFileTypes()
 {
-    QStringList filter;
-    for (const QString &string : _archiveFileTypes)
-    {
-        filter.append("*." + string);
-    }
-    return filter;
+    return _imageFileTypes;
 }
 
 QByteArray Utility::hash(const QString &string)
