@@ -29,8 +29,10 @@
 /// The source can be queried based the file name of each image and the
 /// sorting order.
 ///
-class ImageSource
+class ImageSource : public QObject
 {
+    Q_OBJECT
+
 public:
 
     ///

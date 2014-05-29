@@ -24,6 +24,8 @@
 #include "utility.h"
 #include "quazipimagesource.h"
 
+// ------------------------------------------------------------------- public //
+
 QuaZipImageSource::QuaZipImageSource(const QString &archivePath)
 {
     _archive = new QuaZip(archivePath);
@@ -68,10 +70,13 @@ void QuaZipImageSource::imageNeeded(int id)
     id = id;
 }
 
+// ------------------------------------------------------------------ private //
+
 void QuaZipImageSource::extractAll()
 {
     bool success;
 
+    int i = 0;
     _archive->open(QuaZip::mdUnzip);
     for (bool more = _archive->goToFirstFile(); more; more = _archive->goToNextFile()) {
         if (_extractWatcher->isCanceled()) {
@@ -80,6 +85,7 @@ void QuaZipImageSource::extractAll()
         ImageInfo image = this->getImageInfo(&success);
         if (success) {
             extractImage(image);
+            emit imageReady(++i);
         }
     }
     _archive->close();
