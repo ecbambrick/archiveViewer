@@ -10,20 +10,28 @@
 #include <QMovie>
 #include <QMenu>
 #include <QLabel>
-#include "imagelist.h"
+#include "imageinfo.h"
 
 class ImageView : public QScrollArea
 {
     Q_OBJECT
 
 public:
+
+    enum ZoomType {
+         ZoomToFullSize
+        ,ZoomToHeight
+        ,ZoomToWidthAndHieght
+        ,ZoomToWidth
+    };
+
     explicit ImageView(QWidget *parent = 0);
     ~ImageView();
-    void setImage(ImageInfo *image);
+    void setImage(const ImageInfo *image);
     void clearImage();
     void updateImage();
     void toggleZoom();
-    ImageInfo* image();
+    const ImageInfo *image();
 
 public slots:
     void fitToWidth(bool val);
@@ -32,6 +40,7 @@ public slots:
     void zoomIn();
     void zoomOut();
     void zoom(float scale);
+    void fit(ZoomType zoom);
 
 private slots:
     void openContainingFolder();
@@ -53,7 +62,7 @@ private:
     void initContextMenu();
 
     QMenu *_contextMenu;
-    ImageInfo *_image;
+    ImageInfo const *_image;
     QPixmap *_pixmap;
     QMovie *_movie;
     QLabel *_label;

@@ -18,432 +18,373 @@
 
 *******************************************************************************/
 
-#include "qdebug.h"
+#include <QCoreApplication>
+#include <QFileDialog>
+#include <QFileInfo>
 #include "mainwindow.h"
-#include "directoryimagelist.h"
-#include "archivedimagelist.h"
-#include "sevenziparchiver.h"
-#include <QSettings>
-#include <QtWidgets>
-#include <QSize>
+#include "utility.h"
 
-/* ----------------------------------------------------------- INITIALIZATION */
+#include <QDebug>
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
+// ------------------------------------------------------------------- public //
+
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent)
+    , _imageSource(nullptr)
+    , _settings(new QSettings(
+                     QCoreApplication::applicationDirPath() + "/settings.ini",
+                     QSettings::IniFormat))
 {
-    _imageList = new ImageListFilter();
-    _archiver = new SevenZipArchiver();
-    _wasMaximized = false;
-    loadSettings();
-    initUI();
-    initFile();
-}
-
-void MainWindow::initFile()
-{
-    // load file from command line arguments
-    QStringList args   = QCoreApplication::arguments();
-    if (args.size() == 2 && args.at(1) != "") {
-        load(args.at(1));
-
-    // load file from previous session
-    } else if (_settingsLastOpened != "") {
-        QString lastViewed = _settingsLastViewed;
-        load(_settingsLastOpened);
-        setImage(_imageList->goTo(lastViewed));
-    }
-}
-
-void MainWindow::initUI()
-{
-    // declare actions
-    _actionOpen       = new QAction("&Open", this);
-    _actionPrev       = new QAction("&Previous", this);
-    _actionNext       = new QAction("&Next", this);
-    _actionShuf       = new QAction("&Shuffle", this);
-    _actionToggleZoom = new QAction("&View Actual Size", this);
-    _actionFitToWidth = new QAction("&Fit to Width", this);
-    _actionZoomIn     = new QAction("&Zoom In", this);
-    _actionZoomOut    = new QAction("&Zoom Out", this);
-    _actionZoomFull   = new QAction("&Zoom to Full Size", this);
-
-    // declare widgets
-    QWidget *uiSpace  = new QWidget(this);
-    _uiStatus         = new QStatusBar(this);
-    _uiToolbar        = new QToolBar("main", this);
-    _uiSearch         = new QLineEdit(this);
-    _uiFileName       = new QLabel("No File", this);
-    _uiFileNumber     = new QLabel("0/0", this);
-    _uiView           = new ImageView(this);
-
-    // initialize layout
-    this->addToolBar(_uiToolbar);
-    this->setStatusBar(_uiStatus);
-    this->setCentralWidget(_uiView);
-    this->addAction(_actionZoomFull);
-
-    // initialize status bar
-    _uiStatus->insertWidget(0, _uiFileName);
-    _uiStatus->insertPermanentWidget(1, _uiFileNumber);
-    _uiStatus->setContentsMargins(6,4,8,4);
-    _uiStatus->setSizeGripEnabled(false);
-
-    // initialie toolbar
-    _uiToolbar->addAction(_actionOpen);
-    _uiToolbar->addSeparator();
-    _uiToolbar->addAction(_actionPrev);
-    _uiToolbar->addAction(_actionShuf);
-    _uiToolbar->addAction(_actionNext);
-    _uiToolbar->addSeparator();
-    _uiToolbar->addAction(_actionFitToWidth);
-    _uiToolbar->addAction(_actionToggleZoom);
-    _uiToolbar->addAction(_actionZoomIn);
-    _uiToolbar->addAction(_actionZoomOut);
-    _uiToolbar->addWidget(uiSpace);
-    _uiToolbar->addWidget(_uiSearch);
-    _uiToolbar->setMovable(false);
-    this->setContextMenuPolicy (Qt::NoContextMenu);
-
-    // initialize shortcuts
-    _actionToggleZoom->setShortcut(Qt::Key_F);
-    _actionShuf->setShortcut(Qt::Key_R);
-    _actionNext->setShortcut(Qt::Key_Space);
-    _actionOpen->setShortcut(QKeySequence::Open);
-    _actionPrev->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Space));
-    _actionZoomIn->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Equal));
-    _actionZoomOut->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Minus));
-    _actionZoomFull->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_0));
-
-    // initialize connections
-    this->connect(_actionOpen,        SIGNAL(triggered()),        this, SLOT(open()));
-    this->connect(_actionPrev,        SIGNAL(triggered()),        this, SLOT(previous()));
-    this->connect(_actionNext,        SIGNAL(triggered()),        this, SLOT(next()));
-    this->connect(_actionShuf,        SIGNAL(toggled(bool)),      this, SLOT(shuffle(bool)));
-    this->connect(_actionFitToWidth,  SIGNAL(toggled(bool)),      this, SLOT(fitToWidth(bool)));
-    this->connect(_actionToggleZoom,  SIGNAL(triggered()),        this, SLOT(toggleZoom()));
-    this->connect(_actionZoomIn,      SIGNAL(triggered()),        this, SLOT(zoomIn()));
-    this->connect(_actionZoomOut,     SIGNAL(triggered()),        this, SLOT(zoomOut()));
-    this->connect(_actionZoomFull,    SIGNAL(triggered()),        this, SLOT(zoomFull()));
-    this->connect(_uiSearch,          SIGNAL(returnPressed()),    this, SLOT(filter()));
-
-    // misc widget settings
-    uiSpace->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
-    _uiFileNumber->setAlignment(Qt::AlignRight);
-    _uiFileName->setMinimumWidth(70);
-    _uiSearch->setMaximumWidth(192);
-    _uiSearch->setMinimumWidth(192);
-    _actionShuf->setCheckable(true);
-    _actionFitToWidth->setCheckable(true);
-
-    // initialize style sheet
-    QFile file(":/stylesheets/default");
-    _uiFileNumber->setProperty("class", "fileNumber");
-    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        this->setStyleSheet(file.readAll());
-        file.close();
-    }
-
-    // restore previous settings
-    this->restoreGeometry(_settingsGeometry);
-    this->showNormal();
-
-    // if the window was previously maximized, move it to its previous
-    // position so that it appears in the correct monitor
-    if (_settingsMaximized) {
-        this->move(_settingsX, _settingsY);
-        this->showMaximized();
-    }
+    this->loadActions();
+    this->loadWidgets();
+    this->loadStyleSheet();
+    this->loadInitialFile();
+    this->loadGeometry();
 }
 
 MainWindow::~MainWindow()
 {
-    saveSettings();
-    delete _archiver;
-    delete _imageList->list();
-    delete _imageList;
-    delete _actionToggleZoom;
+    _settings->setValue("full_screen", this->isFullScreen());
+    _settings->setValue("window_maximized", this->isMaximized());
+
+    this->showNormal();
+
+    _settings->setValue("window_x", this->geometry().x());
+    _settings->setValue("window_y", this->geometry().y());
+    _settings->setValue("window_geometry", this->saveGeometry());
+    _settings->sync();
+
     delete _actionOpen;
-    delete _actionPrev;
+    delete _actionPrevious;
     delete _actionNext;
-    delete _actionShuf;
-    delete _uiSearch;
-    delete _uiToolbar;
-    delete _uiView;
-    delete _uiFileName;
-    delete _uiFileNumber;
-    delete _uiStatus;
+    delete _actionShuffle;
+    delete _widgetSpacer;
+    delete _widgetSearchBox;
+    delete _widgetFileName;
+    delete _widgetFilePosition;
+    delete _widgetStatusBar;
+    delete _widgetToolBar;
+    delete _widgetImageView;
 }
 
-/* ----------------------------------------------------------------- SETTINGS */
+// ------------------------------------------------------------- public slots //
 
-void MainWindow::loadSettings()
+void MainWindow::loadImage()
 {
-    QSettings settings(
-        QCoreApplication::applicationDirPath() + "/settings.ini",
-        QSettings::IniFormat
-    );
-    _settingsGeometry = settings.value("window_geometry", saveGeometry()).toByteArray();
-    _settingsMaximized = settings.value("window_maximized", false).toBool();
-    _settingsStatusHidden = settings.value("status_hidden", false).toBool();
-    _settingsLastOpened = settings.value("last_opened_file", "").toString();
-    _settingsLastViewed = settings.value("last_viewed_file", "").toString();
-    _settingsX = settings.value("window_x", 0).toInt();
-    _settingsY = settings.value("window_y", 0).toInt();
-
-}
-
-void MainWindow::saveSettings()
-{
-    QSettings settings(
-        QCoreApplication::applicationDirPath() + "/settings.ini",
-        QSettings::IniFormat
-    );
-    if (isMaximized()) {
-        settings.setValue("window_x", geometry().x());
-        settings.setValue("window_y", geometry().y());
-    }
-    if (!isMaximized()) {
-        settings.setValue("window_geometry",  saveGeometry());
-    }
-    settings.setValue("window_maximized", (_wasMaximized || isMaximized()));
-    settings.setValue("status_hidden",    _uiStatus->isHidden());
-    settings.setValue("last_opened_file", _settingsLastOpened);
-    settings.setValue("last_viewed_file", _settingsLastViewed);
-    settings.sync();
-}
-
-/* ------------------------------------------------------------- FILE ACTIONS */
-
-/// Display the open file dialog and open the selected file
-void MainWindow::open()
-{
-    QString selectedFile = FileIO::openFileDialogue(_settingsLastOpened);
-    if (selectedFile != NULL) {
-        this->load(selectedFile);
-    }
-}
-
-/// Populate the image list and set the image
-void MainWindow::load(const QString path)
-{
-    QFileInfo file(path);
-    QString fileName = file.fileName();
-    FileIO::FileType fileType = FileIO::getFileType(&file);
-
-    // error checking
-    if (fileType == FileIO::INVALID) {
-        qDebug() << "invalid file: " << file.absoluteFilePath();
+    if (_playlist->isEmpty()) {
+        _widgetImageView->clearImage();
         return;
     }
+    ImageInfo image = _playlist->current();
 
-    // remove old list
-    ImageList *oldList = _imageList->list();
-    if (oldList != NULL) { delete oldList; }
+    _widgetImageView->setImage(&image);
+    _settings->setValue("last_viewed_file", image.fileName());
+    emit imageLoaded(&image);
+}
 
-    // create new image list
-    ImageList *newList;
-    if (fileType == FileIO::ARCHIVE) {
-        newList = new ArchivedImageList(_archiver, file.absoluteFilePath());
+bool MainWindow::open()
+{
+    QString selectedFile = QFileDialog::getOpenFileName(
+                0,
+                "Open File",
+                _settings->value("last_opened_file").toString(),
+                Utility::openDialogFilter());
+
+    if (!selectedFile.isNull()) {
+        this->open(selectedFile);
+        return true;
     } else {
-        newList = new DirectoryImageList(file.absoluteFilePath());
-    }
-    _imageList->setList(newList);
-    this->connect(newList, SIGNAL(imageReady(ImageInfo*)), this, SLOT(reload(ImageInfo*)));
-    newList->open();
-
-    // update the image
-    _settingsLastOpened = file.absoluteFilePath();
-    _settingsLastViewed = file.fileName();
-    this->setImage(_imageList->goTo(fileName));
-}
-
-/// Reload the current Image
-void MainWindow::reload(ImageInfo *image)
-{
-    if (image == _imageList->current()) {
-        this->setImage(image);
+        return false;
     }
 }
 
-/* ------------------------------------------------------- NAVIGATION ACTIONS */
-
-/// Go to the previous image in the image list if it exists
-void MainWindow::previous()
+bool MainWindow::open(const QString &filePath)
 {
-    ImageInfo *image = _imageList->previous();
-    this->setImage(image);
+    QString fileType = QFileInfo(filePath).suffix();
+
+    if (Utility::imageFileTypes().contains(fileType)) {
+        _imageSource.reset(new LocalImageSource(filePath));
+    } else if (Utility::archiveFileTypes().contains(fileType)) {
+        _imageSource.reset(new QuaZipImageSource(filePath));
+    } else {
+        return false;
+    }
+
+    _playlist.reset(new Playlist(_imageSource));
+    _playlist->loops(true);
+    _settings->setValue("last_opened_file", filePath);
+
+    this->connect(_actionNext, SIGNAL(triggered()), _playlist.get(), SLOT(next()));
+    this->connect(_actionPrevious, SIGNAL(triggered()), _playlist.get(), SLOT(previous()));
+    this->connect(_actionShuffle, SIGNAL(toggled(bool)), _playlist.get(), SLOT(shuffle(bool)));
+    this->connect(_playlist.get(), SIGNAL(indexChanged()), this, SLOT(loadImage()));
+    this->connect(_playlist.get(), SIGNAL(indexChanged()), this, SLOT(updateFileName()));
+    this->connect(_playlist.get(), SIGNAL(indexChanged()), this, SLOT(updateFilePosition()));
+    this->connect(_imageSource.get(), SIGNAL(imageReady(int)), this, SLOT(reloadImage(int)));
+
+    emit _playlist->indexChanged();
+
+    return true;
 }
 
-/// Go to the next image in the image list if it exists
-void MainWindow::next()
-{
-    ImageInfo *image = _imageList->next();
-    this->setImage(image);
-}
-
-/* ----------------------------------------------------------- FILTER ACTIONS */
-
-/// Filter the image list based on the searchbox's contents
 void MainWindow::filter()
 {
-    ImageInfo *image = _imageList->filter(_uiSearch->text());
-    setImage(image);
+    auto pattern = _widgetSearchBox->text();
+
+    this->setFocus();
+    _playlist->filter(Filter(pattern));
 }
 
-/// Toggle shuffling of image list
-void MainWindow::shuffle(bool value)
+void MainWindow::reloadImage(int id)
 {
-    _imageList->setShuffle(value);
-}
-
-/* ------------------------------------------------------------- ZOOM ACTIONS */
-
-/// Toggle fit-to-window or 100% zoom
-void MainWindow::toggleZoom()
-{
-    bool fitToWindow = _actionToggleZoom->property("fit").toBool();
-    if (fitToWindow) {
-        _actionToggleZoom->setText("&View Actual Size");
-        _actionToggleZoom->setProperty("fit", false);
-    } else {
-        _actionToggleZoom->setText("&Fit to Window");
-        _actionToggleZoom->setProperty("fit", true);
+    if (_playlist->current().id() == id) {
+        this->loadImage();
     }
-    _uiView->toggleZoom();
 }
 
-void MainWindow::fitToWidth(bool value)
+void MainWindow::updateFileName()
 {
-    _uiView->fitToWidth(value);
-}
+    int width = _widgetFileName->maximumWidth() - 90;
 
-void MainWindow::zoomIn()
-{
-    _uiView->zoomIn();
-}
-
-void MainWindow::zoomOut()
-{
-    _uiView->zoomOut();
-}
-
-void MainWindow::zoomFull()
-{
-    _uiView->zoom(1.0);
-}
-
-/* --------------------------------------------------------------- UI ACTIONS */
-
-/// Set the pixmap to display, if NULL image is provided, clear the display
-void MainWindow::setImage(ImageInfo *image)
-{
-    if (image == NULL) {
-        _uiView->clearImage();
-    } else {
-        _uiView->setImage(image);
-        _settingsLastViewed = image->fileName();
-    }
-    this->updateStatusNumber(image);
-    this->updateStatusName(image);
-}
-
-/// Update the image's filename in the status bar
-void MainWindow::updateStatusName(ImageInfo *image)
-{
-    int width = _uiFileName->maximumWidth() - 90;
-    if (_imageList->empty() || image == NULL) {
-        _uiFileName->setText("No File");
+    if (_playlist->isEmpty()) {
+        _widgetFileName->setText("No File");
         this->setWindowTitle("Archive Viewer");
     } else {
         // cut off the name with "..." if too long
-        QFontMetrics font(_uiFileName->font());
-        QString newText = font.elidedText(image->fileName(), Qt::ElideRight, width);
-        _uiFileName->setText(_imageList->listName() + "\n" + newText);
-        this->setWindowTitle(image->relativeFilePath() + " - Archive Viewer");
+        auto image = _playlist->current();
+        auto name = _imageSource->name();
+        QFontMetrics font(_widgetFileName->font());
+        QString newText = font.elidedText(image.fileName(), Qt::ElideRight, width);
+        _widgetFileName->setText(name + "\n" + newText);
+        this->setWindowTitle(image.relativeFilePath() + " - Archive Viewer");
     }
 }
 
-/// Update the image's index in the status bar
-void MainWindow::updateStatusNumber(ImageInfo *image)
+void MainWindow::updateFilePosition()
 {
-    QString index = QString::number(_imageList->index()+1);
-    QString size = QString::number(_imageList->size());
+    QString index = QString::number(_playlist->current().id());
+    QString size = QString::number(_playlist->size());
 
-    if (image == NULL) {
-        _uiFileNumber->setText("0/0");
+    if (_playlist->isEmpty()) {
+        _widgetFilePosition->setText("0/0");
     } else {
-        _uiFileNumber->setText(index + "/" + size);
+        _widgetFilePosition->setText(index + "/" + size);
     }
 }
 
-void MainWindow::toggleClean()
+void MainWindow::zoomFit()
 {
-    // toggle status bar
-    statusBar()->setHidden(!statusBar()->isHidden());
+    ImageView::ZoomType zoom = (ImageView::ZoomType)_actionZoomFit->property("fit").toInt();
+    ImageView::ZoomType newZoom;
 
-    // toggle toolbar using hide(), to keep its actions active
-    if (_uiToolbar->height() == 0) {
-        _uiToolbar->setMaximumHeight(48);
-    } else {
-        _uiToolbar->setMaximumHeight(0);
+    switch (zoom) {
+        case ImageView::ZoomToFullSize:
+            _actionZoomFit->setText("Fit to Width");
+            newZoom = ImageView::ZoomToWidth;
+            break;
+        case ImageView::ZoomToWidth:
+            _actionZoomFit->setText("Fit to Window");
+            newZoom = ImageView::ZoomToWidthAndHieght;
+            break;
+        case ImageView::ZoomToWidthAndHieght:
+            _actionZoomFit->setText("Full Size");
+            newZoom = ImageView::ZoomToFullSize;
+            break;
+        default:
+            newZoom = zoom;
+            break;
     }
+
+    _actionZoomFit->setProperty("fit", newZoom);
+    _widgetImageView->fit(newZoom);
 }
 
-/* ------------------------------------------------------------------- EVENTS */
+// ---------------------------------------------------------------- protected //
 
-/// resize statusbar filename
 void MainWindow::resizeEvent(QResizeEvent *e)
 {
     int width = e->size().width();
-    if (width > _uiFileName->minimumWidth()) {
-        _uiFileName->setMaximumWidth(width);
+
+    if (width > _widgetFileName->minimumWidth()) {
+        _widgetFileName->setMaximumWidth(width);
     }
-    this->updateStatusName(_imageList->current());
+    this->updateFileName();
 }
 
-/// misc. actions
 void MainWindow::keyPressEvent(QKeyEvent *e)
 {
-    // deselect search bar
-    if (e->key() == Qt::Key_Return) {
-        if (_uiSearch->hasFocus() && !_imageList->empty()) {
-            _uiView->setFocus();
-        }
+    auto key = e->key();
+    auto modifiers = e->modifiers();
 
-    // deselect / clear search bar
-    } else if (e->key() == Qt::Key_Escape) {
-        if (_uiSearch->hasFocus()) {
-            _uiView->setFocus();
+    // Deselect or clear the search box.
+    if (key == Qt::Key_Escape) {
+        if (_widgetSearchBox->hasFocus()) {
+            this->setFocus();
         } else {
-            _uiSearch->clear();
+            _widgetSearchBox->clear();
             this->filter();
         }
 
-    // focus on search bar
-    } else if (e->key() == Qt::Key_F &&
-               e->modifiers() == Qt::ControlModifier) {
-        _uiSearch->setFocus();
-        _uiSearch->selectAll();
+    // Focus on the search box.
+    } else if (key == Qt::Key_F && modifiers == Qt::ControlModifier) {
+        _widgetSearchBox->setFocus();
+        _widgetSearchBox->selectAll();
 
     // hide the toolbar and statusbar
+    // toggle toolbar using hide() to keep its actions active
+    // TODO: make this not terrible
     } else if (e->key() == Qt::Key_F12) {
-        this->toggleClean();
+        statusBar()->setHidden(!statusBar()->isHidden());
+        if (_widgetToolBar->height() == 0) {
+            _widgetToolBar->setMaximumHeight(48);
+        } else {
+            _widgetToolBar->setMaximumHeight(0);
+        }
 
-    // fit to width
-    } else if (e->key() == Qt::Key_W) {
-        _actionFitToWidth->toggle();
-
-    // fullscreen
+    // Toggle fullscreen.
     } else if (e->key() == Qt::Key_F11) {
         if (this->isFullScreen()) {
-            this->showNormal();
             if (_wasMaximized) {
                 this->showMaximized();
-                _wasMaximized = false;
+            } else {
+                this->showNormal();
             }
         } else {
             _wasMaximized = this->isMaximized();
             this->showFullScreen();
         }
     }
+}
+
+// ------------------------------------------------------------------ private //
+
+void MainWindow::loadGeometry()
+{
+    QByteArray geometry = _settings->value("window_geometry").toByteArray();
+    bool isMaximized = _settings->value("window_maximized", true).toBool();
+    int x = _settings->value("window_x").toInt();
+    int y = _settings->value("window_y").toInt();
+
+    this->restoreGeometry(geometry);
+    if (isMaximized) {
+        this->move(x, y);
+        this->showMaximized();
+    } else {
+        this->showNormal();
+    }
+}
+
+bool MainWindow::loadInitialFile()
+{
+    QStringList args = QCoreApplication::arguments();
+    QString lastOpened = _settings->value("last_opened_file").toString();
+
+    if (args.size() == 2 && args.at(1) != "") {
+        return this->open(args.at(1));
+    } else if (!lastOpened.isEmpty()) {
+        return this->open(lastOpened);
+    } else {
+        return false;
+    }
+}
+
+bool MainWindow::loadStyleSheet()
+{
+    _widgetFilePosition->setProperty("class", "fileNumber");
+
+    QFile file(":/stylesheets/default");
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        this->setStyleSheet(file.readAll());
+        file.close();
+    }
+
+    return true;
+}
+
+void MainWindow::loadActions()
+{
+    // Next image.
+    _actionNext = new QAction("&Next", this);
+    _actionNext->setShortcut(Qt::Key_Space);
+
+    // Open file.
+    _actionOpen = new QAction("&Open", this);
+    _actionOpen->setShortcut(QKeySequence::Open);
+
+    // Previous image.
+    _actionPrevious = new QAction("&Previous", this);
+    _actionPrevious->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Space));
+
+    // Shuffle images.
+    _actionShuffle = new QAction("&Shuffle", this);
+    _actionShuffle->setShortcut(Qt::Key_R);
+    _actionShuffle->setCheckable(true);
+
+    // Zoom to full, width, or width/height.
+    _actionZoomFit = new QAction("&Fit to Window", this);
+    _actionZoomFit->setShortcut(Qt::Key_Z);
+    _actionZoomFit->setProperty("fit", ImageView::ZoomToWidthAndHieght);
+
+    // Zoom in.
+    _actionZoomIn = new QAction("Zoom &In", this);
+    _actionZoomIn->setShortcut(Qt::Key_Equal);
+
+    // Zoom out.
+    _actionZoomOut = new QAction("Zoom O&ut", this);
+    _actionZoomOut->setShortcut(Qt::Key_Minus);
+}
+
+void MainWindow::loadWidgets()
+{
+    // File name label.
+    _widgetFileName = new QLabel("No File", this);
+    _widgetFileName->setMinimumWidth(70);
+
+    // File position label.
+    _widgetFilePosition = new QLabel("0/0", this);
+    _widgetFilePosition->setAlignment(Qt::AlignRight);
+
+    // Image viewer.
+    _widgetImageView = new ImageView(this);
+    this->connect(_actionZoomIn, SIGNAL(triggered()), _widgetImageView, SLOT(zoomIn()));
+    this->connect(_actionZoomOut, SIGNAL(triggered()), _widgetImageView, SLOT(zoomOut()));
+
+    // Search box.
+    _widgetSearchBox = new QLineEdit(this);
+    _widgetSearchBox->setMaximumWidth(192);
+    _widgetSearchBox->setMinimumWidth(192);
+    this->connect(_widgetSearchBox, &QLineEdit::returnPressed, this, &MainWindow::filter);
+
+    // Spacer.
+    _widgetSpacer = new QWidget(this);
+    _widgetSpacer->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
+
+    // Status bar.
+    _widgetStatusBar = new QStatusBar(this);
+    _widgetStatusBar->insertWidget(0, _widgetFileName);
+    _widgetStatusBar->insertPermanentWidget(1, _widgetFilePosition);
+    _widgetStatusBar->setContentsMargins(6,4,8,4);
+    _widgetStatusBar->setSizeGripEnabled(false);
+
+    // Tool bar.
+    _widgetToolBar = new QToolBar("main", this);
+    _widgetToolBar->addAction(_actionOpen);
+    _widgetToolBar->addSeparator();
+    _widgetToolBar->addAction(_actionPrevious);
+    _widgetToolBar->addAction(_actionShuffle);
+    _widgetToolBar->addAction(_actionNext);
+    _widgetToolBar->addSeparator();
+    _widgetToolBar->addAction(_actionZoomIn);
+    _widgetToolBar->addAction(_actionZoomOut);
+    _widgetToolBar->addAction(_actionZoomFit);
+    _widgetToolBar->addWidget(_widgetSpacer);
+    _widgetToolBar->addWidget(_widgetSearchBox);
+    _widgetToolBar->setMovable(false);
+
+    // Main window.
+    this->addToolBar(_widgetToolBar);
+    this->setStatusBar(_widgetStatusBar);
+    this->setCentralWidget(_widgetImageView);
+    this->connect(_actionOpen, SIGNAL(triggered()), this, SLOT(open()));
+    this->connect(_actionZoomFit, SIGNAL(triggered()), this, SLOT(zoomFit()));
 }

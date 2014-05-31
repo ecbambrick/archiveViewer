@@ -1,7 +1,7 @@
 #include "imageview.h"
-#include "fileio.h"
 #include <math.h>
 #include <QDebug>
+#include <QDesktopServices>
 
 ImageView::ImageView(QWidget *parent) : QScrollArea(parent)
 {
@@ -37,7 +37,7 @@ ImageView::~ImageView()
 
 /* --------------------------------------------------------------- IMAGE JUNK */
 
-void ImageView::setImage(ImageInfo *image)
+void ImageView::setImage(ImageInfo const* image)
 {
     this->clearImage();
     _image = image;
@@ -125,6 +125,27 @@ void ImageView::zoom(float scale)
     this->updateImage();
 }
 
+void ImageView::fit(ZoomType zoom)
+{
+    switch(zoom) {
+        case ZoomToWidth:
+            _fitToWidth = true;
+            _fitToWindow = false;
+            break;
+        case ZoomToFullSize:
+            _fitToWidth = false;
+            _fitToWindow = false;
+            break;
+        case ZoomToWidthAndHieght:
+            _fitToWidth = false;
+            _fitToWindow = true;
+            break;
+        default:
+            break;
+    }
+    this->updateImage();
+}
+
 /* ------------------------------------------------------------- CONTEXT MENU */
 
 void ImageView::initContextMenu()
@@ -156,7 +177,7 @@ void ImageView::showContextMenu(const QPoint& point)
 void ImageView::openContainingFolder()
 {
     QFileInfo *file = (QFileInfo*) _image;
-    FileIO::openFileManager(file);
+    QDesktopServices::openUrl(QUrl::fromLocalFile(file->absolutePath()));
 }
 
 void ImageView::openWith() {}
@@ -190,7 +211,7 @@ void ImageView::mouseMoveEvent(QMouseEvent *e)
     }
 }
 
-void ImageView::resizeEvent(QResizeEvent *e)
+void ImageView::resizeEvent(QResizeEvent *)
 {
     this->updateImage();
 }
@@ -207,7 +228,7 @@ bool ImageView::event(QEvent *e)
     return QScrollArea::event(e);
 }
 
-ImageInfo* ImageView::image()
+ImageInfo const* ImageView::image()
 {
     return _image;
 }

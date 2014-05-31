@@ -14,39 +14,27 @@ QMAKE_CXXFLAGS += -std=c++0x
 CONFIG += c++11
 
 SOURCES	+= \
-    main.cpp \
-    mainwindow.cpp \
-    directoryimagelist.cpp \
-    archivedimagelist.cpp \
-    sevenziparchiver.cpp \
-    fileio.cpp \
-    reversiblerand.cpp \
-    imagelistfilter.cpp \
-    imageview.cpp \
     filter.cpp \
     imageinfo.cpp \
     imagesource.cpp \
+    imageview.cpp \
     localimagesource.cpp \
+    main.cpp \
+    mainwindow.cpp \
+    quazipimagesource.cpp \
     utility.cpp \
-    quazipimagesource.cpp
+    playlist.cpp
 
 HEADERS += \
-    mainwindow.h \
-    imagelist.h \
-    directoryimagelist.h \
-    archivedimagelist.h \
-    sevenziparchiver.h \
-    archiver.h \
-    fileio.h \
-    reversiblerand.h \
-    imagelistfilter.h \
-    imageview.h \
-    imagesource.h \
     filter.h \
     imageinfo.h \
+    imagesource.h \
+    imageview.h \
     localimagesource.h \
+    mainwindow.h \
+    quazipimagesource.h \
     utility.h \
-    quazipimagesource.h
+    playlist.h
 
 RESOURCES += \
     resources.qrc

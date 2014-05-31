@@ -16,29 +16,27 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see http://www.gnu.org/licenses/.
 
-********************************************************************************
-
-    MainWindow:
-    Main window of the application, handles user input and image display.
-
 *******************************************************************************/
 
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
-#include <QKeyEvent>
-#include <QLineEdit>
-#include <QSettings>
+#include <QAction>
 #include <QLabel>
-#include <QDebug>
-#include "imagelistfilter.h"
-#include "archiver.h"
-#include "fileio.h"
+#include <QLineEdit>
+#include <QMainWindow>
+#include <QSettings>
+#include <QStatusBar>
+#include <QToolBar>
+#include "imagesource.h"
 #include "imageview.h"
+#include "localimagesource.h"
+#include "playlist.h"
+#include "quazipimagesource.h"
 
-namespace Ui { class MainWindow; }
-
+///
+/// \brief The MainWindow class represents the main window of the application.
+///
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -48,63 +46,74 @@ public:
     ~MainWindow();
 
 public slots:
-    void open();
-    void load(const QString path);
-    void reload(ImageInfo *image);
-    void previous();
-    void next();
-    void filter();
-    void shuffle(bool value);
-    void toggleZoom();
-    void toggleClean();
-    void fitToWidth(bool value);
-    void zoomIn();
-    void zoomOut();
-    void zoomFull();
 
-private:
-    void initUI();
-    void initFile();
-    void loadSettings();
-    void saveSettings();
-    void setImage(ImageInfo *image);
-    void updateStatusNumber(ImageInfo *image);
-    void updateStatusName(ImageInfo *image);
+    void filter();
+    bool open();
+    bool open(const QString &filePath);
+    void loadImage();
+    void reloadImage(int id);
+    void updateFileName();
+    void updateFilePosition();
+    void zoomFit();
+
+signals:
+
+    void imageLoaded(const ImageInfo *image);
+
+protected:
+
     void resizeEvent(QResizeEvent *e);
     void keyPressEvent(QKeyEvent *e);
 
-    // widgets
-    QToolBar *_uiToolbar;
-    ImageView *_uiView;
-    QLineEdit *_uiSearch;
-    QLabel *_uiFileName;
-    QLabel *_uiFileNumber;
-    QStatusBar *_uiStatus;
+private:
 
-    // actions
-    QAction *_actionFitToWidth;
-    QAction *_actionToggleZoom;
-    QAction *_actionOpen;
-    QAction *_actionPrev;
-    QAction *_actionNext;
-    QAction *_actionShuf;
-    QAction *_actionZoomIn;
-    QAction *_actionZoomOut;
-    QAction *_actionZoomFull;
+    ///
+    /// \brief loadUI
+    ///
+    void loadActions();
 
-    // settings
-    QByteArray _settingsGeometry;
-    QString _settingsLastOpened;
-    QString _settingsLastViewed;
-    bool _settingsStatusHidden;
-    bool _settingsMaximized;
-    bool _wasMaximized;
-    int _settingsX;
-    int _settingsY;
+    ///
+    /// \brief loadGeometry
+    ///
+    void loadGeometry();
 
-    // misc
-    ImageListFilter *_imageList;
-    Archiver *_archiver;
+    ///
+    /// \brief loadInitialFile
+    /// \return
+    ///
+    bool loadInitialFile();
+
+    ///
+    /// \brief loadStyleSheet
+    /// \return
+    ///
+    bool loadStyleSheet();
+
+    ///
+    /// \brief loadUI
+    ///
+    void loadWidgets();
+
+    QAction *_actionOpen;           ///< Open file.
+    QAction *_actionPrevious;       ///< Go to previous image.
+    QAction *_actionNext;           ///< Go to next image.
+    QAction *_actionShuffle;        ///< Shuffle the images.
+    QAction *_actionZoomFit;        ///< Zoom to full, width, or width/height.
+    QAction *_actionZoomIn;         ///< Zoom in.
+    QAction *_actionZoomOut;        ///< Zoom out.
+
+    std::shared_ptr<ImageSource> _imageSource;      ///< Source of image files.
+    std::unique_ptr<Playlist> _playlist;            ///< Playlist of images.
+    std::unique_ptr<QSettings> _settings;           ///< Application settings.
+    bool _wasMaximized;                              ///< True if the application was maximized before becoming fullscreen; otherwise, false.
+
+    QWidget *_widgetSpacer;         ///< Expanding, empty spacer.
+    QToolBar *_widgetToolBar;       ///< Status bar.
+    QStatusBar *_widgetStatusBar;   ///< Tool bar.
+    QLineEdit *_widgetSearchBox;    ///< Search box.
+    QLabel *_widgetFileName;        ///< File name label.
+    QLabel *_widgetFilePosition;    ///< File position label.
+    ImageView *_widgetImageView;    ///< Image viewing widget.
 };
 
 #endif // MAINWINDOW_H
