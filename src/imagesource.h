@@ -86,7 +86,7 @@ public slots:
     /// \brief Indicates that an image needs to be viewed.
     /// \param id The ID of the image.
     ///
-    virtual void imageNeeded(int id) = 0;
+    virtual void imageNeeded(ImageInfo *image) = 0;
 
 signals:
 
@@ -94,7 +94,7 @@ signals:
     /// \brief Signals that an image is ready to be viewed.
     /// \param id The ID of the image.
     ///
-    void imageReady(int id);
+    void imageReady(const QString &relativeFilePath);
 
 protected:
 

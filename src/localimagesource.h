@@ -42,7 +42,7 @@ public slots:
     /// \brief Indicates that an image needs to be viewed.
     /// \param id The ID of the image.
     ///
-    void imageNeeded(int id);
+    void imageNeeded(ImageInfo *image);
 };
 
 #endif // LOCALIMAGESOURCE_H

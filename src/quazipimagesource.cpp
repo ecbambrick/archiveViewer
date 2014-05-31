@@ -64,10 +64,10 @@ QuaZipImageSource::~QuaZipImageSource()
     delete _extractWatcher;
 }
 
-void QuaZipImageSource::imageNeeded(int id)
+void QuaZipImageSource::imageNeeded(ImageInfo *image)
 {
     // Will eventually be used for updating the position of the extraction loop.
-    id = id;
+    image;
 }
 
 // ------------------------------------------------------------------ private //
@@ -76,7 +76,6 @@ void QuaZipImageSource::extractAll()
 {
     bool success;
 
-    int i = 0;
     _archive->open(QuaZip::mdUnzip);
     for (bool more = _archive->goToFirstFile(); more; more = _archive->goToNextFile()) {
         if (_extractWatcher->isCanceled()) {
@@ -85,7 +84,7 @@ void QuaZipImageSource::extractAll()
         ImageInfo image = this->getImageInfo(&success);
         if (success) {
             extractImage(image);
-            emit imageReady(++i);
+            emit imageReady(image.relativeFilePath());
         }
     }
     _archive->close();

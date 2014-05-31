@@ -51,7 +51,7 @@ public slots:
     bool open();
     bool open(const QString &filePath);
     void loadImage();
-    void reloadImage(int id);
+    void reloadImage(const QString &relativeFilePath);
     void updateFileName();
     void updateFilePosition();
     void zoomFit();

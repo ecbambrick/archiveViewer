@@ -75,11 +75,16 @@ void MainWindow::loadImage()
         _widgetImageView->clearImage();
         return;
     }
+
     ImageInfo image = _playlist->current();
 
-    _widgetImageView->setImage(&image);
-    _settings->setValue("last_viewed_file", image.fileName());
-    emit imageLoaded(&image);
+    if (image.exists()) {
+        _widgetImageView->setImage(&image);
+        _settings->setValue("last_viewed_file", image.fileName());
+        emit imageLoaded(&image);
+    } else {
+        _widgetImageView->clearImage();
+    }
 }
 
 bool MainWindow::open()
@@ -120,7 +125,7 @@ bool MainWindow::open(const QString &filePath)
     this->connect(_playlist.get(), SIGNAL(indexChanged()), this, SLOT(loadImage()));
     this->connect(_playlist.get(), SIGNAL(indexChanged()), this, SLOT(updateFileName()));
     this->connect(_playlist.get(), SIGNAL(indexChanged()), this, SLOT(updateFilePosition()));
-    this->connect(_imageSource.get(), SIGNAL(imageReady(int)), this, SLOT(reloadImage(int)));
+    this->connect(_imageSource.get(), SIGNAL(imageReady(QString)), this, SLOT(reloadImage(QString)));
 
     emit _playlist->indexChanged();
 
@@ -135,9 +140,9 @@ void MainWindow::filter()
     _playlist->filter(Filter(pattern));
 }
 
-void MainWindow::reloadImage(int id)
+void MainWindow::reloadImage(const QString &relativeFilePath)
 {
-    if (_playlist->current().id() == id) {
+    if (_playlist->current().relativeFilePath() == relativeFilePath) {
         this->loadImage();
     }
 }

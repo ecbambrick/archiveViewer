@@ -37,8 +37,8 @@ LocalImageSource::LocalImageSource(const QString &filePath)
     }
 }
 
-void LocalImageSource::imageNeeded(int id)
+void LocalImageSource::imageNeeded(ImageInfo *image)
 {
     // Nothing needs to be done.
-    id = id;
+    image;
 }
