@@ -36,17 +36,17 @@ void ImageInfo::id(int value)
     _id = value;
 }
 
-int ImageInfo::id()
+int ImageInfo::id() const
 {
     return _id;
 }
 
-QString ImageInfo::relativeFilePath()
+QString ImageInfo::relativeFilePath() const
 {
     return this->_relativePath + this->fileName();
 }
 
-QString ImageInfo::relativePath()
+QString ImageInfo::relativePath() const
 {
     return this->_relativePath;
 }

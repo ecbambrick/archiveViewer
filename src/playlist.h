@@ -45,7 +45,7 @@ public:
     /// empty. call isEmpty() before calling this function.
     /// \return The item at the current index.
     ///
-    ImageInfo current();
+    ImageInfo current() const;
 
     ///
     /// \brief Filters the playlist by file name based on the given filter.
@@ -57,25 +57,25 @@ public:
     /// \brief Returns the current index.
     /// \return The current index.
     ///
-    int index();
+    int index() const;
 
     ///
     /// \brief Returns true if the playlist is empty; otherwise, false.
     /// \return True of the playlist is empty; otherwise, false.
     ///
-    bool isEmpty();
+    bool isEmpty() const;
 
     ///
     /// \brief Returns true if traversal of the list loops; otherwise, false.
     /// \return True if traversal of the list loops; otherwise, false.
     ///
-    bool loops();
+    bool loops() const;
 
     ///
     /// \brief Returns the number of elements in the playlist after filtering.
     /// \return The number of elements in the playlist after filtering.
     ///
-    int size();
+    int size() const;
 
     ///
     /// \brief Sorts the playlist by the given order.

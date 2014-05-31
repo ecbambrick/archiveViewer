@@ -61,7 +61,7 @@ public:
     /// \brief Returns the list of images located in the source.
     /// \return The list of images located in the source.
     ///
-    virtual QList<ImageInfo> images();
+    virtual QList<ImageInfo> images() const;
 
     ///
     /// \brief Returns the list of images located in the source.
@@ -72,13 +72,13 @@ public:
     ///
     virtual QList<ImageInfo> images(const Filter &filter,
                                      SortType sort = SortByFileName,
-                                     OrderType order = AscendingOrder);
+                                     OrderType order = AscendingOrder) const;
 
     ///
     /// \brief Returns the name of the source.
     /// \return The name of the source.
     ///
-    virtual QString name();
+    virtual QString name() const;
 
 public slots:
 

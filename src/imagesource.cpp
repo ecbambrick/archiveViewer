@@ -26,14 +26,14 @@ ImageSource::~ImageSource()
 {
 }
 
-QList<ImageInfo> ImageSource::images()
+QList<ImageInfo> ImageSource::images() const
 {
     return _images;
 }
 
 QList<ImageInfo> ImageSource::images(const Filter &filter,
                                       SortType sort,
-                                      OrderType order)
+                                      OrderType order) const
 {
     // Filter images.
     int i = 0;
@@ -75,7 +75,7 @@ QList<ImageInfo> ImageSource::images(const Filter &filter,
     return filteredImages;
 }
 
-QString ImageSource::name()
+QString ImageSource::name() const
 {
     return _name;
 }

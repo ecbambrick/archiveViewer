@@ -33,7 +33,7 @@ Playlist::Playlist(std::shared_ptr<ImageSource> source)
 {
 }
 
-ImageInfo Playlist::current()
+ImageInfo Playlist::current() const
 {
     if (_list.empty()) {
         throw std::out_of_range("");
@@ -47,22 +47,22 @@ void Playlist::filter(Filter filter)
    this->reload();
 }
 
-int Playlist::index()
+int Playlist::index() const
 {
     return _index;
 }
 
-bool Playlist::isEmpty()
+bool Playlist::isEmpty() const
 {
     return _list.isEmpty();
 }
 
-bool Playlist::loops()
+bool Playlist::loops() const
 {
     return _loops;
 }
 
-int Playlist::size()
+int Playlist::size() const
 {
     return _list.size();
 }

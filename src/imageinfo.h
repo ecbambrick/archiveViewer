@@ -46,19 +46,19 @@ public:
     /// \brief Gets the ID of the image information.
     /// \return The ID of the image information.
     ///
-    int id();
+    int id() const;
 
     ///
     /// \brief Returns the path relative to the image source including the
     /// file name.
     /// \return The path relative to the image source including the file name.
     ///
-    QString relativeFilePath();
+    QString relativeFilePath() const;
 
     /// \brief Returns the path relative to the image source.
     /// \return The path relative to the image source.
     ///
-    QString relativePath();
+    QString relativePath() const;
 
 private:
 
