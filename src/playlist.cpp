@@ -96,6 +96,20 @@ void Playlist::index(int position)
     _index = position;
 }
 
+void Playlist::index(const QString &relativeFilePath)
+{
+    int index = -1;
+    for (int i = 0; i < _list.length(); i++) {
+        if (_list.at(i).relativeFilePath() == relativeFilePath) {
+            index = i;
+        }
+    }
+
+    if (index >= 0) {
+        _index = index;
+    }
+}
+
 void Playlist::loops(bool value)
 {
     _loops = value;

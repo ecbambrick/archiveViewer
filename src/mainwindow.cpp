@@ -77,7 +77,7 @@ void MainWindow::loadImage()
 
     if (image.exists()) {
         _widgetImageView->setImage(&image);
-        _settings->setValue("last_viewed_file", image.fileName());
+        _settings->setValue("last_viewed_file", image.relativeFilePath());
         emit imageLoaded(&image);
     } else {
         _widgetImageView->clearImage();
@@ -103,11 +103,16 @@ bool MainWindow::open()
 
 bool MainWindow::open(const QString &filePath)
 {
-    QString fileType = QFileInfo(filePath).suffix();
+    QFileInfo fileInfo(filePath);
+    QString fileType = fileInfo.suffix();
+    QString fileName = fileInfo.fileName();
+    bool isArchiveFile = Utility::archiveFileTypes().contains(fileType);
+    bool isImageFile = Utility::imageFileTypes().contains(fileType);
 
-    if (Utility::imageFileTypes().contains(fileType)) {
+    if (isImageFile) {
         _imageSource.reset(new LocalImageSource(filePath));
-    } else if (Utility::archiveFileTypes().contains(fileType)) {
+        _settings->setValue("last_viewed_file", fileName);
+    } else if (isArchiveFile) {
         _imageSource.reset(new QuaZipImageSource(filePath));
     } else {
         return false;
@@ -115,6 +120,7 @@ bool MainWindow::open(const QString &filePath)
 
     _playlist.reset(new Playlist(_imageSource));
     _playlist->loops(true);
+    _playlist->index(_settings->value("last_viewed_file").toString());
     _settings->setValue("last_opened_file", filePath);
 
     this->connect(_actionNext, SIGNAL(triggered()), _playlist.get(), SLOT(next()));

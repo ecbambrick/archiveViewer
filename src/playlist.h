@@ -105,6 +105,14 @@ public slots:
     void index(int position);
 
     ///
+    /// \brief Moves the index to the position of item with the given relative
+    /// file name. If no items has the given relative file name, the index is
+    /// not changed.
+    /// \param relativeFileName The relative file name of the item.
+    ///
+    void index(const QString &relativeFilePath);
+
+    ///
     /// \brief Sets whether or not traversal of the list loops.
     /// \param value True if traversal of the list loops; otherwise, false.
     ///
