@@ -58,7 +58,8 @@ public slots:
 
 signals:
 
-    void imageLoaded(const ImageInfo *image);
+    void imageLoaded(ImageInfo *image);
+    void imageNotLoaded(ImageInfo *image);
 
 protected:
 

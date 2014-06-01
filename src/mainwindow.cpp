@@ -46,9 +46,6 @@ MainWindow::~MainWindow()
 {
     _settings->setValue("full_screen", this->isFullScreen());
     _settings->setValue("window_maximized", this->isMaximized());
-
-    this->showNormal();
-
     _settings->setValue("window_x", this->geometry().x());
     _settings->setValue("window_y", this->geometry().y());
     _settings->setValue("window_geometry", this->saveGeometry());
@@ -84,6 +81,7 @@ void MainWindow::loadImage()
         emit imageLoaded(&image);
     } else {
         _widgetImageView->clearImage();
+        emit imageNotLoaded(&image);
     }
 }
 
@@ -126,6 +124,7 @@ bool MainWindow::open(const QString &filePath)
     this->connect(_playlist.get(), SIGNAL(indexChanged()), this, SLOT(updateFileName()));
     this->connect(_playlist.get(), SIGNAL(indexChanged()), this, SLOT(updateFilePosition()));
     this->connect(_imageSource.get(), SIGNAL(imageReady(QString)), this, SLOT(reloadImage(QString)));
+    this->connect(this, SIGNAL(imageNotLoaded(ImageInfo*)), _imageSource.get(), SLOT(imageNeeded(ImageInfo*)));
 
     emit _playlist->indexChanged();
 

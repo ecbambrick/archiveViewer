@@ -27,28 +27,13 @@
 // ------------------------------------------------------------------- public //
 
 QuaZipImageSource::QuaZipImageSource(const QString &archivePath)
+    : _archive(new QuaZip(archivePath))
+    , _currentFileNameChanged(false)
+    , _extractPath(QDir::tempPath() + "/archiveViewer/" + Utility::hash(archivePath))
+    , _extractWatcher(new QFutureWatcher<void>())
 {
-    _archive = new QuaZip(archivePath);
-    _extractWatcher = new QFutureWatcher<void>();
-    _extractPath = QDir::tempPath() + "/archiveViewer/" + Utility::hash(archivePath);
-    _images = QList<ImageInfo>();
+    this->loadImageInfoList();
     _name = QFileInfo(archivePath).completeBaseName();
-    bool success;
-
-    // Get the list of images from the archive.
-    int i = 0;
-    _archive->open(QuaZip::mdUnzip);
-    for (bool more = _archive->goToFirstFile(); more; more = _archive->goToNextFile()) {
-        ImageInfo image = this->getImageInfo(&success);
-        if (success) {
-            image.id(++i);
-            _images.append(image);
-        }
-    }
-    _archive->close();
-
-    // Extract files in a separate thread.
-    QDir(_extractPath).mkpath(_extractPath);
     _extractWatcher->setFuture(QtConcurrent::run(this, &QuaZipImageSource::extractAll));
 }
 
@@ -64,40 +49,62 @@ QuaZipImageSource::~QuaZipImageSource()
     delete _extractWatcher;
 }
 
+// ------------------------------------------------------------- public slots //
+
 void QuaZipImageSource::imageNeeded(ImageInfo *image)
 {
-    // Will eventually be used for updating the position of the extraction loop.
-    image;
+    _currentFileName = image->relativeFilePath();
+    _currentFileNameChanged = true;
 }
 
 // ------------------------------------------------------------------ private //
 
 void QuaZipImageSource::extractAll()
 {
-    bool success;
-
     _archive->open(QuaZip::mdUnzip);
-    for (bool more = _archive->goToFirstFile(); more; more = _archive->goToNextFile()) {
-        if (_extractWatcher->isCanceled()) {
-            break;
+    _archive->goToFirstFile();
+
+    // Keep track of the files that have not been extracted yet.
+    QStringList fileNames;
+    for (const ImageInfo &image : _images) {
+        fileNames.append(image.relativeFilePath());
+    }
+
+    while (!fileNames.isEmpty() && !_extractWatcher->isCanceled()) {
+
+        // If a specific image is requested to be extracted and has not already
+        // been extracted, then move to that position in the archive.
+        if (_currentFileNameChanged && fileNames.contains(_currentFileName)) {
+            _archive->setCurrentFile(_currentFileName);
+            _currentFileNameChanged = false;
         }
-        ImageInfo image = this->getImageInfo(&success);
-        if (success) {
-            extractImage(image);
-            emit imageReady(image.relativeFilePath());
+
+        // Do not extract if the file has already been extracted.
+        QString fileName = _archive->getCurrentFileName();
+        int index = fileNames.indexOf(fileName);
+        if (index >= 0) {
+            fileNames.removeOne(fileName);
+            this->extractImage(fileName);
+            emit imageReady(fileName);
+        }
+
+        if (!_archive->goToNextFile()) {
+            _archive->goToFirstFile();
         }
     }
+
     _archive->close();
 }
 
-void QuaZipImageSource::extractImage(const ImageInfo &image)
+void QuaZipImageSource::extractImage(const QString &fileName)
 {
     QuaZipFile source(_archive);
-    QFile destination(image.absoluteFilePath());
+    QFileInfo destinationInfo(_extractPath + "/" + fileName);
+    QFile destination(destinationInfo.absoluteFilePath());
 
     // Create any directories that might need to exist due to the archive
     // containing sub-directories.
-    QDir().mkpath(image.absolutePath());
+    QDir().mkpath(destinationInfo.absolutePath());
 
     // Copy the data from the archive to the file.
     source.open(QIODevice::ReadOnly);
@@ -110,23 +117,28 @@ void QuaZipImageSource::extractImage(const ImageInfo &image)
     source.close();
 }
 
-ImageInfo QuaZipImageSource::getImageInfo(bool *success)
+void QuaZipImageSource::loadImageInfoList()
 {
-    QuaZipFile file(_archive);
-    QFileInfo fileInfo(_extractPath + "/" + file.getActualFileName());
-    QString absoluteFilePath("");
-    QString relativePath("");
+    _archive->open(QuaZip::mdUnzip);
 
-    file.open(QIODevice::ReadOnly);
-    if (Utility::imageFileTypes().contains(fileInfo.suffix(), Qt::CaseInsensitive)) {
-        absoluteFilePath = fileInfo.absoluteFilePath();
-        relativePath = file.getActualFileName();
+    int i = 0;
+    QStringList fileNames = _archive->getFileNameList();
+    fileNames.sort(Qt::CaseInsensitive);
+    for (QString fileName : fileNames) {
+
+        // Get file information.
+        QFileInfo fileInfo(_extractPath + "/" + fileName);
+        QString suffix = fileInfo.suffix();
+        QString relativePath = fileName;
         relativePath.chop(fileInfo.fileName().length());
-        *success = true;
-    } else {
-        *success = false;
-    }
-    file.close();
 
-    return ImageInfo(absoluteFilePath, relativePath);
+        // Insert the file into the list of images if it is an image.
+        if (Utility::imageFileTypes().contains(suffix, Qt::CaseInsensitive)) {
+            ImageInfo image(fileInfo.absoluteFilePath(), relativePath);
+            image.id(++i);
+            _images.append(image);
+        }
+    }
+
+    _archive->close();
 }

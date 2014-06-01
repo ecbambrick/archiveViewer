@@ -67,23 +67,28 @@ private:
     /// file path of the provided image information.
     /// \param image The image file information.
     ///
-    void extractImage(const ImageInfo &image);
+    void extractImage(const QString &fileName);
 
     ///
-    /// \brief Returns image information describing the current QuaZipFile.
-    /// \param success True if the QuaZipFile is valid; otherwise, false.
-    /// \return Image information describing the current QuaZipFile.
+    /// \brief Loads the ImageInfo list from files within the zip archive.
     ///
-    ImageInfo getImageInfo(bool *success);
+    void loadImageInfoList();
 
     /// The zip archive.
     QuaZip *_archive;
 
-    /// The watcher for the extraction process.
-    QFutureWatcher<void> *_extractWatcher;
+    /// The file name of the image that needs to be extracted next if a request
+    /// was made through the ImageNeeded slot.
+    QString _currentFileName;
+
+    /// True if a specific image is needed to be extracted next; otherwise, false.
+    bool _currentFileNameChanged;
 
     /// The directory path to extract the contents of the zip archive to.
     QString _extractPath;
+
+    /// The watcher for the extraction process.
+    QFutureWatcher<void> *_extractWatcher;
 };
 
 #endif // QUAZIPIMAGESOURCE_H
