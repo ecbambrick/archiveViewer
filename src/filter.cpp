@@ -50,19 +50,26 @@ Filter::Filter(const QString &pattern)
         }
 
         token.value = tokenString;
-        this->_tokens.append(token);
+        _tokens.append(token);
     }
 }
 
 bool Filter::match(const QString &text) const
 {
-    for (const Token &token : this->_tokens) {
+    for (const Token &token : _tokens) {
+
+        // Negative tokens cannot be contained within the text.
         if (token.type == Token::Negative) {
             if (text.contains(token.value, Qt::CaseInsensitive)) {
                 return false;
             }
-        } else if (!text.contains(token.value, Qt::CaseInsensitive)) {
-            return false;
+        }
+
+        // Positive tokens must be contained within the text.
+        else if (token.type == Token::Positive) {
+            if (!text.contains(token.value, Qt::CaseInsensitive)) {
+                return false;
+            }
         }
     }
 

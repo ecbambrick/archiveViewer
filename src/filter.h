@@ -32,10 +32,10 @@
 ///   * Any block of non-double-quote characters enclosed within double-quotes.
 ///   * Any of the above, prepended with a '-' symbol.
 ///
-/// If a token begins with a '-' symbol, then the token must not exist in given
-/// string for that string to match the filter. Otherwise, a given string must
-/// contain the token to match the filter. In the case of quoted tokens, the
-/// quotes themselves are not matched.
+/// If a token begins with a '-' symbol, then the token, excluding the leading
+/// '-', must not exist in given string for that string to match the filter.
+/// Otherwise, a given string must contain the token to match the filter. In
+/// the case of quoted tokens, the quotes themselves are ignored when matching.
 ///
 /// For example, for a string to match a filter of "red green -blue", the string
 /// must contain the substrings "red" and "green" but must not contain the
@@ -58,14 +58,14 @@ public:
 
     ///
     /// \brief Constructs a filter from the given pattern.
-    /// \param pattern The query string to generate tokens from.
+    /// \param pattern The pattern to generate tokens from.
     ///
-    explicit Filter(const QString &pattern);
+    Filter(const QString &pattern);
 
     ///
     /// \brief Determines whether or not a string passes the filter.
     /// \param text The string to check the filter against.
-    /// \return True if the string matches the filter, and false otherwise.
+    /// \return True if the string matches the filter; otherwise, false.
     ///
     bool match(const QString &text) const;
 
