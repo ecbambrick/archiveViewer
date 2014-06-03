@@ -1,6 +1,6 @@
 /*******************************************************************************
 
-    Copyright (C) 2013 by Cole Bambrick
+    Copyright (C) 2014 by Cole Bambrick
     cole.bambrick@gmail.com
 
     This program is free software: you can redistribute it and/or modify
