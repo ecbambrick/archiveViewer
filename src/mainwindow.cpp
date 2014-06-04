@@ -147,6 +147,8 @@ void MainWindow::filter()
 
 void MainWindow::reloadImage(const QString &relativeFilePath)
 {
+    if (_playlist->isEmpty()) return;
+
     if (_playlist->current().relativeFilePath() == relativeFilePath) {
         this->loadImage();
     }
@@ -172,12 +174,11 @@ void MainWindow::updateFileName()
 
 void MainWindow::updateFilePosition()
 {
-    QString index = QString::number(_playlist->current().id());
-    QString size = QString::number(_playlist->size());
-
     if (_playlist->isEmpty()) {
         _widgetFilePosition->setText("0/0");
     } else {
+        QString index = QString::number(_playlist->current().id());
+        QString size = QString::number(_playlist->size());
         _widgetFilePosition->setText(index + "/" + size);
     }
 }
