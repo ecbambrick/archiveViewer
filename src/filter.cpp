@@ -33,43 +33,41 @@ Filter::Filter(const QString &pattern)
     auto i = regex.globalMatch(pattern);
 
     while (i.hasNext()) {
-        QString tokenString = i.next().captured(0);
-        Token token;
+        auto tokenString = i.next().captured(0);
+        auto tokenType = Token::Positive;
 
-        // Remove leading '-' so it is not included when matching the token.
-        if (tokenString.startsWith('-') && tokenString.size() > 1) {
-            token.type = Token::Negative;
-            tokenString.remove(0,1);
-        } else {
-            token.type = Token::Positive;
+        // Tokens of length 1 are interpreted literally.
+        if (tokenString.length() > 1) {
+
+            // Remove leading '-' so it is not included when matching.
+            if (tokenString.startsWith('-')) {
+                tokenType = Token::Negative;
+                tokenString.remove(0,1);
+            }
+
+            // remove outer quotes so they are not included when matching.
+            if (tokenString.startsWith('"') && tokenString.endsWith('"')) {
+                tokenString = tokenString.mid(1, tokenString.size()-2);
+            }
         }
 
-        // remove outer quotes so they are not included when matching the token.
-        if (tokenString.startsWith('"') && tokenString.endsWith('"')) {
-            tokenString = tokenString.mid(1, tokenString.size()-2);
-        }
-
-        token.value = tokenString;
-        _tokens.append(token);
+        _tokens.append({ tokenType, tokenString });
     }
 }
 
 bool Filter::match(const QString &text) const
 {
-    for (const Token &token : _tokens) {
+    for (const auto &token : _tokens) {
+        auto containsToken = text.contains(token.value, Qt::CaseInsensitive);
 
         // Negative tokens cannot be contained within the text.
-        if (token.type == Token::Negative) {
-            if (text.contains(token.value, Qt::CaseInsensitive)) {
-                return false;
-            }
+        if (token.type == Token::Negative && containsToken) {
+            return false;
         }
 
         // Positive tokens must be contained within the text.
-        else if (token.type == Token::Positive) {
-            if (!text.contains(token.value, Qt::CaseInsensitive)) {
-                return false;
-            }
+        else if (token.type == Token::Positive && !containsToken) {
+            return false;
         }
     }
 

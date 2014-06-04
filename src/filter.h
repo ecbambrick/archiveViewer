@@ -37,12 +37,17 @@
 /// Otherwise, a given string must contain the token to match the filter. In
 /// the case of quoted tokens, the quotes themselves are ignored when matching.
 ///
-/// For example, for a string to match a filter of "red green -blue", the string
-/// must contain the substrings "red" and "green" but must not contain the
-/// substring "blue".
+/// For example, for a string to match a filter of "red green -blue", the
+/// string must contain the substrings "red" and "green" but must not contain
+/// the substring "blue".
 ///
 /// Similarly, for a string to match a filter "this "is a" filter", the string
 /// must contain the substrings "this", "is a", and "filter".
+///
+/// If a token consists of a single '-' symbol or single double quote, then
+/// that token is interpreted literally. Therefore, for a string to match a
+/// filter of " - " ", then the string must contain a '-' symbol and a double
+/// quote.
 ///
 /// \note Escaping double-quotes is not supported at this time.
 ///
@@ -58,13 +63,13 @@ public:
 
     ///
     /// \brief Constructs a filter from the given pattern.
-    /// \param pattern The pattern to generate tokens from.
+    /// \param pattern The pattern to match against in the filter.
     ///
     Filter(const QString &pattern);
 
     ///
     /// \brief Determines whether or not a string passes the filter.
-    /// \param text The string to check the filter against.
+    /// \param text The string to match the filter against.
     /// \return True if the string matches the filter; otherwise, false.
     ///
     bool match(const QString &text) const;
@@ -80,11 +85,12 @@ private:
     struct Token {
 
         ///
-        /// \brief The TokenType enum represents different behaviours for tokens.
+        /// \brief The TokenType enum represents different behaviours for
+        /// tokens.
         ///
         enum TokenType {
-            Negative    ///< The token must not exist in the text to match.
-            ,Positive   ///< The token must exist in the text to match.
+            Negative,   ///< The token must not exist in the text to match.
+            Positive,   ///< The token must exist in the text to match.
         };
 
         /// The type of the token.
