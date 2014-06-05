@@ -101,7 +101,7 @@ bool MainWindow::open()
     }
 }
 
-bool MainWindow::open(const QString &filePath)
+bool MainWindow::open(const QString &filePath, bool skipToLastViewed)
 {
     QFileInfo fileInfo(filePath);
     QString fileType = fileInfo.suffix();
@@ -111,7 +111,10 @@ bool MainWindow::open(const QString &filePath)
 
     if (isImageFile) {
         _imageSource.reset(new LocalImageSource(filePath));
-        _settings->setValue("last_viewed_file", fileName);
+        if (!skipToLastViewed) {
+            skipToLastViewed = true;
+            _settings->setValue("last_viewed_file", fileName);
+        }
     } else if (isArchiveFile) {
         _imageSource.reset(new QuaZipImageSource(filePath));
     } else {
@@ -120,8 +123,11 @@ bool MainWindow::open(const QString &filePath)
 
     _playlist.reset(new Playlist(_imageSource));
     _playlist->loops(true);
-    _playlist->index(_settings->value("last_viewed_file").toString());
     _settings->setValue("last_opened_file", filePath);
+
+    if (skipToLastViewed) {
+        _playlist->index(_settings->value("last_viewed_file").toString());
+    }
 
     this->connect(_actionNext, SIGNAL(triggered()), _playlist.get(), SLOT(next()));
     this->connect(_actionPrevious, SIGNAL(triggered()), _playlist.get(), SLOT(previous()));
@@ -293,7 +299,7 @@ bool MainWindow::loadInitialFile()
     if (args.size() == 2 && args.at(1) != "") {
         return this->open(args.at(1));
     } else if (!lastOpened.isEmpty()) {
-        return this->open(lastOpened);
+        return this->open(lastOpened, true);
     } else {
         return false;
     }

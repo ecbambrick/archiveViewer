@@ -49,7 +49,7 @@ public slots:
 
     void filter();
     bool open();
-    bool open(const QString &filePath);
+    bool open(const QString &filePath, bool skipToLastViewed = false);
     void loadImage();
     void reloadImage(const QString &relativeFilePath);
     void updateFileName();
