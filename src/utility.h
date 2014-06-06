@@ -22,58 +22,49 @@
 #define UTILITY_H
 #include <QStringList>
 
-///
-/// \brief The Utility class represents a set of static utility functions.
-///
-class Utility
+namespace Utility
 {
-public:
+    ///
+    /// \brief Returns the list of supported archive file name filters. An
+    /// example of a file name filter would be "*.jpg".
+    /// \return The list of supported archive file name filters.
+    ///
+    QStringList archiveFileFilter();
 
     ///
-    /// \brief Returns the list of supported archive file types as a filter.
-    /// \return The list of supported archive file types as a filter.
+    /// \brief Returns the list of supported archive file type extensions. An
+    /// example of a file type extension would be "jpg".
+    /// \return The list of supported archive file type extensions.
     ///
-    static QStringList archiveFileFilter();
+    QStringList archiveFileTypes();
 
     ///
-    /// \brief Returns the list of supported archive file types.
-    /// \return The list of supported archive file types.
-    ///
-    static QStringList archiveFileTypes();
-
-    ///
-    /// \brief Returns a file type filter for the File Open dialog.
-    /// \return A file type filter for the File Open dialog.
-    ///
-    static QString openDialogFilter();
-
-    ///
-    /// \brief Returns the hash of the provided string.
+    /// \brief Returns the MD5 hash of the provided string as hexidecimal.
     /// \param string The string to hash.
-    /// \return The hash of the string.
+    /// \return The hexidecimal MD5 hash of the string.
     ///
-    static QByteArray hash(const QString &string);
-
-    ///
-    /// \brief Returns the list of supported image file types as a filter.
-    /// \return The list of supported image file types as a filter.
-    ///
-    static QStringList imageFileFilter();
+    QByteArray hash(const QString &string);
 
     ///
-    /// \brief Returns the list of supported image file types.
-    /// \return The list of supported image file types.
+    /// \brief Returns the list of supported image file name filters. An
+    /// example of a file name filter would be "*.jpg".
+    /// \return The list of supported image file name filters.
     ///
-    static QStringList imageFileTypes();
+    QStringList imageFileFilter();
 
-private:
+    ///
+    /// \brief Returns the list of supported archive file type extensions. An
+    /// example of a file type extension would be "jpg".
+    /// \return The list of supported image file type extensions.
+    ///
+    QStringList imageFileTypes();
 
-    /// The list of supported archive file types.
-    static const QStringList _archiveFileTypes;
-
-    /// The list of supported image file types.
-    static const QStringList _imageFileTypes;
-
-};
+    ///
+    /// \brief Returns the file type filter for the File Open dialog. An
+    /// example of a File Open dialog filter would be "All Files (*.*)".
+    /// \return The file type filter for the File Open dialog.
+    ///
+    QString openDialogFilter();
+}
 
 #endif // UTILITY_H

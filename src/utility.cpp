@@ -19,29 +19,28 @@
 *******************************************************************************/
 
 #include <QCryptographicHash>
-#include <QString>
 #include "utility.h"
 
-const QStringList Utility::_imageFileTypes {
-     "bmp"
-    ,"gif"
-    ,"jpg"
-    ,"jpeg"
-    ,"png"
+const QStringList _imageFileTypes {
+    "bmp",
+    "gif",
+    "jpg",
+    "jpeg",
+    "png",
 };
 
-const QStringList Utility::_archiveFileTypes {
-     "zip"
-    ,"cbz"
+const QStringList _archiveFileTypes {
+    "zip",
+    "cbz",
 };
 
 QStringList Utility::archiveFileFilter()
 {
-    QStringList filter;
-    for (const QString &string : _archiveFileTypes)
-    {
+    auto filter = QStringList();
+    for (const auto &string : _archiveFileTypes) {
         filter.append("*." + string);
     }
+
     return filter;
 }
 
@@ -50,35 +49,36 @@ QStringList Utility::archiveFileTypes()
     return _archiveFileTypes;
 }
 
-QString Utility::openDialogFilter()
+QByteArray Utility::hash(const QString &string)
 {
-    QString images = Utility::imageFileFilter().join(" ");
-    QString archives = Utility::archiveFileFilter().join(" ");
+    auto utf8String = string.toUtf8();
+    auto hash = QCryptographicHash::hash(utf8String, QCryptographicHash::Md5);
 
-    return "All Image and Archive Files (" + images + " " + archives + ");;"
-           + "Image Files (" + images + ");;"
-           + "Archive Files (" + archives + ");;"
-           + "All Files (*.*)";
+    return hash.toHex();
 }
 
 QStringList Utility::imageFileFilter()
 {
-    QStringList filter;
-    for (const QString &string : _imageFileTypes)
-    {
+    auto filter = QStringList();
+    for (const auto &string : _imageFileTypes) {
         filter.append("*." + string);
     }
+
     return filter;
 }
-
 
 QStringList Utility::imageFileTypes()
 {
     return _imageFileTypes;
 }
 
-QByteArray Utility::hash(const QString &string)
+QString Utility::openDialogFilter()
 {
-    QByteArray utfString = string.toUtf8();
-    return QCryptographicHash::hash(utfString, QCryptographicHash::Md5).toHex();
+    auto images = Utility::imageFileFilter().join(" ");
+    auto archives = Utility::archiveFileFilter().join(" ");
+
+    return "All Image and Archive Files (" + images + " " + archives + ");;"
+           "Image Files (" + images + ");;"
+           "Archive Files (" + archives + ");;"
+           "All Files (*.*)";
 }
