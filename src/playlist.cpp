@@ -144,8 +144,13 @@ void Playlist::previous(int steps)
 void Playlist::shuffle(bool value)
 {
     if (value) {
-        this->reload(_filter, _sortBy, ImageSource::RandomOrder);
+        if (_orderBy != ImageSource::RandomOrder) {
+            _originalOrderBy = _orderBy;
+        }
+        _orderBy = ImageSource::RandomOrder;
+        this->reload();
     } else {
+        _orderBy = _originalOrderBy;
         this->reload();
     }
 }
@@ -154,21 +159,14 @@ void Playlist::shuffle(bool value)
 
 void Playlist::reload()
 {
-    this->reload(_filter, _sortBy, _orderBy);
-}
-
-void Playlist::reload(const Filter &filter,
-                      ImageSource::SortType sortBy,
-                      ImageSource::OrderType orderBy)
-{   
     auto filePath = _list.at(_index).second->relativeFilePath();
 
     if (_list.empty()) {
-        _list = _source->images(filter, sortBy, orderBy);
+        _list = _source->images(_filter, _sortBy, _orderBy);
         _index = 0;
 
     } else {
-        _list = _source->images(filter, sortBy, orderBy);
+        _list = _source->images(_filter, _sortBy, _orderBy);
 
         // Find the item with the current image's relative file path.
         auto iterator = std::find_if(_list.begin(), _list.end(), [=](ImageSourceItem i) {

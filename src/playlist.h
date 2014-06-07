@@ -171,6 +171,9 @@ private:
     /// The order in which items are sorted in the playlist.
     ImageSource::OrderType _orderBy;
 
+    /// The order in which items are sorted before being shuffled.
+    ImageSource::OrderType _originalOrderBy;
+
     /// The method by which items are sorted in the playlist.
     ImageSource::SortType _sortBy;
 
