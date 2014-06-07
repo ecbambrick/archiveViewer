@@ -18,6 +18,8 @@
 
 *******************************************************************************/
 
+#include <algorithm>
+#include <exception>
 #include "playlist.h"
 
 // ------------------------------------------------------------------- public //
@@ -33,12 +35,13 @@ Playlist::Playlist(std::shared_ptr<ImageSource> source)
 {
 }
 
-ImageInfo Playlist::current() const
+std::shared_ptr<ImageInfo> Playlist::current() const
 {
     if (_list.empty()) {
-        throw std::out_of_range("");
+        throw std::out_of_range("Requested current item when playlist is empty.");
     }
-    return _list.at(_index);
+
+    return _list.at(_index).second;
 }
 
 void Playlist::filter(Filter filter)
@@ -49,7 +52,7 @@ void Playlist::filter(Filter filter)
 
 int Playlist::index() const
 {
-    return _index;
+    return _list.at(_index).first;
 }
 
 bool Playlist::isEmpty() const
@@ -88,25 +91,20 @@ void Playlist::sort(ImageSource::SortType sortBy, ImageSource::OrderType orderBy
 
 // ------------------------------------------------------------- public slots //
 
-void Playlist::index(int position)
+bool Playlist::find(const QString &relativeFilePath)
 {
-    if (position >= _list.size() || position < 0) {
-        throw std::out_of_range("position");
-    }
-    _index = position;
-}
-
-void Playlist::index(const QString &relativeFilePath)
-{
-    int index = -1;
-    for (int i = 0; i < _list.length(); i++) {
-        if (_list.at(i).relativeFilePath() == relativeFilePath) {
+    auto index = -1;
+    for (auto i = 0; i < _list.length(); i++) {
+        if (_list.at(i).second->relativeFilePath() == relativeFilePath) {
             index = i;
         }
     }
 
     if (index >= 0) {
         _index = index;
+        return true;
+    } else {
+        return false;
     }
 }
 
@@ -117,16 +115,12 @@ void Playlist::loops(bool value)
 
 void Playlist::next(int steps)
 {
-    if (_list.empty()) {
-        _index = 0;
-    } else if (_loops) {
+    if (_list.isEmpty()) return;
+
+    if (_loops) {
         _index = (_index + steps) % _list.size();
     } else {
-        if (_index + steps >= _list.size()) {
-            _index = _list.size() - 1;
-        } else {
-            _index += steps;
-        }
+        _index = std::min(_list.size()-1, _index + steps);
     }
 
     emit indexChanged();
@@ -134,20 +128,14 @@ void Playlist::next(int steps)
 
 void Playlist::previous(int steps)
 {
-    if (_list.empty()) {
-        _index = 0;
-    } else if (_loops) {
-        if (_index >= steps) {
-            _index -= steps;
-        } else {
-            _index = _list.size() - (steps - _index);
-        }
+    if (_list.isEmpty()) return;
+
+    if (_loops) {
+        _index = (_index >= steps)
+                ? _index - steps
+                : _list.size() - (_index + steps);
     } else {
-        if (_index >= steps) {
-            _index -= steps;
-        } else {
-            _index = 0;
-        }
+        _index = std::max(0, _index - steps);
     }
 
     emit indexChanged();
@@ -173,23 +161,24 @@ void Playlist::reload(const Filter &filter,
                       ImageSource::SortType sortBy,
                       ImageSource::OrderType orderBy)
 {   
+    auto filePath = _list.at(_index).second->relativeFilePath();
+
     if (_list.empty()) {
         _list = _source->images(filter, sortBy, orderBy);
         _index = 0;
 
     } else {
-        QString filePath = _list.at(_index).absoluteFilePath();
-
         _list = _source->images(filter, sortBy, orderBy);
-        auto iterator = std::find_if(_list.begin(), _list.end(), [=](ImageInfo i) {
-            return i.absoluteFilePath() == filePath;
+
+        // Find the item with the current image's relative file path.
+        auto iterator = std::find_if(_list.begin(), _list.end(), [=](ImageSourceItem i) {
+            return i.second->relativeFilePath() == filePath;
         });
 
-        if (iterator == _list.end()) {
-            _index = 0;
-        } else {
-            _index = iterator - _list.begin();
-        }
+        // If no image is found, go to the beginning of the list.
+        _index = (iterator == _list.end())
+                ? 0
+                : iterator - _list.begin();
     }
 
     emit indexChanged();

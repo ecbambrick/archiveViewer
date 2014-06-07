@@ -28,7 +28,7 @@
 
 ///
 /// \brief The QuaZipImageSource class represents a source of image files within
-/// a zipped archived.
+/// a zipped archived that can be queried.
 ///
 /// Uses the QuaZip library to read/write from zip archives.
 ///
@@ -37,7 +37,7 @@ class QuaZipImageSource : public ImageSource
 public:
 
     ///
-    /// \brief Constructor.
+    /// \brief Constructs a QuaZip image source from the given zip archive.
     /// \param archivePath The file path to the zip archive file.
     ///
     explicit QuaZipImageSource(const QString &archivePath);
@@ -51,9 +51,9 @@ public slots:
 
     ///
     /// \brief Indicates that an image needs to be viewed.
-    /// \param id The ID of the image.
+    /// \param image The image information.
     ///
-    void imageNeeded(ImageInfo *image) override;
+    void imageNeeded(std::shared_ptr<ImageInfo> image) override;
 
 private:
 
@@ -65,17 +65,18 @@ private:
     ///
     /// \brief Extracts a single image file from a zip archive to the absolute
     /// file path of the provided image information.
-    /// \param image The image file information.
+    /// \param fileName the file name of the image to extract.
     ///
     void extractImage(const QString &fileName);
 
     ///
-    /// \brief Loads the ImageInfo list from files within the zip archive.
+    /// \brief Loads the image information from files within the zip archive.
+    /// \return The list of image information from within the zip archive.
     ///
-    void loadImageInfoList();
+    QList<ImageSourceItem> getImageInfoFromArchive();
 
     /// The zip archive.
-    QuaZip *_archive;
+    std::unique_ptr<QuaZip> _archive;
 
     /// The file name of the image that needs to be extracted next if a request
     /// was made through the ImageNeeded slot.
@@ -88,7 +89,7 @@ private:
     QString _extractPath;
 
     /// The watcher for the extraction process.
-    QFutureWatcher<void> *_extractWatcher;
+    std::unique_ptr<QFutureWatcher<void>> _extractWatcher;
 };
 
 #endif // QUAZIPIMAGESOURCE_H

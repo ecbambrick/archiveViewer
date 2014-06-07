@@ -20,14 +20,22 @@
 
 #ifndef IMAGESOURCE_H
 #define IMAGESOURCE_H
+#include <memory>
+#include <QPair>
 #include "filter.h"
 #include "imageinfo.h"
 
 ///
-/// \brief The ImageSource class represents a source of image files.
+/// \typedef The Item type represents image information paired with an index.
 ///
-/// The source can be queried based the file name of each image and the
-/// sorting order.
+/// The index is used to determine the position of the image in a list. This is
+/// necessary because the index must remain constant when the list is shuffled.
+///
+typedef std::pair<int, std::shared_ptr<ImageInfo>> ImageSourceItem;
+
+///
+/// \brief The ImageSource abstract class represents a source of image files
+/// that can be queried.
 ///
 class ImageSource : public QObject
 {
@@ -36,20 +44,20 @@ class ImageSource : public QObject
 public:
 
     ///
-    /// \brief The OrderType enum represents different ways to order images.
+    /// \brief The OrderType enum represents methods to order images with.
     ///
     enum OrderType {
-        AscendingOrder          ///< Sort in ascending order.
-        ,DescendingOrder        ///< Sort in descending order.
-        ,RandomOrder            ///< Sort in random order.
+        AscendingOrder,         ///< Sort in ascending order.
+        DescendingOrder,        ///< Sort in descending order.
+        RandomOrder,            ///< Sort in random order.
     };
 
     ///
-    /// \brief The SortType enum represents different ways to sort images.
+    /// \brief The SortType enum represents methods to sort images with.
     ///
     enum SortType {
-        SortByFileName          ///< Sort by file name.
-        ,SortByLastModifiedDate ///< Sort by the last modified date.
+        SortByFileName,         ///< Sort by file name.
+        SortByLastModifiedDate, ///< Sort by the last modified date.
     };
 
     ///
@@ -59,20 +67,20 @@ public:
 
     ///
     /// \brief Returns the list of images located in the source.
-    /// \return The list of images located in the source.
+    /// \return The list of image information.
     ///
-    virtual QList<ImageInfo> images() const;
+    virtual QList<ImageSourceItem> images() const;
 
     ///
     /// \brief Returns the list of images located in the source.
-    /// \param filter The expression to filter with.
+    /// \param filter The pattern to filter with.
     /// \param sort The sorting method. Defaults to SortByFileName.
     /// \param order The ordering method. Defaults to AscendingOrder.
-    /// \return The filtered list of images located in the source.
+    /// \return The filtered list of image information.
     ///
-    virtual QList<ImageInfo> images(const Filter &filter,
-                                     SortType sort = SortByFileName,
-                                     OrderType order = AscendingOrder) const;
+    virtual QList<ImageSourceItem> images(const Filter &filter,
+                                          SortType sort = SortByFileName,
+                                          OrderType order = AscendingOrder) const;
 
     ///
     /// \brief Returns the name of the source.
@@ -84,22 +92,22 @@ public slots:
 
     ///
     /// \brief Indicates that an image needs to be viewed.
-    /// \param id The ID of the image.
+    /// \param image The image information.
     ///
-    virtual void imageNeeded(ImageInfo *image) = 0;
+    virtual void imageNeeded(std::shared_ptr<ImageInfo> image) = 0;
 
 signals:
 
     ///
     /// \brief Signals that an image is ready to be viewed.
-    /// \param id The ID of the image.
+    /// \param relativeFilePath the relative file path of the image.
     ///
     void imageReady(const QString &relativeFilePath);
 
 protected:
 
-    /// The full list of images contained within the source.
-    QList<ImageInfo> _images;
+    /// The list of image information contained within the source.
+    QList<ImageSourceItem> _images;
 
     /// The name of the source.
     QString _name;

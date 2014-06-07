@@ -73,15 +73,15 @@ void MainWindow::loadImage()
         return;
     }
 
-    ImageInfo image = _playlist->current();
+    std::shared_ptr<ImageInfo> image = _playlist->current();
 
-    if (image.exists()) {
-        _widgetImageView->setImage(&image);
-        _settings->setValue("last_viewed_file", image.relativeFilePath());
-        emit imageLoaded(&image);
+    if (image->exists()) {
+        _widgetImageView->setImage(image.get());
+        _settings->setValue("last_viewed_file", image->relativeFilePath());
+        emit imageLoaded(image);
     } else {
         _widgetImageView->clearImage();
-        emit imageNotLoaded(&image);
+        emit imageNotLoaded(image);
     }
 }
 
@@ -126,7 +126,7 @@ bool MainWindow::open(const QString &filePath, bool skipToLastViewed)
     _settings->setValue("last_opened_file", filePath);
 
     if (skipToLastViewed) {
-        _playlist->index(_settings->value("last_viewed_file").toString());
+        _playlist->find(_settings->value("last_viewed_file").toString());
     }
 
     this->connect(_actionNext, SIGNAL(triggered()), _playlist.get(), SLOT(next()));
@@ -136,7 +136,7 @@ bool MainWindow::open(const QString &filePath, bool skipToLastViewed)
     this->connect(_playlist.get(), SIGNAL(indexChanged()), this, SLOT(updateFileName()));
     this->connect(_playlist.get(), SIGNAL(indexChanged()), this, SLOT(updateFilePosition()));
     this->connect(_imageSource.get(), SIGNAL(imageReady(QString)), this, SLOT(reloadImage(QString)));
-    this->connect(this, SIGNAL(imageNotLoaded(ImageInfo*)), _imageSource.get(), SLOT(imageNeeded(ImageInfo*)));
+    this->connect(this, SIGNAL(imageNotLoaded(std::shared_ptr<ImageInfo>)), _imageSource.get(), SLOT(imageNeeded(std::shared_ptr<ImageInfo>)));
 
     emit _playlist->indexChanged();
 
@@ -155,7 +155,7 @@ void MainWindow::reloadImage(const QString &relativeFilePath)
 {
     if (_playlist->isEmpty()) return;
 
-    if (_playlist->current().relativeFilePath() == relativeFilePath) {
+    if (_playlist->current()->relativeFilePath() == relativeFilePath) {
         this->loadImage();
     }
 }
@@ -172,9 +172,9 @@ void MainWindow::updateFileName()
         auto image = _playlist->current();
         auto name = _imageSource->name();
         QFontMetrics font(_widgetFileName->font());
-        QString newText = font.elidedText(image.fileName(), Qt::ElideRight, width);
+        QString newText = font.elidedText(image->fileName(), Qt::ElideRight, width);
         _widgetFileName->setText(name + "\n" + newText);
-        this->setWindowTitle(image.relativeFilePath() + " - Archive Viewer");
+        this->setWindowTitle(image->relativeFilePath() + " - Archive Viewer");
     }
 }
 
@@ -183,7 +183,7 @@ void MainWindow::updateFilePosition()
     if (_playlist->isEmpty()) {
         _widgetFilePosition->setText("0/0");
     } else {
-        QString index = QString::number(_playlist->current().id());
+        QString index = QString::number(_playlist->index());
         QString size = QString::number(_playlist->size());
         _widgetFilePosition->setText(index + "/" + size);
     }

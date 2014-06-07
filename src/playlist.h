@@ -20,14 +20,13 @@
 
 #ifndef PLAYLIST_H
 #define PLAYLIST_H
-#include <exception>
 #include <memory>
 #include <QList>
 #include "imagesource.h"
 
 ///
-/// \brief The Playlist class represents a traversable list of ImageInfo objects
-/// that are queried from an image source.
+/// \brief The Playlist class represents a traversable list of image information
+/// that is queried from an image source.
 ///
 class Playlist : public QObject
 {
@@ -42,10 +41,10 @@ public:
 
     ///
     /// \brief Returns the item at the current index. The playlist must not be
-    /// empty. call isEmpty() before calling this function.
+    /// empty. Call isEmpty() before calling this function.
     /// \return The item at the current index.
     ///
-    ImageInfo current() const;
+    std::shared_ptr<ImageInfo> current() const;
 
     ///
     /// \brief Filters the playlist by file name based on the given filter.
@@ -99,18 +98,13 @@ public:
 public slots:
 
     ///
-    /// \brief Moves the index to the given position.
-    /// \param position The new value for the current index.
-    ///
-    void index(int position);
-
-    ///
     /// \brief Moves the index to the position of item with the given relative
     /// file name. If no items has the given relative file name, the index is
     /// not changed.
     /// \param relativeFileName The relative file name of the item.
+    /// \return True if the relative file name was found; otherwise, false.
     ///
-    void index(const QString &relativeFilePath);
+    bool find(const QString &relativeFilePath);
 
     ///
     /// \brief Sets whether or not traversal of the list loops.
@@ -164,11 +158,12 @@ private:
     /// The filter to filter file names against.
     Filter _filter;
 
-    /// The current index of the playlist.
+    /// The current, true index of the playlist. This will differ from the
+    /// index of the current item when the list playlist is shuffled.
     int _index;
 
     /// The list structure containing the items.
-    QList<ImageInfo> _list;
+    QList<ImageSourceItem> _list;
 
     /// True if traversal of the list loops; otherwise, false.
     bool _loops;

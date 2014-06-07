@@ -26,22 +26,21 @@ ImageSource::~ImageSource()
 {
 }
 
-QList<ImageInfo> ImageSource::images() const
+QList<ImageSourceItem> ImageSource::images() const
 {
     return _images;
 }
 
-QList<ImageInfo> ImageSource::images(const Filter &filter,
-                                      SortType sort,
-                                      OrderType order) const
+QList<ImageSourceItem> ImageSource::images(const Filter &filter,
+                                           SortType sort,
+                                           OrderType order) const
 {
     // Filter images.
-    int i = 0;
-    QList<ImageInfo> filteredImages;
-    for (ImageInfo image : _images) {
-        if (filter.match(image.fileName())) {
-            image.id(++i);
-            filteredImages.append(image);
+    auto i = 0;
+    auto filteredImages = QList<ImageSourceItem>();
+    for (auto image : _images) {
+        if (filter.match(image.second->fileName())) {
+            filteredImages.append({++i, image.second});
         }
     }
 
@@ -51,25 +50,40 @@ QList<ImageInfo> ImageSource::images(const Filter &filter,
 
     // Sort images.
     } else {
-        std::function<bool(ImageInfo, ImageInfo)> sortFunction;
+        std::function<bool(ImageSourceItem, ImageSourceItem)> sortFunction;
+
         if (sort == SortByFileName && order == AscendingOrder) {
-            sortFunction = [](ImageInfo a, ImageInfo b) {
-                return QString::compare(a.absoluteFilePath(), b.absoluteFilePath(), Qt::CaseInsensitive) < 0;
+            sortFunction = [](ImageSourceItem a, ImageSourceItem b) {
+                auto aVal = a.second->absoluteFilePath();
+                auto bVal = b.second->absoluteFilePath();
+                return QString::compare(aVal, bVal, Qt::CaseInsensitive) < 0;
             };
         } else if (sort == SortByFileName && order == DescendingOrder) {
-            sortFunction = [](ImageInfo a, ImageInfo b) {
-                return QString::compare(a.absoluteFilePath(), b.absoluteFilePath(), Qt::CaseInsensitive) > 0;
+            sortFunction = [](ImageSourceItem a, ImageSourceItem b) {
+                auto aVal = a.second->absoluteFilePath();
+                auto bVal = b.second->absoluteFilePath();
+                return QString::compare(aVal, bVal, Qt::CaseInsensitive) < 0;
             };
         } else if (sort == SortByLastModifiedDate && order == AscendingOrder) {
-            sortFunction = [](ImageInfo a, ImageInfo b) {
-                return a.lastModified() < b.lastModified();
+            sortFunction = [](ImageSourceItem a, ImageSourceItem b) {
+                auto aVal = a.second->lastModified();
+                auto bVal = b.second->lastModified();
+                return aVal < bVal;
             };
         } else if (sort == SortByLastModifiedDate && order == DescendingOrder) {
-            sortFunction = [](ImageInfo a, ImageInfo b) {
-                return a.lastModified() > b.lastModified();
+            sortFunction = [](ImageSourceItem a, ImageSourceItem b) {
+                auto aVal = a.second->lastModified();
+                auto bVal = b.second->lastModified();
+                return aVal > bVal;
             };
         }
         std::sort(filteredImages.begin(), filteredImages.end(), sortFunction);
+
+        // Reset the image indices to match the new ordering.
+        i = 0;
+        for (auto &image : filteredImages) {
+            image.first = ++i;
+        }
     }
 
     return filteredImages;

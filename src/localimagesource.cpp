@@ -19,26 +19,37 @@
 *******************************************************************************/
 
 #include <QDir>
-#include "utility.h"
 #include "localimagesource.h"
+#include "utility.h"
 
-LocalImageSource::LocalImageSource(const QString &filePath)
+// ------------------------------------------------------------------- public //
+
+LocalImageSource::LocalImageSource(const QString &path)
 {
-    QFileInfo file(filePath);
-    QDir dir(file.dir());
-    this->_name = dir.dirName();
-    this->_images = QList<ImageInfo>();
+    auto dir = QFileInfo(path).dir();
 
-    int i = 0;
-    for (const QFileInfo &file : dir.entryInfoList(Utility::imageFileFilter())) {
-        auto image = ImageInfo(file.absoluteFilePath());
-        image.id(++i);
-        this->_images.append(image);
-    }
+    _images = getImageInfoFromDirectory(dir);
+    _name = dir.dirName();
 }
 
-void LocalImageSource::imageNeeded(ImageInfo *image)
+// ------------------------------------------------------------- public slots //
+
+void LocalImageSource::imageNeeded(std::shared_ptr<ImageInfo> image)
 {
-    // Nothing needs to be done.
-    image;
+    Q_UNUSED(image);
+}
+
+// ------------------------------------------------------------------ private //
+
+QList<ImageSourceItem> LocalImageSource::getImageInfoFromDirectory(const QDir &dir)
+{
+    auto i = 0;
+    auto images = QList<ImageSourceItem>();
+
+    for (const auto &file : dir.entryInfoList(Utility::imageFileFilter())) {
+        auto image = std::make_shared<ImageInfo>(file.absoluteFilePath());
+        images.append({++i, image});
+    }
+
+    return images;
 }

@@ -24,25 +24,33 @@
 
 ///
 /// \brief The LocalImageSource class represents a source of image files within
-/// a local directory.
+/// a local directory that can be queried.
 ///
 class LocalImageSource : public ImageSource
 {
 public:
 
     ///
-    /// \brief Constructor.
-    /// \param filePath The file path to the image.
+    /// \brief Constructs a local image source from the given file path.
+    /// \param filePath The file path to the directory.
     ///
-    explicit LocalImageSource(const QString &filePath);
+    explicit LocalImageSource(const QString &path);
 
 public slots:
 
     ///
     /// \brief Indicates that an image needs to be viewed.
-    /// \param id The ID of the image.
+    /// \param image The image information.
     ///
-    void imageNeeded(ImageInfo *image);
+    void imageNeeded(std::shared_ptr<ImageInfo> image) override;
+
+private:
+
+    ///
+    /// \brief Returns the list of image information from the given directory.
+    /// \return The list of image information from the given directory.
+    ///
+    QList<ImageSourceItem> getImageInfoFromDirectory(const QDir &dir);
 };
 
 #endif // LOCALIMAGESOURCE_H

@@ -37,18 +37,6 @@ public:
     ImageInfo(const QString &path, const QString &relativePath = "");
 
     ///
-    /// \brief Sets the ID of the image information.
-    /// \param value the ID of the image information.
-    ///
-    void id(int value);
-
-    ///
-    /// \brief Gets the ID of the image information.
-    /// \return The ID of the image information.
-    ///
-    int id() const;
-
-    ///
     /// \brief Returns the path relative to the image source including the
     /// file name.
     /// \return The path relative to the image source including the file name.
@@ -64,12 +52,6 @@ private:
 
     /// The path of the image file, relative to the image source.
     QString _relativePath;
-
-    /// The ID of the image information. Used to track the true position of
-    /// an image file when in a shuffled list. It actually doesn't make sense
-    /// for this to be in this class, but I'm putting it here out of laziness
-    /// for the time being.
-    int _id;
 };
 
 #endif // IMAGE_H

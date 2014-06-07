@@ -22,23 +22,8 @@
 
 ImageInfo::ImageInfo(const QString &path, const QString &relativePath)
     : QFileInfo(path)
-    , _id(0)
     , _relativePath(relativePath)
 {
-}
-
-void ImageInfo::id(int value)
-{
-    if (value <= 0) {
-        throw std::out_of_range("value");
-    }
-
-    _id = value;
-}
-
-int ImageInfo::id() const
-{
-    return _id;
 }
 
 QString ImageInfo::relativeFilePath() const

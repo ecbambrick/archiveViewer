@@ -58,8 +58,8 @@ public slots:
 
 signals:
 
-    void imageLoaded(ImageInfo *image);
-    void imageNotLoaded(ImageInfo *image);
+    void imageLoaded(std::shared_ptr<ImageInfo> image);
+    void imageNotLoaded(std::shared_ptr<ImageInfo> image);
 
 protected:
 
