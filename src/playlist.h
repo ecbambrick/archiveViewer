@@ -53,8 +53,8 @@ public:
     void filter(Filter filter);
 
     ///
-    /// \brief Returns the current index.
-    /// \return The current index.
+    /// \brief Returns the current index, or -1 if the list is empty.
+    /// \return The current index, or -1 if the list is empty.
     ///
     int index() const;
 

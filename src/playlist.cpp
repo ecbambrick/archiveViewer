@@ -37,7 +37,7 @@ Playlist::Playlist(std::shared_ptr<ImageSource> source)
 
 std::shared_ptr<ImageInfo> Playlist::current() const
 {
-    if (_list.empty()) {
+    if (_list.isEmpty()) {
         throw std::out_of_range("Requested current item when playlist is empty.");
     }
 
@@ -52,6 +52,10 @@ void Playlist::filter(Filter filter)
 
 int Playlist::index() const
 {
+    if (_list.isEmpty()) {
+        return -1;
+    }
+
     return _list.at(_index).first;
 }
 
@@ -93,15 +97,12 @@ void Playlist::sort(ImageSource::SortType sortBy, ImageSource::OrderType orderBy
 
 bool Playlist::find(const QString &relativeFilePath)
 {
-    auto index = -1;
-    for (auto i = 0; i < _list.length(); i++) {
-        if (_list.at(i).second->relativeFilePath() == relativeFilePath) {
-            index = i;
-        }
-    }
+    auto iterator = std::find_if(_list.begin(), _list.end(), [=](ImageSourceItem a) {
+        return a.second->relativeFilePath() == relativeFilePath;
+    });
 
-    if (index >= 0) {
-        _index = index;
+    if (iterator != _list.end()) {
+        _index = iterator - _list.begin();
         return true;
     } else {
         return false;
@@ -143,12 +144,15 @@ void Playlist::previous(int steps)
 
 void Playlist::shuffle(bool value)
 {
+    // Shuffle.
     if (value) {
         if (_orderBy != ImageSource::RandomOrder) {
             _originalOrderBy = _orderBy;
         }
         _orderBy = ImageSource::RandomOrder;
         this->reload();
+
+    // Unshuffle.
     } else {
         _orderBy = _originalOrderBy;
         this->reload();
@@ -169,15 +173,16 @@ void Playlist::reload()
         _list = _source->images(_filter, _sortBy, _orderBy);
 
         // Find the item with the current image's relative file path.
-        auto iterator = std::find_if(_list.begin(), _list.end(), [=](ImageSourceItem i) {
-            return i.second->relativeFilePath() == filePath;
+        auto iterator = std::find_if(_list.begin(), _list.end(), [=](ImageSourceItem a) {
+            return a.second->relativeFilePath() == filePath;
         });
 
         // If no image is found, go to the beginning of the list.
-        _index = (iterator == _list.end())
-                ? 0
-                : iterator - _list.begin();
+        if (iterator == _list.end()) {
+            _index = 0;
+            emit indexChanged();
+        } else {
+            _index = iterator - _list.begin();
+        }
     }
-
-    emit indexChanged();
 }
