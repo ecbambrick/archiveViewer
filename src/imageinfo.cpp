@@ -28,10 +28,10 @@ ImageInfo::ImageInfo(const QString &path, const QString &relativePath)
 
 QString ImageInfo::relativeFilePath() const
 {
-    return this->_relativePath + this->fileName();
+    return _relativePath + this->fileName();
 }
 
 QString ImageInfo::relativePath() const
 {
-    return this->_relativePath;
+    return _relativePath;
 }

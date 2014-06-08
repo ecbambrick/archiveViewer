@@ -30,7 +30,7 @@ class ImageInfo : public QFileInfo
 public:
 
     ///
-    /// \brief Constructor.
+    /// \brief Constructs a set of image information from the given file path.
     /// \param path The path to the image file.
     /// \param relativePath The path relative to the image source.
     ///
