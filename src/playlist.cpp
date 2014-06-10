@@ -38,7 +38,7 @@ Playlist::Playlist(std::shared_ptr<ImageSource> source)
 std::shared_ptr<ImageInfo> Playlist::current() const
 {
     if (_list.isEmpty()) {
-        throw std::out_of_range("Requested current item when playlist is empty.");
+        throw std::out_of_range("Requested current item from empty playlist.");
     }
 
     return _list.at(_index).second;
@@ -76,14 +76,12 @@ int Playlist::size() const
 
 void Playlist::sort(ImageSource::OrderType orderBy)
 {
-    _orderBy = orderBy;
-    this->reload();
+    this->sort(_sortBy, orderBy);
 }
 
 void Playlist::sort(ImageSource::SortType sortBy)
 {
-    _sortBy = sortBy;
-    this->reload();
+    this->sort(sortBy, _orderBy);
 }
 
 void Playlist::sort(ImageSource::SortType sortBy, ImageSource::OrderType orderBy)
@@ -97,16 +95,20 @@ void Playlist::sort(ImageSource::SortType sortBy, ImageSource::OrderType orderBy
 
 bool Playlist::find(const QString &relativeFilePath)
 {
-    auto iterator = std::find_if(_list.begin(), _list.end(), [=](ImageSourceItem a) {
+    // Find the given relative file path in the list.
+    auto i = std::find_if(_list.begin(), _list.end(), [=](ImageSourceItem a) {
         return a.second->relativeFilePath() == relativeFilePath;
     });
 
-    if (iterator != _list.end()) {
-        _index = iterator - _list.begin();
+    // Found.
+    if (i != _list.end()) {
+        _index = i - _list.begin();
+        emit indexChanged();
         return true;
-    } else {
-        return false;
     }
+
+    // Not found.
+    return false;
 }
 
 void Playlist::loops(bool value)
@@ -144,45 +146,40 @@ void Playlist::previous(int steps)
 
 void Playlist::shuffle(bool value)
 {
-    // Shuffle.
+    // Shuffle, retaining the previous order method.
     if (value) {
         if (_orderBy != ImageSource::RandomOrder) {
             _originalOrderBy = _orderBy;
         }
         _orderBy = ImageSource::RandomOrder;
-        this->reload();
+    }
 
     // Unshuffle.
-    } else {
+    else {
         _orderBy = _originalOrderBy;
-        this->reload();
     }
+
+    this->reload();
 }
 
 // ------------------------------------------------------------------ private //
 
 void Playlist::reload()
 {
-    auto filePath = _list.at(_index).second->relativeFilePath();
+    if (_source == nullptr) return;
 
-    if (_list.empty()) {
-        _list = _source->images(_filter, _sortBy, _orderBy);
+    // Save the current file before reloading the list.
+    auto filePath = (_list.isEmpty())
+            ? ""
+            : _list.at(_index).second->relativeFilePath();
+
+    // Reload the list from the source.
+    _list = _source->images(_filter, _sortBy, _orderBy);
+
+    // Find the current file again if it is still in the list; otherwise, go
+    // to the beginning of the list.
+    if (filePath == "" || !this->find(filePath)) {
         _index = 0;
-
-    } else {
-        _list = _source->images(_filter, _sortBy, _orderBy);
-
-        // Find the item with the current image's relative file path.
-        auto iterator = std::find_if(_list.begin(), _list.end(), [=](ImageSourceItem a) {
-            return a.second->relativeFilePath() == filePath;
-        });
-
-        // If no image is found, go to the beginning of the list.
-        if (iterator == _list.end()) {
-            _index = 0;
-            emit indexChanged();
-        } else {
-            _index = iterator - _list.begin();
-        }
+        emit indexChanged();
     }
 }

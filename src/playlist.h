@@ -145,16 +145,6 @@ private:
     ///
     void reload();
 
-    ///
-    /// \brief Reloads the list of images from the image source.
-    /// \param filter The filter to filter file names against.
-    /// \param sortBy The order in which items are sorted.
-    /// \param orderBy The method by which items are sorted.
-    ///
-    void reload(const Filter &filter,
-                ImageSource::SortType sortBy,
-                ImageSource::OrderType orderBy);
-
     /// The filter to filter file names against.
     Filter _filter;
 
