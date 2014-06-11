@@ -40,6 +40,11 @@ public:
     explicit Playlist(std::shared_ptr<ImageSource> source);
 
     ///
+    /// \brief Constructs an empty playlist with no image source.
+    ///
+    Playlist();
+
+    ///
     /// \brief Returns the item at the current index. The playlist must not be
     /// empty. Call isEmpty() before calling this function.
     /// \return The item at the current index.

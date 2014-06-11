@@ -31,6 +31,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , _imageSource(nullptr)
+    , _playlist(new Playlist())
     , _settings(new QSettings(
                      QCoreApplication::applicationDirPath() + "/settings.ini",
                      QSettings::IniFormat))

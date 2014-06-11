@@ -35,6 +35,11 @@ Playlist::Playlist(std::shared_ptr<ImageSource> source)
 {
 }
 
+Playlist::Playlist()
+    : _source(nullptr)
+{
+}
+
 std::shared_ptr<ImageInfo> Playlist::current() const
 {
     if (_list.isEmpty()) {
