@@ -32,9 +32,11 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , _imageSource(nullptr)
     , _playlist(new Playlist())
-    , _settings(new QSettings(
-                     QCoreApplication::applicationDirPath() + "/settings.ini",
-                     QSettings::IniFormat))
+    , _settings(new QSettings(QSettings::IniFormat,
+                          QSettings::UserScope,
+                          "ArchiveViewer",
+                          "ArchiveViewer"))
+    , _wasMaximized(false)
 {
     this->loadActions();
     this->loadWidgets();
@@ -45,12 +47,17 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-    _settings->setValue("full_screen", this->isFullScreen());
-    _settings->setValue("window_maximized", this->isMaximized());
-    _settings->setValue("window_x", this->geometry().x());
-    _settings->setValue("window_y", this->geometry().y());
-    _settings->setValue("window_geometry", this->saveGeometry());
-    _settings->sync();
+    _settings->beginGroup("Window");
+    if (this->isFullScreen()) {
+        _settings->setValue("isMaximized", _wasMaximized);
+    } else if (this->isMaximized()) {
+        _settings->setValue("isMaximized", true);
+    } else {
+        _settings->setValue("position", this->pos());
+        _settings->setValue("size", this->size());
+        _settings->setValue("isMaximized", false);
+    }
+    _settings->endGroup();
 
     delete _actionOpen;
     delete _actionPrevious;
@@ -78,7 +85,7 @@ void MainWindow::loadImage()
 
     if (image->exists()) {
         _widgetImageView->setImage(image.get());
-        _settings->setValue("last_viewed_file", image->relativeFilePath());
+        _settings->setValue("LastSession/viewedFile", image->relativeFilePath());
         emit imageLoaded(image);
     } else {
         _widgetImageView->clearImage();
@@ -91,7 +98,7 @@ bool MainWindow::open()
     QString selectedFile = QFileDialog::getOpenFileName(
                 0,
                 "Open File",
-                _settings->value("last_opened_file").toString(),
+                _settings->value("LastSession/openedFile").toString(),
                 Utility::openDialogFilter());
 
     if (!selectedFile.isNull()) {
@@ -114,7 +121,7 @@ bool MainWindow::open(const QString &filePath, bool skipToLastViewed)
         _imageSource.reset(new LocalImageSource(filePath));
         if (!skipToLastViewed) {
             skipToLastViewed = true;
-            _settings->setValue("last_viewed_file", fileName);
+            _settings->setValue("LastSession/viewedFile", fileName);
         }
     } else if (isArchiveFile) {
         _imageSource.reset(new QuaZipImageSource(filePath));
@@ -124,10 +131,10 @@ bool MainWindow::open(const QString &filePath, bool skipToLastViewed)
 
     _playlist.reset(new Playlist(_imageSource));
     _playlist->loops(true);
-    _settings->setValue("last_opened_file", filePath);
+    _settings->setValue("LastSession/openedFile", filePath);
 
     if (skipToLastViewed) {
-        _playlist->find(_settings->value("last_viewed_file").toString());
+        _playlist->find(_settings->value("LastSession/viewedFile").toString());
     }
 
     this->connect(_actionNext, SIGNAL(triggered()), _playlist.get(), SLOT(next()));
@@ -166,7 +173,7 @@ void MainWindow::updateFileName()
     int width = _widgetFileName->maximumWidth() - 90;
 
     if (_playlist->isEmpty()) {
-        _widgetFileName->setText("No File");
+        _widgetFileName->setText("\nNo File");
         this->setWindowTitle("Archive Viewer");
     } else {
         // cut off the name with "..." if too long
@@ -278,24 +285,23 @@ void MainWindow::keyPressEvent(QKeyEvent *e)
 
 void MainWindow::loadGeometry()
 {
-    QByteArray geometry = _settings->value("window_geometry").toByteArray();
-    bool isMaximized = _settings->value("window_maximized", true).toBool();
-    int x = _settings->value("window_x").toInt();
-    int y = _settings->value("window_y").toInt();
+    _settings->beginGroup("Window");
+    auto position = _settings->value("position", QPoint(200, 200)).toPoint();
+    auto size = _settings->value("size", QSize(640, 480)).toSize();
+    auto isMaximized = _settings->value("isMaximized", false).toBool();
+    _settings->endGroup();
 
-    this->restoreGeometry(geometry);
+    this->move(position);
+    this->resize(size);
     if (isMaximized) {
-        this->move(x, y);
         this->showMaximized();
-    } else {
-        this->showNormal();
     }
 }
 
 bool MainWindow::loadInitialFile()
 {
     QStringList args = QCoreApplication::arguments();
-    QString lastOpened = _settings->value("last_opened_file").toString();
+    QString lastOpened = _settings->value("LastSession/openedFile").toString();
 
     if (args.size() == 2 && args.at(1) != "") {
         return this->open(args.at(1));
@@ -355,7 +361,7 @@ void MainWindow::loadActions()
 void MainWindow::loadWidgets()
 {
     // File name label.
-    _widgetFileName = new QLabel("No File", this);
+    _widgetFileName = new QLabel("\nNo File", this);
     _widgetFileName->setMinimumWidth(70);
 
     // File position label.
