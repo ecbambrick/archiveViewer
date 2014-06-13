@@ -31,7 +31,7 @@
 /// The index is used to determine the position of the image in a list. This is
 /// necessary because the index must remain constant when the list is shuffled.
 ///
-typedef std::pair<int, std::shared_ptr<ImageInfo>> ImageSourceItem;
+typedef QPair<int, std::shared_ptr<ImageInfo>> ImageSourceItem;
 
 ///
 /// \brief The ImageSource abstract class represents a source of image files
