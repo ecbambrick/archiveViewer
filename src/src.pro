@@ -23,7 +23,8 @@ SOURCES	+= \
     mainwindow.cpp \
     quazipimagesource.cpp \
     utility.cpp \
-    playlist.cpp
+    playlist.cpp \
+    sharedtemporarydirectory.cpp
 
 HEADERS += \
     filter.h \
@@ -34,7 +35,8 @@ HEADERS += \
     mainwindow.h \
     quazipimagesource.h \
     utility.h \
-    playlist.h
+    playlist.h \
+    sharedtemporarydirectory.h
 
 RESOURCES += \
     resources.qrc
