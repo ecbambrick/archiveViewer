@@ -221,6 +221,9 @@ void ImageView::mousePressEvent(QMouseEvent *e)
 void ImageView::mouseMoveEvent(QMouseEvent *e)
 {
     if (e->buttons() == Qt::LeftButton) {
+        if (this->cursor().shape() != Qt::BlankCursor) {
+            this->setCursor(Qt::BlankCursor);
+        }
         QScrollBar *vertical = this->verticalScrollBar();
         QScrollBar *horizontal = this->horizontalScrollBar();
         int x = e->pos().x() - _initMousePos.x();
@@ -229,6 +232,11 @@ void ImageView::mouseMoveEvent(QMouseEvent *e)
         vertical->setValue(vertical->value() - y);
         QCursor::setPos(this->mapToGlobal(_initMousePos));
     }
+}
+
+void ImageView::mouseReleaseEvent(QMouseEvent *)
+{
+    this->setCursor(Qt::ArrowCursor);
 }
 
 void ImageView::resizeEvent(QResizeEvent *)
