@@ -30,7 +30,13 @@
 /// \brief The QuaZipImageSource class represents a source of image files within
 /// a zipped archived that can be queried.
 ///
-/// Uses the QuaZip library to read/write from zip archives.
+/// Uses the QuaZip library to read/write from zip archives. The QuaZip image
+/// source will find all supported image files that are contained within the
+/// given archive and extract them to a temporary directory. All other files
+/// will be ignored.
+///
+/// The contents of the archive will be checked recursively for sub-directories
+/// but sub-archives will not be extracted.
 ///
 class QuaZipImageSource : public ImageSource
 {

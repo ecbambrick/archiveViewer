@@ -26,6 +26,10 @@
 /// \brief The LocalImageSource class represents a source of image files within
 /// a local directory that can be queried.
 ///
+/// The local image source will find all supported image and archive files that
+/// are contained within the directory of the given path. Any other files will
+/// be ignored.
+///
 class LocalImageSource : public ImageSource
 {
 public:
