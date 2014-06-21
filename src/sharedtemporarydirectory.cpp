@@ -79,6 +79,11 @@ SharedTemporaryDirectory::~SharedTemporaryDirectory()
     }
 }
 
+QString SharedTemporaryDirectory::path()
+{
+    return _path;
+}
+
 // ------------------------------------------------------------------ private //
 
 void SharedTemporaryDirectory::updateTemporaryFile()

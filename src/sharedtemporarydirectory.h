@@ -53,6 +53,12 @@ public:
     ///
     ~SharedTemporaryDirectory();
 
+    ///
+    /// \brief Returns the path to the temporary directory.
+    /// \return The path to the temporary directory.
+    ///
+    QString path();
+
 private:
 
     ///
