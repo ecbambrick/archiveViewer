@@ -19,8 +19,6 @@
 *******************************************************************************/
 
 #include <QtConcurrent/QtConcurrent>
-#include <QDir>
-#include <QFutureWatcher>
 #include "utility.h"
 #include "quazipimagesource.h"
 
@@ -29,8 +27,8 @@
 QuaZipImageSource::QuaZipImageSource(const QString &archivePath)
     : _archive(new QuaZip(archivePath))
     , _currentFileNameChanged(false)
-    , _extractPath(QDir::tempPath() + "/archiveViewer/" + Utility::hash(archivePath))
     , _extractWatcher(new QFutureWatcher<void>())
+    , _temporaryDirectory("archiveViewer/" + Utility::hash(archivePath))
 {
     _images = this->getImageInfoFromArchive();
     _name = QFileInfo(archivePath).completeBaseName();
@@ -43,7 +41,6 @@ QuaZipImageSource::~QuaZipImageSource()
         _extractWatcher->cancel();
         _extractWatcher->waitForFinished();
     }
-    QDir(_extractPath).removeRecursively();
 }
 
 // ------------------------------------------------------------- public slots //
@@ -78,7 +75,7 @@ void QuaZipImageSource::extractAll()
 
         // Do not extract if the file has already been extracted.
         auto fileName = _archive->getCurrentFileName();
-        auto destinationInfo = QFileInfo(_extractPath + "/" + fileName);
+        auto destinationInfo = QFileInfo(_temporaryDirectory.path() + "/" + fileName);
         auto isExtracted = destinationInfo.exists();
         auto index = fileNames.indexOf(fileName);
         if (index >= 0 && !isExtracted) {
@@ -97,7 +94,7 @@ void QuaZipImageSource::extractAll()
 
 void QuaZipImageSource::extractImage(const QString &fileName)
 {
-    QFileInfo destinationInfo(_extractPath + "/" + fileName);
+    QFileInfo destinationInfo(_temporaryDirectory.path() + "/" + fileName);
     QuaZipFile source(_archive.get());
     QFile destination(destinationInfo.absoluteFilePath());
 
@@ -127,7 +124,7 @@ QList<ImageSourceItem> QuaZipImageSource::getImageInfoFromArchive()
     for (const auto &fileName : fileNames) {
 
         // Get the file information.
-        auto fileInfo = QFileInfo(_extractPath + "/" + fileName);
+        auto fileInfo = QFileInfo(_temporaryDirectory.path() + "/" + fileName);
         auto suffix = fileInfo.suffix();
         auto relativePath = fileName;
         relativePath.chop(fileInfo.fileName().length());

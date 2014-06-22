@@ -25,6 +25,7 @@
 #include "imagesource.h"
 #include "quazip.h"
 #include "quazipfile.h"
+#include "sharedtemporarydirectory.h"
 
 ///
 /// \brief The QuaZipImageSource class represents a source of image files within
@@ -91,11 +92,11 @@ private:
     /// True if a specific image is needed to be extracted next; otherwise, false.
     bool _currentFileNameChanged;
 
-    /// The directory path to extract the contents of the zip archive to.
-    QString _extractPath;
-
     /// The watcher for the extraction process.
     std::unique_ptr<QFutureWatcher<void>> _extractWatcher;
+
+    /// The temporary directory to extract the zip archives contents to.
+    SharedTemporaryDirectory _temporaryDirectory;
 };
 
 #endif // QUAZIPIMAGESOURCE_H
