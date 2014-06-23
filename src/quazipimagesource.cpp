@@ -78,10 +78,12 @@ void QuaZipImageSource::extractAll()
         auto destinationInfo = QFileInfo(_temporaryDirectory.path() + "/" + fileName);
         auto isExtracted = destinationInfo.exists();
         auto index = fileNames.indexOf(fileName);
-        if (index >= 0 && !isExtracted) {
+        if (index >= 0) {
             fileNames.removeOne(fileName);
-            this->extractImage(fileName);
-            emit imageReady(fileName);
+            if (!isExtracted) {
+                this->extractImage(fileName);
+                emit imageReady(fileName);
+            }
         }
 
         if (!_archive->goToNextFile()) {
