@@ -40,15 +40,6 @@ namespace Utility
     QStringList archiveFileTypes();
 
     ///
-    /// \brief Scales a copy of the given image to half its size and returns it.
-    /// This function has similar results to using smooth scaling, but is much
-    /// faster.
-    /// \param image The image to scale.
-    /// \return A copy of the image, scaled to half size.
-    ///
-    QImage fastHalfScale(const QImage &image);
-
-    ///
     /// \brief Returns the MD5 hash of the provided string as hexidecimal.
     /// \param string The string to hash.
     /// \return The hexidecimal MD5 hash of the string.
