@@ -27,19 +27,18 @@
 QuaZipImageSource::QuaZipImageSource(const QString &archivePath)
     : _archive(new QuaZip(archivePath))
     , _currentFileNameChanged(false)
-    , _extractWatcher(new QFutureWatcher<void>())
     , _temporaryDirectory("archiveViewer/" + Utility::hash(archivePath))
 {
     _images = this->getImageInfoFromArchive();
     _name = QFileInfo(archivePath).completeBaseName();
-    _extractWatcher->setFuture(QtConcurrent::run(this, &QuaZipImageSource::extractAll));
+    _extractWatcher.setFuture(QtConcurrent::run(this, &QuaZipImageSource::extractAll));
 }
 
 QuaZipImageSource::~QuaZipImageSource()
 {
-    if (_extractWatcher->isRunning()) {
-        _extractWatcher->cancel();
-        _extractWatcher->waitForFinished();
+    if (_extractWatcher.isRunning()) {
+        _extractWatcher.cancel();
+        _extractWatcher.waitForFinished();
     }
 }
 
@@ -64,7 +63,7 @@ void QuaZipImageSource::extractAll()
         fileNames.append(image.second->relativeFilePath());
     }
 
-    while (!fileNames.isEmpty() && !_extractWatcher->isCanceled()) {
+    while (!fileNames.isEmpty() && !_extractWatcher.isCanceled()) {
 
         // If a specific image is requested to be extracted and has not already
         // been extracted, then move to that position in the archive.

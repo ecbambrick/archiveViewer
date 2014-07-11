@@ -93,7 +93,7 @@ private:
     bool _currentFileNameChanged;
 
     /// The watcher for the extraction process.
-    std::unique_ptr<QFutureWatcher<void>> _extractWatcher;
+    QFutureWatcher<void> _extractWatcher;
 
     /// The temporary directory to extract the zip archives contents to.
     SharedTemporaryDirectory _temporaryDirectory;
