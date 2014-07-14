@@ -68,11 +68,14 @@ QImage Imaging::bilinearScaled(const QImage &source, const QSize &size, QFutureW
                       + ((c>>16)&0xff)*(yDifference)*(1-xDifference)
                       + ((d>>16)&0xff)*(xDifference*yDifference);
 
-            // Use a hard-coded value for the alpha element.
-            int alpha = 0xff000000;
+            // Calculate the alpha element.
+            float alpha = ((a>>24)&0xff)*(1-xDifference)*(1-yDifference)
+                        + ((b>>24)&0xff)*(xDifference)*(1-yDifference)
+                        + ((c>>24)&0xff)*(yDifference)*(1-xDifference)
+                        + ((d>>24)&0xff)*(xDifference*yDifference);
 
             // Calculate the pixel value for the destination image
-            dst[offset++] = alpha
+            dst[offset++] = ((((int)alpha)<<24)&0xff000000)
                           | ((((int)red)<<16)&0xff0000)
                           | ((((int)green)<<8)&0xff00)
                           | ((int)blue) ;
