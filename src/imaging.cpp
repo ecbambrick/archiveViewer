@@ -85,6 +85,22 @@ QImage Imaging::bilinearScaled(const QImage &source, const QSize &size, QFutureW
     return destination;
 }
 
+QImage Imaging::evenDimensioned(const QImage &source)
+{
+    int width = source.width() % 2 ? source.width() - 1 : source.width();
+    int height = source.height() % 2 ? source.height() - 1 : source.height();
+
+    // Image already had even dimensions.
+    if (source.width() == width && source.height() == height) {
+        return source;
+    }
+
+    // Crop the image.
+    else {
+        return source.copy(0, 0, width, height);
+    }
+}
+
 // From https://blog.qt.digia.com/blog/2009/01/20/50-scaling-of-argb32-image/
 QImage Imaging::halfScaled(const QImage &source, QFutureWatcher<void> *watcher)
 {
