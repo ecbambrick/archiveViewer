@@ -21,6 +21,8 @@
 #ifndef IMAGEVIEWER_H
 #define IMAGEVIEWER_H
 #include <memory>
+#include <QElapsedTimer>
+#include <QFutureWatcher>
 #include <QLabel>
 #include <QMouseEvent>
 #include <QPixmap>
@@ -28,8 +30,8 @@
 #include "imageinfo.h"
 
 ///
-/// \brief The ImageViewer class represents a widget that can display an image.
-/// The image can be manipulated through zooming.
+/// \brief The ImageViewer class represents a widget that can load and display
+/// an image from a file. The image can be manipulated through zooming.
 ///
 class ImageViewer : public QScrollArea
 {
@@ -51,16 +53,21 @@ public:
     ///
     ImageViewer(QWidget *parent = 0);
 
+    ///
+    /// \brief Destructor.
+    ///
+    ~ImageViewer();
+
 public slots:
 
     ///
-    /// \brief Loads the image to be displayed.
-    /// \param imageInfo The image information about the image to be displayed.
+    /// \brief Loads an image to be displayed.
+    /// \param filePath The file path to the image.
     ///
-    void load(std::shared_ptr<ImageInfo> imageInfo);
+    void load(const QString &filePath);
 
     ///
-    /// \brief Clears the currently displayed image.
+    /// \brief Clears and unloads the currently displayed image.
     ///
     void clear();
 
@@ -68,40 +75,44 @@ public slots:
     /// \brief Sets the zoom behaviour.
     /// \param zoom The zoom behaviour.
     ///
-    void fit(ZoomType zoom);
+    void fit(ZoomType zoomType);
 
     ///
-    /// \brief Zooms into the currently displayed image.
+    /// \brief Zooms in on the currently displayed image.
     ///
     void zoomIn();
 
     ///
-    /// \brief Zooms out of the currently displayed image.
+    /// \brief Zooms out on the currently displayed image.
     ///
     void zoomOut();
 
 protected:
 
     ///
-    /// \brief Handles the mouse movement event.
+    /// \brief Handles the mouse movement event. Pans the image while the left
+    /// mouse button is down.
     /// \param e A Mouse event.
     ///
     void mouseMoveEvent(QMouseEvent *e);
 
     ///
-    /// \brief Handles the mouse press event.
+    /// \brief Handles the mouse press event. Updates the position of the mouse
+    /// which is used when panning the image.
     /// \param e A Mouse event.
     ///
     void mousePressEvent(QMouseEvent *e);
 
     ///
-    /// \brief Handles the mouse release event.
+    /// \brief Handles the mouse release event. Unhides the mouse cursor after
+    /// panning.
     /// \param e A Mouse event.
     ///
     void mouseReleaseEvent(QMouseEvent *e);
 
     ///
-    /// \brief Handles the resize event.
+    /// \brief Handles the resize event. Resizes the displayed image depending
+    /// on the zoom type.
     /// \param e A resize event.
     ///
     void resizeEvent(QResizeEvent *e);
@@ -117,30 +128,42 @@ private:
     ///
     /// \brief Scales the currently displayed image to the given width and
     /// height, keeping its aspect ratio.
-    /// \param width The width to scale the image to.
-    /// \param height The height to scale the image to.
+    /// \param size The size to scale the image to.
     ///
-    void scale(int width, int height);
+    void scale(QSize size);
 
-    /// True if the image is scaled to fit to the screen's height; otherwise, false.
+    ///
+    /// \brief Smooths the currently displayed image.
+    ///
+    void smooth();
+
+    ///
+    /// \brief Cancels the smoothing process.
+    ///
+    void cancelSmooth();
+
+    /// True if the image is scaled to fit to the viewer's height; otherwise, false.
     bool _fitToHeight;
 
-    /// True if the image is scaled to fit to the screen's width; otherwise, false.
+    /// True if the image is scaled to fit to the viewer's width; otherwise, false.
     bool _fitToWidth;
 
-    /// The path to the image file to be displayed.
-    QString _imagePath;
-
-    /// The label that holds a pixmap.
+    /// The label that holds the pixmap.
     QLabel _label;
 
-    /// The position of the mouse before moving the mouse while pressed.
-    QPoint _initMousePos;
+    /// The initial position of the mouse before panning the image.
+    QPoint _initialMousePosition;
 
     /// The pixmap for the image to be displayed.
     QPixmap _pixmap;
 
-    /// The percentage to scale by.
+    /// The future watcher for the smoothing process.
+    std::unique_ptr<QFutureWatcher<void>> _smoothWatcher;
+
+    /// The timer used to delay the smoothing of an image.
+    QElapsedTimer _timer;
+
+    /// The percentage to scale the image by.
     float _zoom;
 };
 

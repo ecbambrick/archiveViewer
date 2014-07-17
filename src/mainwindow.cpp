@@ -69,7 +69,7 @@ MainWindow::~MainWindow()
     delete _widgetFilePosition;
     delete _widgetStatusBar;
     delete _widgetToolBar;
-    delete _widgetImageView;
+    delete _widgetImageViewer;
 }
 
 // ------------------------------------------------------------- public slots //
@@ -77,18 +77,18 @@ MainWindow::~MainWindow()
 void MainWindow::loadImage()
 {
     if (_playlist->isEmpty()) {
-        _widgetImageView->clearImage();
+        _widgetImageViewer->clear();
         return;
     }
 
     std::shared_ptr<ImageInfo> image = _playlist->current();
 
     if (image->exists()) {
-        _widgetImageView->setImage(image.get());
+        _widgetImageViewer->load(image->absoluteFilePath());
         _settings->setValue("LastSession/viewedFile", image->relativeFilePath());
         emit imageLoaded(image);
     } else {
-        _widgetImageView->clearImage();
+        _widgetImageViewer->clear();
         emit imageNotLoaded(image);
     }
 }
@@ -199,21 +199,21 @@ void MainWindow::updateFilePosition()
 
 void MainWindow::zoomFit()
 {
-    ImageView::ZoomType zoom = (ImageView::ZoomType)_actionZoomFit->property("fit").toInt();
-    ImageView::ZoomType newZoom;
+    ImageViewer::ZoomType zoom = (ImageViewer::ZoomType)_actionZoomFit->property("fit").toInt();
+    ImageViewer::ZoomType newZoom;
 
     switch (zoom) {
-        case ImageView::ZoomToFullSize:
+        case ImageViewer::ZoomToFullSize:
             _actionZoomFit->setText("Fit to Width");
-            newZoom = ImageView::ZoomToWidth;
+            newZoom = ImageViewer::ZoomToWidth;
             break;
-        case ImageView::ZoomToWidth:
+        case ImageViewer::ZoomToWidth:
             _actionZoomFit->setText("Fit to Window");
-            newZoom = ImageView::ZoomToWidthAndHieght;
+            newZoom = ImageViewer::ZoomToWidthAndHieght;
             break;
-        case ImageView::ZoomToWidthAndHieght:
+        case ImageViewer::ZoomToWidthAndHieght:
             _actionZoomFit->setText("Full Size");
-            newZoom = ImageView::ZoomToFullSize;
+            newZoom = ImageViewer::ZoomToFullSize;
             break;
         default:
             newZoom = zoom;
@@ -221,7 +221,7 @@ void MainWindow::zoomFit()
     }
 
     _actionZoomFit->setProperty("fit", newZoom);
-    _widgetImageView->fit(newZoom);
+    _widgetImageViewer->fit(newZoom);
 }
 
 // ---------------------------------------------------------------- protected //
@@ -347,7 +347,7 @@ void MainWindow::loadActions()
     // Zoom to full, width, or width/height.
     _actionZoomFit = new QAction("&Fit to Window", this);
     _actionZoomFit->setShortcut(Qt::Key_Z);
-    _actionZoomFit->setProperty("fit", ImageView::ZoomToWidthAndHieght);
+    _actionZoomFit->setProperty("fit", ImageViewer::ZoomToWidthAndHieght);
 
     // Zoom in.
     _actionZoomIn = new QAction("Zoom &In", this);
@@ -369,9 +369,9 @@ void MainWindow::loadWidgets()
     _widgetFilePosition->setAlignment(Qt::AlignRight);
 
     // Image viewer.
-    _widgetImageView = new ImageView(this);
-    this->connect(_actionZoomIn, SIGNAL(triggered()), _widgetImageView, SLOT(zoomIn()));
-    this->connect(_actionZoomOut, SIGNAL(triggered()), _widgetImageView, SLOT(zoomOut()));
+    _widgetImageViewer = new ImageViewer(this);
+    this->connect(_actionZoomIn, &QAction::triggered, _widgetImageViewer, &ImageViewer::zoomIn);
+    this->connect(_actionZoomOut, &QAction::triggered, _widgetImageViewer, &ImageViewer::zoomOut);
 
     // Search box.
     _widgetSearchBox = new QLineEdit(this);
@@ -408,7 +408,7 @@ void MainWindow::loadWidgets()
     // Main window.
     this->addToolBar(_widgetToolBar);
     this->setStatusBar(_widgetStatusBar);
-    this->setCentralWidget(_widgetImageView);
+    this->setCentralWidget(_widgetImageViewer);
     this->connect(_actionOpen, SIGNAL(triggered()), this, SLOT(open()));
     this->connect(_actionZoomFit, SIGNAL(triggered()), this, SLOT(zoomFit()));
 }

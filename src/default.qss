@@ -12,7 +12,7 @@ QMainWindow * {
     font-family: "Century Gothic";
 }
 
-ImageView {
+ImageViewer {
     background-color: #fff;
 }
 

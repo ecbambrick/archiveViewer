@@ -28,8 +28,9 @@
 #include <QSettings>
 #include <QStatusBar>
 #include <QToolBar>
+#include <QResizeEvent>
 #include "imagesource.h"
-#include "imageview.h"
+#include "imageviewer.h"
 #include "localimagesource.h"
 #include "playlist.h"
 #include "quazipimagesource.h"
@@ -108,13 +109,13 @@ private:
     std::unique_ptr<QSettings> _settings;           ///< Application settings.
     bool _wasMaximized;                              ///< True if the application was maximized before becoming fullscreen; otherwise, false.
 
-    QWidget *_widgetSpacer;         ///< Expanding, empty spacer.
-    QToolBar *_widgetToolBar;       ///< Status bar.
-    QStatusBar *_widgetStatusBar;   ///< Tool bar.
-    QLineEdit *_widgetSearchBox;    ///< Search box.
-    QLabel *_widgetFileName;        ///< File name label.
-    QLabel *_widgetFilePosition;    ///< File position label.
-    ImageView *_widgetImageView;    ///< Image viewing widget.
+    QWidget *_widgetSpacer;             ///< Expanding, empty spacer.
+    QToolBar *_widgetToolBar;           ///< Status bar.
+    QStatusBar *_widgetStatusBar;       ///< Tool bar.
+    QLineEdit *_widgetSearchBox;        ///< Search box.
+    QLabel *_widgetFileName;            ///< File name label.
+    QLabel *_widgetFilePosition;        ///< File position label.
+    ImageViewer *_widgetImageViewer;    ///< Image viewing widget.
 };
 
 #endif // MAINWINDOW_H

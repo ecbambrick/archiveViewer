@@ -17,26 +17,28 @@ SOURCES	+= \
     filter.cpp \
     imageinfo.cpp \
     imagesource.cpp \
-    imageview.cpp \
     localimagesource.cpp \
     main.cpp \
     mainwindow.cpp \
     quazipimagesource.cpp \
     utility.cpp \
     playlist.cpp \
-    sharedtemporarydirectory.cpp
+    sharedtemporarydirectory.cpp \
+    imageviewer.cpp \
+    imaging.cpp
 
 HEADERS += \
     filter.h \
     imageinfo.h \
     imagesource.h \
-    imageview.h \
     localimagesource.h \
     mainwindow.h \
     quazipimagesource.h \
     utility.h \
     playlist.h \
-    sharedtemporarydirectory.h
+    sharedtemporarydirectory.h \
+    imageviewer.h \
+    imaging.h
 
 RESOURCES += \
     resources.qrc
