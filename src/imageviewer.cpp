@@ -10,6 +10,7 @@ ImageViewer::ImageViewer(QWidget *parent)
     : QScrollArea(parent)
     , _fitToHeight(true)
     , _fitToWidth(true)
+    , _movie(nullptr)
     , _smoothWatcher(new QFutureWatcher<void>())
     , _zoom(1)
 {
@@ -38,7 +39,27 @@ void ImageViewer::load(const QString &filePath)
 {
     this->clear();
 
-    _pixmap.load(filePath);
+    // Determine if the file is animated.
+    bool isMovie = false;
+    if (filePath.endsWith("gif", Qt::CaseInsensitive)) {
+        _movie = std::unique_ptr<QMovie>(new QMovie(filePath));
+        if (_movie->isValid() && _movie->frameCount() > 1) {
+            isMovie = true;
+        }
+    }
+
+    // Get the size of the first frame of the movie and then restart it.
+    if (isMovie) {
+        _movie->jumpToFrame(0);
+        _movieSize = _movie->currentImage().size();
+        _movie->stop();
+    }
+
+    // Unload the movie and load the image;
+    else {
+        _movie.reset(nullptr);
+        _pixmap.load(filePath);
+    }
 
     this->horizontalScrollBar()->setValue(0);
     this->verticalScrollBar()->setValue(0);
@@ -50,6 +71,7 @@ void ImageViewer::clear()
     this->cancelSmooth();
 
     _label.clear();
+    _movie.reset(nullptr);
     _pixmap = QPixmap();
 }
 
@@ -103,7 +125,7 @@ void ImageViewer::mouseMoveEvent(QMouseEvent *e)
         int dx = e->pos().x() - _initialMousePosition.x();
         int dy = e->pos().y() - _initialMousePosition.y();
 
-        // Scroll the image.
+        // Pan the image.
         QScrollBar *vertical = this->verticalScrollBar();
         QScrollBar *horizontal = this->horizontalScrollBar();
         horizontal->setValue(horizontal->value() - dx);
@@ -146,38 +168,72 @@ void ImageViewer::cancelSmooth()
 
 void ImageViewer::refresh()
 {
+    QSize originalSize;
+    if (_movie) {
+        originalSize = _movieSize;
+    } else {
+        originalSize = _pixmap.size();
+    }
+
     int width;
     if (_fitToWidth) {
-        width = std::min((int)(_pixmap.width() * _zoom), this->width());
+        width = std::min((int)(originalSize.width() * _zoom), this->width());
     } else {
-        width = _pixmap.width() * _zoom;
+        width = originalSize.width() * _zoom;
     }
 
     int height;
     if (_fitToHeight) {
-        height = std::min((int)(_pixmap.height() * _zoom), this->height());
+        height = std::min((int)(originalSize.height() * _zoom), this->height());
     } else {
-        height = _pixmap.height() * _zoom;
+        height = originalSize.height() * _zoom;
     }
 
-    QSize newSize = _pixmap.size().scaled(width, height, Qt::KeepAspectRatio);
+    // Get the target image size for scaling.
+    QSize newSize = originalSize.scaled(width, height, Qt::KeepAspectRatio);
 
+    if (_movie) {
+        refreshMovie(newSize);
+    } else {
+        refreshImage(newSize);
+    }
+}
+
+void ImageViewer::refreshImage(const QSize &size)
+{
     // Always redraw the image if there is currently no image displayed.
     if (_label.pixmap() == NULL) {
-        this->scale(QSize(width, height));
+        this->scale(size);
         return;
     }
 
     // Scale only if the width or height changed.
-    bool widthChanged = _label.pixmap()->width() != newSize.width();
-    bool heightChanged = _label.pixmap()->height() != newSize.height();
+    bool widthChanged = _label.pixmap()->width() != size.width();
+    bool heightChanged = _label.pixmap()->height() != size.height();
     if (widthChanged || heightChanged) {
-        this->scale(QSize(width, height));
+        this->scale(size);
     }
 
     // Otherwise, reload the pixmap so that the label re-centers itself.
     else {
         _label.setPixmap(*_label.pixmap());
+    }
+}
+
+void ImageViewer::refreshMovie(const QSize &size)
+{
+    bool widthChanged = _movie->currentImage().width() != size.width();
+    bool heightChanged = _movie->currentImage().height() != size.height();
+
+    if (widthChanged || heightChanged) {
+        _movie->setScaledSize(size);
+    }
+
+    _label.setMovie(_movie.get());
+    _label.resize(size);
+
+    if (_movie->state() == QMovie::NotRunning) {
+        _movie->start();
     }
 }
 
@@ -197,7 +253,8 @@ void ImageViewer::scale(QSize size)
     // Otherwise, scale the image quickly and then smooth it in a separate
     // thread.
     else {
-        _label.setPixmap(_pixmap.scaled(size, Qt::KeepAspectRatio));
+        _label.resize(size);
+        _label.setPixmap(_pixmap.scaled(size));
         _smoothWatcher->setFuture(QtConcurrent::run(this, &ImageViewer::smooth));
     }
 }
@@ -207,11 +264,11 @@ void ImageViewer::smooth()
     // Wait 200 milliseconds to see if another smooth request has been fired.
     // This is in case the user zooms multiple times in a row very quickly
     // (i.e. when resizing the window).
-    _timer.start();
-    while (_timer.elapsed() < 200) {
+    for (int i = 0; i < 4; i++) {
         if (_smoothWatcher->isCanceled()) {
             return;
         }
+        QThread::msleep(50);
     }
 
     QSize targetSize = _label.pixmap()->size();

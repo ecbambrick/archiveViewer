@@ -25,6 +25,7 @@
 #include <QFutureWatcher>
 #include <QLabel>
 #include <QMouseEvent>
+#include <QMovie>
 #include <QPixmap>
 #include <QScrollArea>
 #include "imageinfo.h"
@@ -126,6 +127,18 @@ private:
     void refresh();
 
     ///
+    /// \brief Refreshes the currently displayed non-animated image.
+    /// \param size The size to scale to.
+    ///
+    void refreshImage(const QSize &size);
+
+    ///
+    /// \brief Refreshes the currently displayed animated image.
+    /// \param size The size to scale to.
+    ///
+    void refreshMovie(const QSize &size);
+
+    ///
     /// \brief Scales the currently displayed image to the given width and
     /// height, keeping its aspect ratio.
     /// \param size The size to scale the image to.
@@ -154,14 +167,17 @@ private:
     /// The initial position of the mouse before panning the image.
     QPoint _initialMousePosition;
 
-    /// The pixmap for the image to be displayed.
+    /// The movie for an animated image.
+    std::unique_ptr<QMovie> _movie;
+
+    /// The original size for an animated image.
+    QSize _movieSize;
+
+    /// The pixmap for a non-animated image.
     QPixmap _pixmap;
 
     /// The future watcher for the smoothing process.
     std::unique_ptr<QFutureWatcher<void>> _smoothWatcher;
-
-    /// The timer used to delay the smoothing of an image.
-    QElapsedTimer _timer;
 
     /// The percentage to scale the image by.
     float _zoom;
