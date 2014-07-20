@@ -250,48 +250,56 @@ void ImageViewer::scale(QSize size)
         _label.setPixmap(_pixmap);
     }
 
+    // If the image has not been loaded yet, smooth the image immediately.
+    else if (_label.pixmap() == NULL) {
+        _label.resize(size);
+        this->smooth(size);
+    }
+
     // Otherwise, scale the image quickly and then smooth it in a separate
     // thread.
     else {
         _label.resize(size);
         _label.setPixmap(_pixmap.scaled(size));
-        _smoothWatcher->setFuture(QtConcurrent::run(this, &ImageViewer::smooth));
+        _smoothWatcher->setFuture(QtConcurrent::run(this, &ImageViewer::smooth, size, _smoothWatcher.get()));
     }
 }
 
-void ImageViewer::smooth()
+void ImageViewer::smooth(const QSize &size, QFutureWatcher<void> *watcher)
 {
     // Wait 200 milliseconds to see if another smooth request has been fired.
     // This is in case the user zooms multiple times in a row very quickly
     // (i.e. when resizing the window).
-    for (int i = 0; i < 4; i++) {
-        if (_smoothWatcher->isCanceled()) {
-            return;
+    if (watcher != nullptr) {
+        for (int i = 0; i < 4; i++) {
+            if (watcher->isCanceled()) {
+                return;
+            }
+            QThread::msleep(50);
         }
-        QThread::msleep(50);
     }
 
-    QSize targetSize = _label.pixmap()->size();
-    QImage destination = QImage(_pixmap.toImage());
+    QSize targetSize = size;
+    QImage image = QImage(_pixmap.toImage());
 
     // Scale the image in 50% intervals to maintain quality.
-    while (destination.size().width()/2 > targetSize.width()) {
-        destination = Imaging::evenDimensioned(destination);
-        destination = Imaging::halfScaled(destination, _smoothWatcher.get());
+    while (image.width()/2 > targetSize.width()) {
+        image = Imaging::evenDimensioned(image);
+        image = Imaging::halfScaled(image, watcher);
     }
 
     // Use smooth scaling when scaling up.
     // This is because bilinear scaling currently only works for downscaling.
     if (targetSize.width() > _pixmap.width()) {
-        destination = destination.scaled(targetSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        image = image.scaled(targetSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
     }
 
     // Use bilinear scaling when scaling down.
     else {
-        destination = Imaging::bilinearScaled(destination, targetSize, _smoothWatcher.get());
+        image = Imaging::bilinearScaled(image, targetSize, watcher);
     }
 
-    if (!_smoothWatcher->isCanceled()) {
-        _label.setPixmap(QPixmap::fromImage(destination));
+    if ((watcher != nullptr && !watcher->isCanceled()) || watcher == nullptr) {
+        _label.setPixmap(QPixmap::fromImage(image));
     }
 }

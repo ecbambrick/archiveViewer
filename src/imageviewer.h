@@ -147,8 +147,10 @@ private:
 
     ///
     /// \brief Smooths the currently displayed image.
+    /// \param size The size to scale to.
+    /// \param watcher The future watcher that calls the function.
     ///
-    void smooth();
+    void smooth(const QSize &size, QFutureWatcher<void> *watcher = nullptr);
 
     ///
     /// \brief Cancels the smoothing process.
