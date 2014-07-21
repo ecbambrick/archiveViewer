@@ -356,6 +356,10 @@ void MainWindow::loadActions()
     // Zoom out.
     _actionZoomOut = new QAction("Zoom O&ut", this);
     _actionZoomOut->setShortcut(Qt::Key_Minus);
+
+    // Zoom to 100%.
+    _actionZoomFull = new QAction("Zoom %to 100%", this);
+    _actionZoomFull->setShortcut(Qt::Key_0);
 }
 
 void MainWindow::loadWidgets()
@@ -372,6 +376,7 @@ void MainWindow::loadWidgets()
     _widgetImageViewer = new ImageViewer(this);
     this->connect(_actionZoomIn, &QAction::triggered, _widgetImageViewer, &ImageViewer::zoomIn);
     this->connect(_actionZoomOut, &QAction::triggered, _widgetImageViewer, &ImageViewer::zoomOut);
+    this->connect(_actionZoomFull, &QAction::triggered, _widgetImageViewer, &ImageViewer::zoomToOriginalSize);
 
     // Search box.
     _widgetSearchBox = new QLineEdit(this);
@@ -411,4 +416,5 @@ void MainWindow::loadWidgets()
     this->setCentralWidget(_widgetImageViewer);
     this->connect(_actionOpen, SIGNAL(triggered()), this, SLOT(open()));
     this->connect(_actionZoomFit, SIGNAL(triggered()), this, SLOT(zoomFit()));
+    this->addAction(_actionZoomFull);
 }

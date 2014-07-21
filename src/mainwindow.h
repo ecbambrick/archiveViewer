@@ -103,11 +103,12 @@ private:
     QAction *_actionZoomFit;        ///< Zoom to full, width, or width/height.
     QAction *_actionZoomIn;         ///< Zoom in.
     QAction *_actionZoomOut;        ///< Zoom out.
+    QAction *_actionZoomFull;       ///< Zoom to 100%.
 
     std::shared_ptr<ImageSource> _imageSource;      ///< Source of image files.
     std::unique_ptr<Playlist> _playlist;            ///< Playlist of images.
     std::unique_ptr<QSettings> _settings;           ///< Application settings.
-    bool _wasMaximized;                              ///< True if the application was maximized before becoming fullscreen; otherwise, false.
+    bool _wasMaximized;                             ///< True if the application was maximized before becoming fullscreen; otherwise, false.
 
     QWidget *_widgetSpacer;             ///< Expanding, empty spacer.
     QToolBar *_widgetToolBar;           ///< Status bar.

@@ -110,6 +110,12 @@ void ImageViewer::zoomOut()
     this->refresh();
 }
 
+void ImageViewer::zoomToOriginalSize()
+{
+    _zoom = 1.0;
+    this->refresh();
+}
+
 // ---------------------------------------------------------------- protected //
 
 void ImageViewer::mouseMoveEvent(QMouseEvent *e)

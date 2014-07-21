@@ -88,6 +88,11 @@ public slots:
     ///
     void zoomOut();
 
+    ///
+    /// \brief Zooms the currently displayed image to its original size.
+    ///
+    void zoomToOriginalSize();
+
 protected:
 
     ///
