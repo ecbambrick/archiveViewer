@@ -30,6 +30,7 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
+    , _currentImage(nullptr)
     , _imageSource(nullptr)
     , _playlist(new Playlist())
     , _settings(new QSettings(QSettings::IniFormat,
@@ -77,19 +78,22 @@ MainWindow::~MainWindow()
 void MainWindow::loadImage()
 {
     if (_playlist->isEmpty()) {
+        _currentImage.reset();
         _widgetImageViewer->clear();
         return;
     }
 
-    std::shared_ptr<ImageInfo> image = _playlist->current();
-
-    if (image->exists()) {
-        _widgetImageViewer->load(image->absoluteFilePath());
-        _settings->setValue("LastSession/viewedFile", image->relativeFilePath());
-        emit imageLoaded(image);
-    } else {
-        _widgetImageViewer->clear();
-        emit imageNotLoaded(image);
+    // Do not load the image if the image is already loaded.
+    if (_currentImage != _playlist->current()) {
+        _currentImage = _playlist->current();
+        if (_currentImage->exists()) {
+            _widgetImageViewer->load(_currentImage->absoluteFilePath());
+            _settings->setValue("LastSession/viewedFile", _currentImage->relativeFilePath());
+            emit imageLoaded(_currentImage);
+        } else {
+            _widgetImageViewer->clear();
+            emit imageNotLoaded(_currentImage);
+        }
     }
 }
 
@@ -164,6 +168,7 @@ void MainWindow::reloadImage(const QString &relativeFilePath)
     if (_playlist->isEmpty()) return;
 
     if (_playlist->current()->relativeFilePath() == relativeFilePath) {
+        _currentImage.reset();
         this->loadImage();
     }
 }

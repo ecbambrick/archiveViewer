@@ -105,6 +105,7 @@ private:
     QAction *_actionZoomOut;        ///< Zoom out.
     QAction *_actionZoomFull;       ///< Zoom to 100%.
 
+    std::shared_ptr<ImageInfo> _currentImage;       ///< Currently loaded image.
     std::shared_ptr<ImageSource> _imageSource;      ///< Source of image files.
     std::unique_ptr<Playlist> _playlist;            ///< Playlist of images.
     std::unique_ptr<QSettings> _settings;           ///< Application settings.
