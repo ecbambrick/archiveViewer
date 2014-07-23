@@ -58,9 +58,12 @@ void Playlist::filter(Filter filter)
 int Playlist::index() const
 {
     if (_list.isEmpty()) {
-        return -1;
+        throw std::out_of_range("Requested current index from empty playlist.");
     }
 
+    // Rather than return the playlist's index, return the item's index. This
+    // is so that, even when the playlist is shuffled, the current index will
+    // be the same as if it weren't shuffled.
     return _list.at(_index).first;
 }
 
@@ -107,8 +110,7 @@ bool Playlist::find(const QString &relativeFilePath)
 
     // Found.
     if (i != _list.end()) {
-        _index = i - _list.begin();
-        emit indexChanged();
+        this->updateIndex(i - _list.begin());
         return true;
     }
 
@@ -125,28 +127,30 @@ void Playlist::next(int steps)
 {
     if (_list.isEmpty()) return;
 
+    int newIndex;
     if (_loops) {
-        _index = (_index + steps) % _list.size();
+        newIndex = (_index + steps) % _list.size();
     } else {
-        _index = std::min(_list.size()-1, _index + steps);
+        newIndex = std::min(_list.size()-1, _index + steps);
     }
 
-    emit indexChanged();
+    this->updateIndex(newIndex);
 }
 
 void Playlist::previous(int steps)
 {
     if (_list.isEmpty()) return;
 
+    int newIndex;
     if (_loops) {
-        _index = (_index >= steps)
-                ? _index - steps
-                : _list.size() - (_index + steps);
+        newIndex = (_index >= steps)
+                 ? _index - steps
+                 : _list.size() - (_index + steps);
     } else {
-        _index = std::max(0, _index - steps);
+        newIndex = std::max(0, _index - steps);
     }
 
-    emit indexChanged();
+    this->updateIndex(newIndex);
 }
 
 void Playlist::shuffle(bool value)
@@ -184,7 +188,12 @@ void Playlist::reload()
     // Find the current file again if it is still in the list; otherwise, go
     // to the beginning of the list.
     if (filePath == "" || !this->find(filePath)) {
-        _index = 0;
-        emit indexChanged();
+        this->updateIndex(0);
     }
+}
+
+void Playlist::updateIndex(int index)
+{
+    _index = index;
+    emit indexChanged();
 }

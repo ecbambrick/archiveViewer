@@ -58,8 +58,9 @@ public:
     void filter(Filter filter);
 
     ///
-    /// \brief Returns the current index, or -1 if the list is empty.
-    /// \return The current index, or -1 if the list is empty.
+    /// \brief Returns the current index. The playlist must not be empty. Call
+    /// isEmpty() before calling this function.
+    /// \return The current index.
     ///
     int index() const;
 
@@ -150,11 +151,17 @@ private:
     ///
     void reload();
 
+    ///
+    /// \brief Updates the current playlist and item index.
+    /// \param index The new value of the index.
+    /// \param emit
+    ///
+    void updateIndex(int index);
+
     /// The filter to filter file names against.
     Filter _filter;
 
-    /// The current, true index of the playlist. This will differ from the
-    /// index of the current item when the list playlist is shuffled.
+    /// The current index of the playlist.
     int _index;
 
     /// The list structure containing the items.
