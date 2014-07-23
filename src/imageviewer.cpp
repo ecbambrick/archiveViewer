@@ -195,9 +195,7 @@ void ImageViewer::refresh()
         height = originalSize.height() * _zoom;
     }
 
-    // Get the target image size for scaling.
     QSize newSize = originalSize.scaled(width, height, Qt::KeepAspectRatio);
-
     if (_movie) {
         refreshMovie(newSize);
     } else {
@@ -208,7 +206,7 @@ void ImageViewer::refresh()
 void ImageViewer::refreshImage(const QSize &size)
 {
     // Always redraw the image if there is currently no image displayed.
-    if (_label.pixmap() == NULL) {
+    if (_label.pixmap() == nullptr) {
         this->scale(size);
         return;
     }
@@ -257,7 +255,7 @@ void ImageViewer::scale(QSize size)
     }
 
     // If the image has not been loaded yet, smooth the image immediately.
-    else if (_label.pixmap() == NULL) {
+    else if (_label.pixmap() == nullptr) {
         _label.resize(size);
         this->smooth(size);
     }
@@ -285,25 +283,24 @@ void ImageViewer::smooth(const QSize &size, QFutureWatcher<void> *watcher)
         }
     }
 
-    QSize targetSize = size;
-    QImage image = QImage(_pixmap.toImage());
+    // Use smooth scaling when scaling up.
+    // This is because bilinear scaling currently only works for downscaling.
+    if (size.width() > _pixmap.width()) {
+        if ((watcher != nullptr && !watcher->isCanceled()) || watcher == nullptr) {
+            _label.setPixmap(_pixmap.scaled(size, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        }
+        return;
+    }
 
     // Scale the image in 50% intervals to maintain quality.
-    while (image.width()/2 > targetSize.width()) {
+    QImage image = QImage(_pixmap.toImage());
+    while (image.width()/2 > size.width()) {
         image = Imaging::evenDimensioned(image);
         image = Imaging::halfScaled(image, watcher);
     }
 
-    // Use smooth scaling when scaling up.
-    // This is because bilinear scaling currently only works for downscaling.
-    if (targetSize.width() > _pixmap.width()) {
-        image = image.scaled(targetSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    }
-
-    // Use bilinear scaling when scaling down.
-    else {
-        image = Imaging::bilinearScaled(image, targetSize, watcher);
-    }
+    // Use bilinear for the remaining scaling.
+    image = Imaging::bilinearScaled(image, size, watcher);
 
     if ((watcher != nullptr && !watcher->isCanceled()) || watcher == nullptr) {
         _label.setPixmap(QPixmap::fromImage(image));
