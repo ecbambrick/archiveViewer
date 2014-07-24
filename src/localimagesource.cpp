@@ -27,6 +27,8 @@
 LocalImageSource::LocalImageSource(const QString &path)
 {
     auto dir = QFileInfo(path).dir();
+    dir.setNameFilters(Utility::imageFileFilter());
+    dir.setSorting(QDir::IgnoreCase);
 
     _images = getImageInfoFromDirectory(dir);
     _name = dir.dirName();
@@ -46,7 +48,7 @@ QList<ImageSourceItem> LocalImageSource::getImageInfoFromDirectory(const QDir &d
     auto i = 0;
     auto images = QList<ImageSourceItem>();
 
-    for (const auto &file : dir.entryInfoList(Utility::imageFileFilter())) {
+    for (const auto &file : dir.entryInfoList()) {
         auto image = std::make_shared<ImageInfo>(file.absoluteFilePath());
         images.append({++i, image});
     }

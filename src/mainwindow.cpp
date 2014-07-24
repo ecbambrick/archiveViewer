@@ -118,8 +118,8 @@ bool MainWindow::open(const QString &filePath, bool skipToLastViewed)
     QFileInfo fileInfo(filePath);
     QString fileType = fileInfo.suffix();
     QString fileName = fileInfo.fileName();
-    bool isArchiveFile = Utility::archiveFileTypes().contains(fileType);
-    bool isImageFile = Utility::imageFileTypes().contains(fileType);
+    bool isArchiveFile = Utility::archiveFileTypes().contains(fileType, Qt::CaseInsensitive);
+    bool isImageFile = Utility::imageFileTypes().contains(fileType, Qt::CaseInsensitive);
 
     if (isImageFile) {
         _imageSource.reset(new LocalImageSource(filePath));
