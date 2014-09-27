@@ -48,8 +48,7 @@ public:
     SharedTemporaryDirectory(const QString &path);
 
     ///
-    /// Destructor. Automatically deletes the temporary directory if no other
-    /// instance is using it.
+    /// Deletes the temporary directory if no other instance is using it.
     ///
     ~SharedTemporaryDirectory();
 

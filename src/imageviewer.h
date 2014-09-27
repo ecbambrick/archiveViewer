@@ -55,7 +55,7 @@ public:
     ImageViewer(QWidget *parent = 0);
 
     ///
-    /// \brief Destructor.
+    /// \brief Cancels the smoothing process and waits for it to finish.
     ///
     ~ImageViewer();
 

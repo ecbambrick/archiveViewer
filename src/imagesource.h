@@ -26,10 +26,11 @@
 #include "imageinfo.h"
 
 ///
-/// \typedef The Item type represents image information paired with an index.
+/// \typedef The image source item represents image information paired with an
+/// index.
 ///
 /// The index is used to determine the position of the image in a list. This is
-/// necessary because the index must remain constant when the list is shuffled.
+/// necessary because the index must remain unchanged when the list is shuffled.
 ///
 typedef QPair<int, std::shared_ptr<ImageInfo>> ImageSourceItem;
 
@@ -59,11 +60,6 @@ public:
         SortByFileName,         ///< Sort by file name.
         SortByLastModifiedDate, ///< Sort by the last modified date.
     };
-
-    ///
-    /// \brief Destructor.
-    ///
-    virtual ~ImageSource();
 
     ///
     /// \brief Returns the list of images located in the source.

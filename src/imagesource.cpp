@@ -22,10 +22,6 @@
 #include <random>
 #include "imagesource.h"
 
-ImageSource::~ImageSource()
-{
-}
-
 QList<ImageSourceItem> ImageSource::images() const
 {
     return _images;
