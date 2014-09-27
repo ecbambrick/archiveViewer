@@ -29,7 +29,7 @@ QuaZipImageSource::QuaZipImageSource(const QString &archivePath)
     , _currentFileNameChanged(false)
     , _temporaryDirectory("archiveViewer/" + Utility::hash(archivePath))
 {
-    _images = this->getImageInfoFromArchive();
+    _images = this->getImageInfoFromArchive(_archive.get(), _temporaryDirectory.path());
     _name = QFileInfo(archivePath).completeBaseName();
     _extractWatcher.setFuture(QtConcurrent::run(this, &QuaZipImageSource::extractAll));
 }
@@ -57,46 +57,48 @@ void QuaZipImageSource::extractAll()
     _archive->open(QuaZip::mdUnzip);
     _archive->goToFirstFile();
 
-    // Keep track of the files that have not been extracted yet.
-    auto fileNames = QStringList();
-    for (const auto &image : _images) {
-        fileNames.append(image.second->relativeFilePath());
-    }
+    // Keep track of the images that have not been extracted yet.
+    auto images = QList<ImageSourceItem>(_images);
+    auto index = 0;
 
-    while (!fileNames.isEmpty() && !_extractWatcher.isCanceled()) {
+    while (!images.isEmpty() && !_extractWatcher.isCanceled()) {
 
-        // If a specific image is requested to be extracted and has not already
-        // been extracted, then move to that position in the archive.
-        if (_currentFileNameChanged && fileNames.contains(_currentFileName)) {
-            _archive->setCurrentFile(_currentFileName);
-            _currentFileNameChanged = false;
-        }
+        // If the currently displayed image has changed and has not yet been
+        // extracted, change the index to that image.
+        if (_currentFileNameChanged) {
+            auto i = std::find_if(images.begin(), images.end(), [&](ImageSourceItem a) {
+                return a.second->relativeFilePath() == _currentFileName;
+            });
 
-        // Do not extract if the file has already been extracted.
-        auto fileName = _archive->getCurrentFileName();
-        auto destinationInfo = QFileInfo(_temporaryDirectory.path() + "/" + fileName);
-        auto isExtracted = destinationInfo.exists();
-        auto index = fileNames.indexOf(fileName);
-        if (index >= 0) {
-            fileNames.removeOne(fileName);
-            if (!isExtracted) {
-                this->extractImage(fileName);
-                emit imageReady(fileName);
+            if (i != images.end()) {
+                index = i - images.begin();
             }
         }
 
-        if (!_archive->goToNextFile()) {
-            _archive->goToFirstFile();
+        // Loop through the list of images.
+        if (index >= images.size()) {
+            index = 0;
         }
+
+        // Extract the image.
+        auto file = images.at(index).second;
+        if (!file->exists()) {
+            _archive->setCurrentFile(file->relativeFilePath());
+            this->extractImage(_archive.get(), file->absoluteFilePath());
+            emit imageReady(file->relativeFilePath());
+        }
+
+        // Since the image is removed, the index remains the same.
+        images.removeAt(index);
     }
 
     _archive->close();
 }
 
-void QuaZipImageSource::extractImage(const QString &fileName)
+void QuaZipImageSource::extractImage(QuaZip *archive, const QString &filePath)
 {
-    QFileInfo destinationInfo(_temporaryDirectory.path() + "/" + fileName);
-    QuaZipFile source(_archive.get());
+    QFileInfo destinationInfo(filePath);
+    QuaZipFile source(archive);
     QFile destination(destinationInfo.absoluteFilePath());
 
     // Create any directories that would need to exist.
@@ -109,36 +111,37 @@ void QuaZipImageSource::extractImage(const QString &fileName)
     while (!source.atEnd()) {
         destination.write(source.read(256));
     }
+
     destination.close();
     source.close();
 }
 
-QList<ImageSourceItem> QuaZipImageSource::getImageInfoFromArchive()
+QList<ImageSourceItem> QuaZipImageSource::getImageInfoFromArchive(QuaZip *archive, const QString &extractPath)
 {
-    _archive->open(QuaZip::mdUnzip);
+    archive->open(QuaZip::mdUnzip);
 
     auto i = 0;
     auto images = QList<ImageSourceItem>();
-    auto fileNames = _archive->getFileNameList();
+    auto fileNames = archive->getFileNameList();
 
     fileNames.sort(Qt::CaseInsensitive);
     for (const auto &fileName : fileNames) {
 
         // Get the file information.
-        auto fileInfo = QFileInfo(_temporaryDirectory.path() + "/" + fileName);
+        auto fileInfo = QFileInfo(extractPath + "/" + fileName);
         auto suffix = fileInfo.suffix();
         auto relativePath = fileName;
         relativePath.chop(fileInfo.fileName().length());
 
         // Insert the file into the list if it is an image file.
         if (Utility::imageFileTypes().contains(suffix, Qt::CaseInsensitive)) {
-            auto path = fileInfo.absoluteFilePath();
-            auto image = std::make_shared<ImageInfo>(path, relativePath);
+            auto extractPath = fileInfo.absoluteFilePath();
+            auto image = std::make_shared<ImageInfo>(extractPath, relativePath);
             images.append({++i, image});
         }
     }
 
-    _archive->close();
+    archive->close();
 
     return images;
 }

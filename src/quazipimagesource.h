@@ -50,7 +50,7 @@ public:
     explicit QuaZipImageSource(const QString &archivePath);
 
     ///
-    /// \brief Destructor.
+    /// \brief Cancels the image extraction process and waits for it to finish.
     ///
     ~QuaZipImageSource();
 
@@ -72,15 +72,18 @@ private:
     ///
     /// \brief Extracts a single image file from a zip archive to the absolute
     /// file path of the provided image information.
-    /// \param fileName the file name of the image to extract.
+    /// \param archive The archive to extract from.
+    /// \param filePath The file path to extract to.
     ///
-    void extractImage(const QString &fileName);
+    void extractImage(QuaZip *archive, const QString &filePath);
 
     ///
     /// \brief Loads the image information from files within the zip archive.
+    /// \param archive The archive to load information from.
+    /// \param extractPath The path the archive will be extracted to.
     /// \return The list of image information from within the zip archive.
     ///
-    QList<ImageSourceItem> getImageInfoFromArchive();
+    QList<ImageSourceItem> getImageInfoFromArchive(QuaZip *archive, const QString &extractPath);
 
     /// The zip archive.
     std::unique_ptr<QuaZip> _archive;
