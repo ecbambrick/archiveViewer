@@ -6,4 +6,7 @@
     <qresource prefix="/stylesheets">
         <file alias="default">default.qss</file>
     </qresource>
+    <qresource prefix="/fonts">
+        <file>FontAwesome.otf</file>
+    </qresource>
 </RCC>
