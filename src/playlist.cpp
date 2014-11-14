@@ -104,7 +104,7 @@ void Playlist::sort(ImageSource::SortType sortBy, ImageSource::OrderType orderBy
 bool Playlist::find(const QString &relativeFilePath)
 {
     // Find the given relative file path in the list.
-    auto i = std::find_if(_list.begin(), _list.end(), [=](ImageSourceItem a) {
+    auto i = std::find_if(_list.begin(), _list.end(), [&](ImageSourceItem a) {
         return a.second->relativeFilePath() == relativeFilePath;
     });
 

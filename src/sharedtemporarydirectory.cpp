@@ -50,7 +50,7 @@ SharedTemporaryDirectory::SharedTemporaryDirectory(const QString &path)
     this->updateTemporaryFile();
 
     // create a timer to update the temporary file's file name.
-    _timer.connect(&_timer, &QTimer::timeout, [&]() {
+    _timer.connect(&_timer, &QTimer::timeout, [this]() {
         this->updateTemporaryFile();
     });
     _timer.start(interval);
