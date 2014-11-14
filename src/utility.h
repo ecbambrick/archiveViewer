@@ -66,20 +66,6 @@ namespace Utility
     /// \return The file type filter for the File Open dialog.
     ///
     QString openDialogFilter();
-
-    ///
-    /// \brief Returns whether or not the given arguments are roughly equal.
-    /// \param a The first object to compare.
-    /// \param b The second object to compare.
-    /// \param error The margin of error when comparing.
-    /// \return True if the difference between the given arguments is less than
-    /// the given error; otherwise, false.
-    ///
-    template<typename T>
-    bool roughlyEquals(T a, T b, int error)
-    {
-        return std::abs(a-b) < error;
-    }
 }
 
 #endif // UTILITY_H
