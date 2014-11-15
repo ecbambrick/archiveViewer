@@ -19,7 +19,7 @@
 *******************************************************************************/
 
 #include <ctime>
-#include <QtWidgets>
+#include <QApplication>
 #include <random>
 #include "mainwindow.h"
 
