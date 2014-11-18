@@ -38,7 +38,8 @@ HEADERS += \
     playlist.h \
     sharedtemporarydirectory.h \
     imageviewer.h \
-    imaging.h
+    imaging.h \
+    fontawesome.h
 
 RESOURCES += \
     resources.qrc
