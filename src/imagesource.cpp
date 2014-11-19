@@ -22,6 +22,8 @@
 #include <random>
 #include "imagesource.h"
 
+// ------------------------------------------------------------------- public //
+
 QList<ImageSourceItem> ImageSource::images() const
 {
     return _images;
@@ -43,37 +45,13 @@ QList<ImageSourceItem> ImageSource::images(const Filter &filter,
     // Shuffle images.
     if (order == RandomOrder) {
         std::random_shuffle(filteredImages.begin(), filteredImages.end());
+    }
 
     // Sort images.
-    } else {
-        std::function<bool(ImageSourceItem, ImageSourceItem)> sortFunction;
+    else {
+        auto comparison = this->getSortingFunction(sort, order);
 
-        if (sort == SortByFileName && order == AscendingOrder) {
-            sortFunction = [](ImageSourceItem a, ImageSourceItem b) {
-                auto aVal = a.second->absoluteFilePath();
-                auto bVal = b.second->absoluteFilePath();
-                return QString::compare(aVal, bVal, Qt::CaseInsensitive) < 0;
-            };
-        } else if (sort == SortByFileName && order == DescendingOrder) {
-            sortFunction = [](ImageSourceItem a, ImageSourceItem b) {
-                auto aVal = a.second->absoluteFilePath();
-                auto bVal = b.second->absoluteFilePath();
-                return QString::compare(aVal, bVal, Qt::CaseInsensitive) < 0;
-            };
-        } else if (sort == SortByLastModifiedDate && order == AscendingOrder) {
-            sortFunction = [](ImageSourceItem a, ImageSourceItem b) {
-                auto aVal = a.second->lastModified();
-                auto bVal = b.second->lastModified();
-                return aVal < bVal;
-            };
-        } else if (sort == SortByLastModifiedDate && order == DescendingOrder) {
-            sortFunction = [](ImageSourceItem a, ImageSourceItem b) {
-                auto aVal = a.second->lastModified();
-                auto bVal = b.second->lastModified();
-                return aVal > bVal;
-            };
-        }
-        std::sort(filteredImages.begin(), filteredImages.end(), sortFunction);
+        std::sort(filteredImages.begin(), filteredImages.end(), comparison);
 
         // Reset the image indices to match the new ordering.
         i = 0;
@@ -88,4 +66,46 @@ QList<ImageSourceItem> ImageSource::images(const Filter &filter,
 QString ImageSource::name() const
 {
     return _name;
+}
+
+// ------------------------------------------------------------------ private //
+
+ImageSource::ImageComparison ImageSource::getSortingFunction(SortType sort,
+                                                             OrderType order) const
+{
+    ImageComparison sortFunction;
+
+    if (sort == SortByFileName && order == AscendingOrder) {
+        sortFunction = [](ImageSourceItem a, ImageSourceItem b) {
+            auto aVal = a.second->absoluteFilePath();
+            auto bVal = b.second->absoluteFilePath();
+            return QString::compare(aVal, bVal, Qt::CaseInsensitive) < 0;
+        };
+    }
+
+    else if (sort == SortByFileName && order == DescendingOrder) {
+        sortFunction = [](ImageSourceItem a, ImageSourceItem b) {
+            auto aVal = a.second->absoluteFilePath();
+            auto bVal = b.second->absoluteFilePath();
+            return QString::compare(aVal, bVal, Qt::CaseInsensitive) < 0;
+        };
+    }
+
+    else if (sort == SortByLastModifiedDate && order == AscendingOrder) {
+        sortFunction = [](ImageSourceItem a, ImageSourceItem b) {
+            auto aVal = a.second->lastModified();
+            auto bVal = b.second->lastModified();
+            return aVal < bVal;
+        };
+    }
+
+    else if (sort == SortByLastModifiedDate && order == DescendingOrder) {
+        sortFunction = [](ImageSourceItem a, ImageSourceItem b) {
+            auto aVal = a.second->lastModified();
+            auto bVal = b.second->lastModified();
+            return aVal > bVal;
+        };
+    }
+
+    return sortFunction;
 }

@@ -107,6 +107,25 @@ protected:
 
     /// The name of the source.
     QString _name;
+
+private:
+
+    ///
+    /// \typedef The image comparison represents a function that can be used
+    /// to sort image source items.
+    ///
+    /// The function should be consumed by std::sort.
+    ///
+    using ImageComparison = std::function<bool(ImageSourceItem, ImageSourceItem)>;
+
+    ///
+    /// \brief Returns a comparison function used for sorting.
+    /// \param sort The sorting method.
+    /// \param order The ordering method.
+    /// \return A comparison function used for sorting.
+    ///
+    ImageSource::ImageComparison getSortingFunction(SortType sort,
+                                                    OrderType order) const;
 };
 
 #endif // IMAGESOURCE_H
