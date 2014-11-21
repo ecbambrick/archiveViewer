@@ -25,7 +25,8 @@ SOURCES	+= \
     playlist.cpp \
     sharedtemporarydirectory.cpp \
     imageviewer.cpp \
-    imaging.cpp
+    imaging.cpp \
+    settings.cpp
 
 HEADERS += \
     filter.h \
@@ -39,7 +40,8 @@ HEADERS += \
     sharedtemporarydirectory.h \
     imageviewer.h \
     imaging.h \
-    fontawesome.h
+    fontawesome.h \
+    settings.h
 
 RESOURCES += \
     resources.qrc
