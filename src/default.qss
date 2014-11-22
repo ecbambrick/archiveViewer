@@ -1,5 +1,11 @@
-/* orange   #D75D00 */
-/* blue     #0071AA */
+/*
+    dark orange	    #D75D00
+    orange          #FF7D40
+    blue            #0071AA
+    blue2           #4D89C1
+    blue3           #128BB6
+    green           #10A296
+*/
 
 /* -------------------------------------------------------------- MAIN WINDOW */
 
@@ -8,7 +14,7 @@ QMainWindow {
 }
 
 QMainWindow * {
-    color: #555;
+    color: #666;
     font-family: "Century Gothic";
 }
 
@@ -21,55 +27,73 @@ ImageViewer {
 QStatusBar::item {
     border: none;
 }
+
 QLabel.fileNumber {
-    color: #D75D00;
+    color: #4D89C1;
+}
+
+QStatusBar QLabel {
+    padding: 5px;
 }
 
 /* ----------------------------------------------------------------- TOOL BAR */
 
 QToolBar {
-    padding: 10px;
-    background-color: #efefef;
-    border-bottom: 2px solid #D75D00;
+    padding: 6px;
+    background-color: #fff;
+    border: none;
 }
 
 QToolBar QToolButton {
     border: none;
-    padding: 2px;
-    color: #333;
+    padding: 4px 0 2px 2px;
+    color: #4D89C1;
+    font-family: FontAwesome;
+    font-size: 10.5pt;
+    border-bottom: 2px solid #fff;
+}
+
+QToolBar QToolButton#shuffle {
+    padding-top: 5px;
+}
+
+QToolBar QLabel {
+    margin-right: 1px;
+    color: #999;
+    font-family: FontAwesome;
+    font-size: 10.5pt;
 }
 
 QToolBar QToolButton::hover {
-    background-color: #ddd;
-    border: none;
+    border-bottom: 2px solid #ddd;
+}
+
+QToolBar QToolButton::pressed {
+    color: #fff;
+    background-color: #4D89C1;
+    border-bottom: 2px solid #ddd;
 }
 
 QToolBar QToolButton::checked {
-    border: none;
-    padding: 2px;
-    color: #fff;
-    background-color: #D75D00;
+    border-bottom: 2px solid #4D89C1;
 }
 
 QToolBar QLineEdit {
-    color: #555;
-    padding-left: 18px;
-    background: url(:/icons/search.png);
-    background-position: left;
-    background-repeat: no-repeat;
-    border: 1px solid #ccc;
+    border: none;
+    border-bottom: 1px solid #ddd;
+    padding-top: 3px;
 }
 
 /* ------------------------------------------------------------- CONTEXT MENU */
 
 QMenu {
     background-color: #fff;
-    border: 1px solid #D75D00;
+    border: 1px solid #FF7D40;
 }
 
 QMenu::separator {
     background-color: #fff;
-    border-bottom: 1px dashed #D75D00;
+    border-bottom: 1px dashed #4D89C1;
     height: 0px;
 }
 
@@ -83,5 +107,5 @@ QMenu::item:selected {
 
 QMenu::item:pressed {
     color: #fff;
-    background-color: #D75D00;
+    background-color: #4D89C1;
 }

@@ -18,9 +18,13 @@
 
 *******************************************************************************/
 
+#include <QApplication>
 #include <QCoreApplication>
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QFont>
+#include <QFontDatabase>
+#include "fontawesome.h"
 #include "mainwindow.h"
 #include "utility.h"
 
@@ -39,6 +43,8 @@ MainWindow::MainWindow(QWidget *parent)
                           "ArchiveViewer"))
     , _wasMaximized(false)
 {
+    QFontDatabase::addApplicationFont(":/fonts/FontAwesome.otf");
+
     this->loadActions();
     this->loadWidgets();
     this->loadStyleSheet();
@@ -175,10 +181,10 @@ void MainWindow::reloadImage(const QString &relativeFilePath)
 
 void MainWindow::updateFileName()
 {
-    int width = _widgetFileName->maximumWidth() - 90;
+    int width = _widgetFileName->maximumWidth() - 160;
 
     if (_playlist->isEmpty()) {
-        _widgetFileName->setText("\nNo File");
+        _widgetFileName->setText("No File");
         this->setWindowTitle("Archive Viewer");
     } else {
         // cut off the name with "..." if too long
@@ -186,7 +192,7 @@ void MainWindow::updateFileName()
         auto name = _imageSource->name();
         QFontMetrics font(_widgetFileName->font());
         QString newText = font.elidedText(image->fileName(), Qt::ElideRight, width);
-        _widgetFileName->setText(name + "\n" + newText);
+        _widgetFileName->setText(name + " | " + newText);
         this->setWindowTitle(image->relativeFilePath() + " - Archive Viewer");
     }
 }
@@ -194,11 +200,11 @@ void MainWindow::updateFileName()
 void MainWindow::updateFilePosition()
 {
     if (_playlist->isEmpty()) {
-        _widgetFilePosition->setText("0/0");
+        _widgetFilePosition->setText("");
     } else {
         QString index = QString::number(_playlist->index());
         QString size = QString::number(_playlist->size());
-        _widgetFilePosition->setText(index + "/" + size);
+        _widgetFilePosition->setText(index + " / " + size);
     }
 }
 
@@ -209,15 +215,18 @@ void MainWindow::zoomFit()
 
     switch (zoom) {
         case ImageViewer::ZoomToFullSize:
-            _actionZoomFit->setText("Fit to Width");
+            _actionZoomFit->setText(FontAwesome::fromIconName("fa-arrows-h"));
+            _actionZoomFit->setToolTip("Fit to Width");
             newZoom = ImageViewer::ZoomToWidth;
             break;
         case ImageViewer::ZoomToWidth:
-            _actionZoomFit->setText("Fit to Window");
+            _actionZoomFit->setText(FontAwesome::fromIconName("fa-compress"));
+            _actionZoomFit->setToolTip("Fit to Width and Height");
             newZoom = ImageViewer::ZoomToWidthAndHieght;
             break;
         case ImageViewer::ZoomToWidthAndHieght:
-            _actionZoomFit->setText("Full Size");
+            _actionZoomFit->setText(FontAwesome::fromIconName("fa-expand"));
+            _actionZoomFit->setToolTip("Zoom to Full");
             newZoom = ImageViewer::ZoomToFullSize;
             break;
         default:
@@ -266,7 +275,7 @@ void MainWindow::keyPressEvent(QKeyEvent *e)
     } else if (e->key() == Qt::Key_F12) {
         statusBar()->setHidden(!statusBar()->isHidden());
         if (_widgetToolBar->height() == 0) {
-            _widgetToolBar->setMaximumHeight(48);
+            _widgetToolBar->setMaximumHeight(50);
         } else {
             _widgetToolBar->setMaximumHeight(0);
         }
@@ -332,38 +341,50 @@ bool MainWindow::loadStyleSheet()
 
 void MainWindow::loadActions()
 {
+    // Filter images.
+    _actionFilter = new QAction(FontAwesome::fromIconName("fa-search"), this);
+    _actionFilter->setToolTip("Filter");
+
     // Next image.
-    _actionNext = new QAction("&Next", this);
+    _actionNext = new QAction(FontAwesome::fromIconName("fa-arrow-right"), this);
+    _actionNext->setToolTip("Next");
     _actionNext->setShortcut(Qt::Key_Space);
 
     // Open file.
-    _actionOpen = new QAction("&Open", this);
+    _actionOpen = new QAction(FontAwesome::fromIconName("fa-folder-open"), this);
+    _actionOpen->setToolTip("Open File");
     _actionOpen->setShortcut(QKeySequence::Open);
 
     // Previous image.
-    _actionPrevious = new QAction("&Previous", this);
+    _actionPrevious = new QAction(FontAwesome::fromIconName("fa-arrow-left"), this);
+    _actionPrevious->setToolTip("Previous");
     _actionPrevious->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Space));
 
     // Shuffle images.
-    _actionShuffle = new QAction("&Shuffle", this);
+    _actionShuffle = new QAction(FontAwesome::fromIconName("fa-random"), this);
+    _actionShuffle->setToolTip("Shuffle");
     _actionShuffle->setShortcut(Qt::Key_R);
     _actionShuffle->setCheckable(true);
 
     // Zoom to full, width, or width/height.
-    _actionZoomFit = new QAction("&Fit to Window", this);
+    _actionZoomFit = new QAction(FontAwesome::fromIconName("fa-compress"), this);
+    _actionZoomFit->setToolTip("Fit to Width and Height");
     _actionZoomFit->setShortcut(Qt::Key_Z);
     _actionZoomFit->setProperty("fit", ImageViewer::ZoomToWidthAndHieght);
 
     // Zoom in.
-    _actionZoomIn = new QAction("Zoom &In", this);
+    _actionZoomIn = new QAction(FontAwesome::fromIconName("fa-search-plus"), this);
+    _actionZoomIn->setToolTip("Zoom In");
     _actionZoomIn->setShortcut(Qt::Key_Equal);
 
     // Zoom out.
-    _actionZoomOut = new QAction("Zoom O&ut", this);
+    _actionZoomOut = new QAction(FontAwesome::fromIconName("fa-search-minus"), this);
+    _actionZoomOut->setToolTip("Zoom Out");
     _actionZoomOut->setShortcut(Qt::Key_Minus);
 
     // Zoom to 100%.
-    _actionZoomFull = new QAction("Zoom %to 100%", this);
+    _actionZoomFull = new QAction(FontAwesome::fromIconName("fa-arrows-alt"), this);
+    _actionZoomFull->setToolTip("Zoom to 100%");
     _actionZoomFull->setShortcut(Qt::Key_0);
 }
 
@@ -413,7 +434,14 @@ void MainWindow::loadWidgets()
     _widgetToolBar->addAction(_actionZoomFit);
     _widgetToolBar->addWidget(_widgetSpacer);
     _widgetToolBar->addWidget(_widgetSearchBox);
+    _widgetToolBar->addAction(_actionFilter);
     _widgetToolBar->setMovable(false);
+    _widgetToolBar->setContextMenuPolicy(Qt::PreventContextMenu);
+
+    // Set the object name so that it can styled by the qss file. This is
+    // because the shuffle character in Font Awesome is slightly too high.
+    // There should be a better way of doing this.
+    _widgetToolBar->children().at(7)->setObjectName("shuffle");
 
     // Main window.
     this->addToolBar(_widgetToolBar);
@@ -421,5 +449,8 @@ void MainWindow::loadWidgets()
     this->setCentralWidget(_widgetImageViewer);
     this->connect(_actionOpen, SIGNAL(triggered()), this, SLOT(open()));
     this->connect(_actionZoomFit, SIGNAL(triggered()), this, SLOT(zoomFit()));
+    this->connect(_actionFilter, &QAction::triggered, this, &MainWindow::filter);
+
+    // Doesn't have a toolbar button.
     this->addAction(_actionZoomFull);
 }

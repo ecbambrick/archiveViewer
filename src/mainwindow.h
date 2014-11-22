@@ -96,6 +96,7 @@ private:
     ///
     void loadWidgets();
 
+    QAction *_actionFilter;         ///< Apply filter.
     QAction *_actionOpen;           ///< Open file.
     QAction *_actionPrevious;       ///< Go to previous image.
     QAction *_actionNext;           ///< Go to next image.
