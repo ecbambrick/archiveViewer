@@ -210,28 +210,28 @@ void MainWindow::updateFilePosition()
 
 void MainWindow::zoomFit()
 {
-    ImageViewer::ZoomType zoom = (ImageViewer::ZoomType)_actionZoomFit->property("fit").toInt();
+    auto zoom = (ImageViewer::ZoomType)_actionZoomFit->property("fit").toInt();
     ImageViewer::ZoomType newZoom;
 
+    // Fit to width/height -> full -> fit to width -> repeat
     switch (zoom) {
         case ImageViewer::ZoomToFullSize:
-            _actionZoomFit->setText(FontAwesome::fromIconName("fa-arrows-h"));
-            _actionZoomFit->setToolTip("Fit to Width");
+            _actionZoomFit->setText(FontAwesome::fromIconName("fa-compress"));
+            _actionZoomFit->setToolTip("Fit to Width and Height");
             newZoom = ImageViewer::ZoomToWidth;
             break;
         case ImageViewer::ZoomToWidth:
-            _actionZoomFit->setText(FontAwesome::fromIconName("fa-compress"));
-            _actionZoomFit->setToolTip("Fit to Width and Height");
+            _actionZoomFit->setText(FontAwesome::fromIconName("fa-expand"));
+            _actionZoomFit->setToolTip("Zoom to Full");
             newZoom = ImageViewer::ZoomToWidthAndHieght;
             break;
         case ImageViewer::ZoomToWidthAndHieght:
-            _actionZoomFit->setText(FontAwesome::fromIconName("fa-expand"));
-            _actionZoomFit->setToolTip("Zoom to Full");
+            _actionZoomFit->setText(FontAwesome::fromIconName("fa-arrows-h"));
+            _actionZoomFit->setToolTip("Fit to Width");
             newZoom = ImageViewer::ZoomToFullSize;
             break;
         default:
-            newZoom = zoom;
-            break;
+            throw std::out_of_range("Invalid zoom state: " + zoom);
     }
 
     _actionZoomFit->setProperty("fit", newZoom);
@@ -367,8 +367,8 @@ void MainWindow::loadActions()
     _actionShuffle->setCheckable(true);
 
     // Zoom to full, width, or width/height.
-    _actionZoomFit = new QAction(FontAwesome::fromIconName("fa-compress"), this);
-    _actionZoomFit->setToolTip("Fit to Width and Height");
+    _actionZoomFit = new QAction(FontAwesome::fromIconName("fa-expand"), this);
+    _actionZoomFit->setToolTip("Zoom to Full");
     _actionZoomFit->setShortcut(Qt::Key_Z);
     _actionZoomFit->setProperty("fit", ImageViewer::ZoomToWidthAndHieght);
 
