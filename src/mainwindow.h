@@ -25,7 +25,6 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QMainWindow>
-#include <QSettings>
 #include <QStatusBar>
 #include <QToolBar>
 #include <QResizeEvent>
@@ -34,6 +33,7 @@
 #include "localimagesource.h"
 #include "playlist.h"
 #include "quazipimagesource.h"
+#include "settings.h"
 
 ///
 /// \brief The MainWindow class represents the main window of the application.
@@ -109,7 +109,7 @@ private:
     std::shared_ptr<ImageInfo> _currentImage;       ///< Currently loaded image.
     std::shared_ptr<ImageSource> _imageSource;      ///< Source of image files.
     std::unique_ptr<Playlist> _playlist;            ///< Playlist of images.
-    std::unique_ptr<QSettings> _settings;           ///< Application settings.
+    Settings _settings;                             ///< Application settings.
     bool _wasMaximized;                             ///< True if the application was maximized before becoming fullscreen; otherwise, false.
 
     QWidget *_widgetSpacer;             ///< Expanding, empty spacer.

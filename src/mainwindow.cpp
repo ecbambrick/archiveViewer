@@ -37,10 +37,6 @@ MainWindow::MainWindow(QWidget *parent)
     , _currentImage(nullptr)
     , _imageSource(nullptr)
     , _playlist(new Playlist())
-    , _settings(new QSettings(QSettings::IniFormat,
-                          QSettings::UserScope,
-                          "ArchiveViewer",
-                          "ArchiveViewer"))
     , _wasMaximized(false)
 {
     QFontDatabase::addApplicationFont(":/fonts/FontAwesome.otf");
@@ -54,17 +50,15 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-    _settings->beginGroup("Window");
     if (this->isFullScreen()) {
-        _settings->setValue("isMaximized", _wasMaximized);
+        _settings.isWindowMaximized = _wasMaximized;
     } else if (this->isMaximized()) {
-        _settings->setValue("isMaximized", true);
+        _settings.isWindowMaximized = true;
     } else {
-        _settings->setValue("position", this->pos());
-        _settings->setValue("size", this->size());
-        _settings->setValue("isMaximized", false);
+        _settings.windowPosition = this->pos();
+        _settings.windowSize = this->size();
+        _settings.isWindowMaximized = false;
     }
-    _settings->endGroup();
 
     delete _actionOpen;
     delete _actionPrevious;
@@ -94,7 +88,7 @@ void MainWindow::loadImage()
         _currentImage = _playlist->current();
         if (_currentImage->exists()) {
             _widgetImageViewer->load(_currentImage->absoluteFilePath());
-            _settings->setValue("LastSession/viewedFile", _currentImage->relativeFilePath());
+            _settings.lastViewedFile = _currentImage->relativeFilePath();
             emit imageLoaded(_currentImage);
         } else {
             _widgetImageViewer->clear();
@@ -108,7 +102,7 @@ bool MainWindow::open()
     QString selectedFile = QFileDialog::getOpenFileName(
                 0,
                 "Open File",
-                _settings->value("LastSession/openedFile").toString(),
+                _settings.lastOpenedFile,
                 Utility::openDialogFilter());
 
     if (!selectedFile.isNull()) {
@@ -128,10 +122,12 @@ bool MainWindow::open(const QString &filePath, bool skipToLastViewed)
     bool isImageFile = Utility::imageFileTypes().contains(fileType, Qt::CaseInsensitive);
 
     if (isImageFile) {
-        _imageSource.reset(new LocalImageSource(filePath));
+        _imageSource.reset(new LocalImageSource(filePath,
+                                                _settings.includeHiddenFiles,
+                                                _settings.includeSymbolicLinks));
         if (!skipToLastViewed) {
             skipToLastViewed = true;
-            _settings->setValue("LastSession/viewedFile", fileName);
+            _settings.lastViewedFile = fileName;
         }
     } else if (isArchiveFile) {
         _imageSource.reset(new QuaZipImageSource(filePath));
@@ -141,10 +137,10 @@ bool MainWindow::open(const QString &filePath, bool skipToLastViewed)
 
     _playlist.reset(new Playlist(_imageSource));
     _playlist->loops(true);
-    _settings->setValue("LastSession/openedFile", filePath);
+    _settings.lastOpenedFile = filePath;
 
     if (skipToLastViewed) {
-        _playlist->find(_settings->value("LastSession/viewedFile").toString());
+        _playlist->find(_settings.lastViewedFile);
     }
 
     this->connect(_actionNext, SIGNAL(triggered()), _playlist.get(), SLOT(next()));
@@ -299,11 +295,9 @@ void MainWindow::keyPressEvent(QKeyEvent *e)
 
 void MainWindow::loadGeometry()
 {
-    _settings->beginGroup("Window");
-    auto position = _settings->value("position", QPoint(200, 200)).toPoint();
-    auto size = _settings->value("size", QSize(640, 480)).toSize();
-    auto isMaximized = _settings->value("isMaximized", false).toBool();
-    _settings->endGroup();
+    auto position = _settings.windowPosition;
+    auto size = _settings.windowSize;
+    auto isMaximized = _settings.isWindowMaximized;
 
     this->move(position);
     this->resize(size);
@@ -315,7 +309,7 @@ void MainWindow::loadGeometry()
 bool MainWindow::loadInitialFile()
 {
     QStringList args = QCoreApplication::arguments();
-    QString lastOpened = _settings->value("LastSession/openedFile").toString();
+    QString lastOpened = _settings.lastOpenedFile;
 
     if (args.size() == 2 && args.at(1) != "") {
         return this->open(args.at(1));
