@@ -61,9 +61,9 @@ struct Settings
     /// otherwise, false.
     bool includeHiddenFiles;
 
-    /// True if system links are to be opened when loading from a directory;
+    /// True if symbolic links are to be opened when loading from a directory;
     /// otherwise, false.
-    bool includeSystemLinks;
+    bool includeSymbolicLinks;
 
     /// True if the application is maximized; otherwise, false;
     bool isWindowMaximized;

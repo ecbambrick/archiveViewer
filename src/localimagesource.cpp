@@ -24,9 +24,22 @@
 
 // ------------------------------------------------------------------- public //
 
-LocalImageSource::LocalImageSource(const QString &path)
+LocalImageSource::LocalImageSource(const QString &path,
+                                   bool includeHidden,
+                                   bool includeSymbolicLinks)
 {
+    auto filter = QDir::Files | QDir::Readable;
+
+    if (includeHidden) {
+        filter = filter | QDir::Hidden;
+    }
+
+    if (!includeSymbolicLinks) {
+        filter = filter | QDir::NoSymLinks;
+    }
+
     auto dir = QFileInfo(path).dir();
+    dir.setFilter(filter);
     dir.setNameFilters(Utility::imageFileFilter());
     dir.setSorting(QDir::IgnoreCase);
 

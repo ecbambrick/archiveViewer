@@ -55,7 +55,7 @@ void Settings::load()
 
     settings.beginGroup("Preferences");
     includeHiddenFiles = settings.value("includeHiddenFiles", false).toBool();
-    includeSystemLinks = settings.value("includeSystemLinks", false).toBool();
+    includeSymbolicLinks = settings.value("includeSymbolicLinks", true).toBool();
     settings.endGroup();
 }
 
@@ -77,6 +77,6 @@ void Settings::save()
 
     settings.beginGroup("Preferences");
     settings.setValue("includeHiddenFiles", includeHiddenFiles);
-    settings.setValue("includeHiddenFiles", includeSystemLinks);
+    settings.setValue("includeSymbolicLinks", includeSymbolicLinks);
     settings.endGroup();
 }

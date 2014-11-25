@@ -21,6 +21,7 @@
 #ifndef LOCALIMAGESOURCE_H
 #define LOCALIMAGESOURCE_H
 #include "imagesource.h"
+#include "settings.h"
 
 ///
 /// \brief The LocalImageSource class represents a source of image files within
@@ -37,8 +38,14 @@ public:
     ///
     /// \brief Constructs a local image source from the given file path.
     /// \param filePath The file path to the directory.
+    /// \param includeHidden True if hidden files are loaded; otherwise, false.
+    ///        Defaults to false.
+    /// \param includeSymbolicLinks True if symbolic links are included;
+    ///        otherwise, false. Defaults to false.
     ///
-    explicit LocalImageSource(const QString &path);
+    explicit LocalImageSource(const QString &path,
+                              bool includeHidden = false,
+                              bool includeSymbolicLinks = false);
 
 public slots:
 
