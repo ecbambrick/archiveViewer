@@ -66,6 +66,8 @@ protected:
 
     void resizeEvent(QResizeEvent *e);
     void keyPressEvent(QKeyEvent *e);
+    void dragEnterEvent(QDragEnterEvent *e);
+    void dropEvent(QDropEvent *e);
 
 private:
 

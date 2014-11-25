@@ -24,6 +24,7 @@
 #include <QFileInfo>
 #include <QFont>
 #include <QFontDatabase>
+#include <QMimeData>
 #include "fontawesome.h"
 #include "mainwindow.h"
 #include "utility.h"
@@ -41,6 +42,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     QFontDatabase::addApplicationFont(":/fonts/FontAwesome.otf");
 
+    this->setAcceptDrops(true);
     this->loadActions();
     this->loadWidgets();
     this->loadStyleSheet();
@@ -289,6 +291,18 @@ void MainWindow::keyPressEvent(QKeyEvent *e)
             this->showFullScreen();
         }
     }
+}
+
+void MainWindow::dragEnterEvent(QDragEnterEvent *e)
+{
+    if (e->mimeData()->hasUrls()) {
+        e->acceptProposedAction();
+    }
+}
+
+void MainWindow::dropEvent(QDropEvent *e)
+{
+    this->open(e->mimeData()->urls().first().toLocalFile());
 }
 
 // ------------------------------------------------------------------ private //
