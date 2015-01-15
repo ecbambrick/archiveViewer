@@ -17,7 +17,6 @@ Documentation for building with qmake can be found [here](https://qt-project.org
 
 Third Party Libaries
 --------------------------------------------------------------------------------
-Archive Viewer uses the following libraries for reading from zip archives:
-
-* [QuaZip](http://quazip.sourceforge.net/) - QuaZip is licensed under the GNU LGPL license.
-* [zlib](http://www.zlib.net/) - For libz licensing, see the zlib README file.
+* [QuaZip](http://quazip.sourceforge.net/) - LGPL
+* [zlib](http://www.zlib.net/) - zlib license
+* [Font Awesome](http://fontawesome.io/) - SIL OFL 1.1
