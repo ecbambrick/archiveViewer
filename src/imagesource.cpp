@@ -18,7 +18,7 @@
 
 *******************************************************************************/
 
-#include <Qdatetime>
+#include <QDateTime>
 #include <random>
 #include "imagesource.h"
 
